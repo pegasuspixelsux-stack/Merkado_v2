@@ -136,6 +136,14 @@ export async function deleteProperty(id: string): Promise<void> {
   await deleteDoc(doc(requireDb(), PROPERTIES, id));
 }
 
+/** Active (publicly visible) properties, newest first. */
+export async function getActiveProperties(maxResults = 60): Promise<Property[]> {
+  const snap = await getDocs(
+    query(collection(requireDb(), PROPERTIES), where('status', '==', 'active'), limitTo(maxResults))
+  );
+  return snap.docs.map((d) => toProperty(d.id, d.data())).sort((a, b) => b.createdAt - a.createdAt);
+}
+
 /**
  * Active properties most similar to `base` (same area, type, operation and a close price),
  * best match first. Uses one simple query (no index needed) and ranks the results here.
