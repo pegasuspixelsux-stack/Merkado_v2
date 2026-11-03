@@ -93,6 +93,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
         <Link href="/" className="text-xs text-[#515154] hover:text-[#1D1D1F]">
           ← Ver el sitio
         </Link>
+        <p className="mt-3 text-xs font-medium tracking-wide text-[#86868B]">Merkado v2.0</p>
       </div>
     </div>
   );

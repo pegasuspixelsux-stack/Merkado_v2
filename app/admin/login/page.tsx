@@ -73,7 +73,7 @@ export default function AdminLoginPage() {
       className="relative min-h-screen bg-cover bg-center text-white"
       style={{
         backgroundImage:
-          'url(https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2000&auto=format&fit=crop)',
+          'url(https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=2000&auto=format&fit=crop)',
       }}
     >
       {/* Brand, top-left corner */}
@@ -83,6 +83,11 @@ export default function AdminLoginPage() {
       >
         Merkado.
       </Link>
+
+      {/* Version, bottom-left corner */}
+      <p className="absolute bottom-8 left-8 z-20 text-xs font-medium tracking-wide text-white/80 drop-shadow">
+        Merkado v2.0
+      </p>
 
       {/* Two-column overlay: left transparent, right 50% black */}
       <div className="relative min-h-screen grid grid-cols-1 md:grid-cols-2">
