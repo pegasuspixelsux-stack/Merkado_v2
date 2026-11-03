@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { HeroSlide, HomeProperty } from '@/src/lib/homeData';
@@ -279,11 +280,6 @@ export default function CoastalWebHome({
     const matchesCategory = category === 'all' || p.type === category;
     return matchesQuery && matchesCategory;
   });
-  const resetFilters = () => {
-    setQuery('');
-    setCategory('all');
-    setPage(1);
-  };
 
   // 12 items per page; a filter change returns to page 1, and the page never exceeds the last one.
   const totalPages = Math.max(1, Math.ceil(filteredProperties.length / PAGE_SIZE));
@@ -574,14 +570,13 @@ export default function CoastalWebHome({
 
         {/* Grid footer: see all / advanced search / count */}
         <div className="mt-10 grid grid-cols-1 md:grid-cols-3 items-center gap-4 text-sm">
-          <button
-            type="button"
-            onClick={resetFilters}
+          <Link
+            href="/items"
             className="justify-self-center md:justify-self-start inline-flex items-center space-x-2 font-medium text-[#1D1D1F] hover:text-[#515154] transition-colors"
           >
             <span>Ver todos los artículos</span>
             <ArrowUpRight className="w-4 h-4" />
-          </button>
+          </Link>
           <nav aria-label="Paginación" className={`justify-self-center flex items-center gap-1 ${totalPages < 2 ? 'invisible' : ''}`}>
             <button
               type="button"

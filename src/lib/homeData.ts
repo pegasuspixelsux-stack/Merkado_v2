@@ -29,6 +29,8 @@ export type HomeProperty = {
   typeLabel?: string;
   /** Item page; only set for items stored in Firestore. */
   href?: string;
+  /** Marked "destacado" in the dashboard; the catalog's "Más vendidos" slider shows these. */
+  featured?: boolean;
   /** False = shown as out of stock. Absent counts as in stock. */
   inStock?: boolean;
   /** Price of one unit as a number: the sale price while on sale, else the regular price. */
@@ -69,6 +71,7 @@ function toHomeProperty(p: Property, label: (t: string) => string): HomeProperty
     href: `/items/${p.id}`,
     type: p.type,
     typeLabel: label(p.type),
+    featured: p.featured === true,
     inStock: p.inStock !== false,
     unitPrice: p.salePrice ?? p.price,
     salePrice: p.salePrice === undefined ? undefined : formatMoney(p.salePrice, p.currency),
