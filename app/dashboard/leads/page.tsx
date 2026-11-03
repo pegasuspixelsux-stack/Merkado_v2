@@ -1,0 +1,65 @@
+'use client';
+
+import { useState } from 'react';
+import { useAuth } from '@/src/context/AuthContext';
+import { useLeads } from '@/src/hooks/useLeads';
+import LeadList from '@/src/components/LeadList';
+import { PageHeader, cardClass } from '@/src/components/dashboard/ui';
+import type { LeadStatus } from '@/src/types/firestore';
+
+const filters: { value: LeadStatus | 'all'; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'new', label: 'New' },
+  { value: 'contacted', label: 'Contacted' },
+  { value: 'closed', label: 'Closed' },
+];
+
+export default function LeadsPage() {
+  const { agent } = useAuth();
+  const { leads, loading, error } = useLeads(200);
+  const [filter, setFilter] = useState<LeadStatus | 'all'>('all');
+
+  const visible = filter === 'all' ? leads : leads.filter((l) => l.status === filter);
+  const count = (s: LeadStatus | 'all') => (s === 'all' ? leads.length : leads.filter((l) => l.status === s).length);
+
+  return (
+    <>
+      <PageHeader
+        eyebrow="CRM"
+        title="Leads"
+        description="Inquiries from the website, updated live. Reply on WhatsApp in one tap."
+      />
+
+      <div className="flex flex-wrap gap-2 mb-6" role="group" aria-label="Filter leads by status">
+        {filters.map((f) => (
+          <button
+            key={f.value}
+            onClick={() => setFilter(f.value)}
+            aria-pressed={filter === f.value}
+            className={`text-sm font-medium px-5 py-2.5 rounded-full transition-colors ${
+              filter === f.value ? 'bg-[#1D1D1F] text-white' : 'bg-white border border-[#000000]/5 hover:bg-[#F5F5F7]'
+            }`}
+          >
+            {f.label} <span className="opacity-60 ml-1">{count(f.value)}</span>
+          </button>
+        ))}
+      </div>
+
+      <div className={`${cardClass} overflow-hidden`}>
+        {error ? (
+          <p role="alert" className="p-6 text-sm text-red-600">
+            {error}
+          </p>
+        ) : loading ? (
+          <p className="p-6 text-sm text-[#515154]">Loading leads…</p>
+        ) : (
+          <LeadList
+            leads={visible}
+            agentName={agent?.name ?? ''}
+            emptyText={leads.length ? 'No leads with this status.' : 'No leads yet. Website inquiries appear here instantly.'}
+          />
+        )}
+      </div>
+    </>
+  );
+}

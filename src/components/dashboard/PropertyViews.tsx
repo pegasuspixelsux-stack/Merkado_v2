@@ -1,0 +1,190 @@
+'use client';
+
+import Link from 'next/link';
+import { Bath, Bed, ExternalLink, MapPin, Maximize, Pencil, Star, Trash2 } from 'lucide-react';
+import PropertyImage from '../PropertyImage';
+import type { Property } from '../../types/firestore';
+import { formatMoney, operationLabels, typeLabels } from '../../utils/format';
+import { StatusPill } from './ui';
+
+interface ViewProps {
+  properties: Property[];
+  onDelete: (property: Property) => void;
+  onToggleFeatured: (property: Property) => void;
+}
+
+const locationText = (p: Property) =>
+  [p.location.neighborhood, p.location.city].filter(Boolean).join(', ');
+
+function Specs({ p }: { p: Property }) {
+  return (
+    <div className="flex items-center gap-4 text-xs text-[#515154] font-medium">
+      <span className="inline-flex items-center gap-1.5">
+        <Bed className="w-4 h-4" /> {p.specs.bedrooms}
+      </span>
+      <span className="inline-flex items-center gap-1.5">
+        <Bath className="w-4 h-4" /> {p.specs.bathrooms}
+      </span>
+      <span className="inline-flex items-center gap-1.5">
+        <Maximize className="w-4 h-4" /> {p.specs.areaM2} m²
+      </span>
+    </div>
+  );
+}
+
+function RowActions({
+  p,
+  onDelete,
+  onToggleFeatured,
+}: {
+  p: Property;
+  onDelete: (p: Property) => void;
+  onToggleFeatured: (p: Property) => void;
+}) {
+  return (
+    <div className="flex items-center gap-1">
+      <button
+        onClick={() => onToggleFeatured(p)}
+        aria-label={p.featured ? `Remove ${p.title} from featured` : `Feature ${p.title} on the homepage`}
+        aria-pressed={Boolean(p.featured)}
+        title={p.featured ? 'Featured on the homepage' : 'Feature on the homepage'}
+        className="p-2 rounded-full hover:bg-[#F5F5F7]"
+      >
+        <Star className={`w-4 h-4 ${p.featured ? 'fill-[#1D1D1F]' : ''}`} />
+      </button>
+      {p.status === 'active' && (
+        <Link
+          href={`/properties/${p.id}`}
+          target="_blank"
+          aria-label={`View ${p.title} on the website`}
+          title="View on website"
+          className="p-2 rounded-full hover:bg-[#F5F5F7]"
+        >
+          <ExternalLink className="w-4 h-4" />
+        </Link>
+      )}
+      <Link
+        href={`/dashboard/properties/${p.id}`}
+        aria-label={`Edit ${p.title}`}
+        className="p-2 rounded-full hover:bg-[#F5F5F7]"
+      >
+        <Pencil className="w-4 h-4" />
+      </Link>
+      <button
+        onClick={() => onDelete(p)}
+        aria-label={`Delete ${p.title}`}
+        className="p-2 rounded-full hover:bg-red-50 text-red-600"
+      >
+        <Trash2 className="w-4 h-4" />
+      </button>
+    </div>
+  );
+}
+
+export function PropertyGrid({ properties, onDelete, onToggleFeatured }: ViewProps) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {properties.map((p) => (
+        <article
+          key={p.id}
+          className="group bg-white rounded-2xl border border-[#000000]/5 shadow-sm overflow-hidden transition-transform duration-500 hover:-translate-y-1"
+        >
+          <Link href={`/dashboard/properties/${p.id}`} className="block relative aspect-[4/3] bg-[#E5E5EA] overflow-hidden">
+            {p.photos[0] && (
+              <PropertyImage
+                src={p.photos[0].url}
+                alt={p.title}
+                variant="card"
+                sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+            <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-black text-xs font-semibold px-3.5 py-1.5 rounded-full shadow-sm">
+              {formatMoney(p.price, p.currency)}
+              {p.operation === 'rent' ? ' / mo' : ''}
+            </span>
+            <span className="absolute top-4 right-4">
+              <StatusPill status={p.status} />
+            </span>
+          </Link>
+          <div className="p-5 space-y-3">
+            <div>
+              <p className="text-xs uppercase tracking-wider text-[#515154] font-medium">
+                {operationLabels[p.operation]} · {typeLabels[p.type]}
+              </p>
+              <h3 className="text-lg font-semibold tracking-tight truncate">
+                {p.featured && <Star aria-label="Featured" className="inline w-3.5 h-3.5 mr-1.5 -mt-0.5 fill-[#1D1D1F]" />}
+                {p.title}
+              </h3>
+              <p className="text-sm text-[#515154] font-light inline-flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 shrink-0" /> {locationText(p) || '—'}
+              </p>
+            </div>
+            <div className="flex items-center justify-between pt-3 border-t border-[#000000]/5">
+              <Specs p={p} />
+              <RowActions p={p} onDelete={onDelete} onToggleFeatured={onToggleFeatured} />
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+export function PropertyTable({ properties, onDelete, onToggleFeatured }: ViewProps) {
+  return (
+    <div className="bg-white rounded-2xl border border-[#000000]/5 shadow-sm overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="text-left text-xs uppercase tracking-wider text-[#515154]">
+            <th className="font-semibold px-5 py-4">Property</th>
+            <th className="font-semibold px-3 py-4 hidden md:table-cell">Type</th>
+            <th className="font-semibold px-3 py-4 hidden lg:table-cell">Specs</th>
+            <th className="font-semibold px-3 py-4">Price</th>
+            <th className="font-semibold px-3 py-4">Status</th>
+            <th className="px-5 py-4" />
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-[#000000]/5">
+          {properties.map((p) => (
+            <tr key={p.id}>
+              <td className="px-5 py-3">
+                <div className="flex items-center gap-4 min-w-[220px]">
+                  <div className="relative w-16 h-12 rounded-xl bg-[#E5E5EA] overflow-hidden shrink-0">
+                    {p.photos[0] && (
+                      <PropertyImage src={p.photos[0].url} alt="" variant="thumb" sizes="64px" />
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <Link href={`/dashboard/properties/${p.id}`} className="font-medium hover:underline truncate block">
+                      {p.featured && <Star aria-label="Featured" className="inline w-3.5 h-3.5 mr-1.5 -mt-0.5 fill-[#1D1D1F]" />}
+                      {p.title}
+                    </Link>
+                    <p className="text-xs text-[#515154] truncate">{locationText(p) || '—'}</p>
+                  </div>
+                </div>
+              </td>
+              <td className="px-3 py-3 hidden md:table-cell text-[#515154]">
+                {operationLabels[p.operation]} · {typeLabels[p.type]}
+              </td>
+              <td className="px-3 py-3 hidden lg:table-cell">
+                <Specs p={p} />
+              </td>
+              <td className="px-3 py-3 font-medium whitespace-nowrap">
+                {formatMoney(p.price, p.currency)}
+                {p.operation === 'rent' ? ' / mo' : ''}
+              </td>
+              <td className="px-3 py-3">
+                <StatusPill status={p.status} />
+              </td>
+              <td className="px-5 py-3">
+                <RowActions p={p} onDelete={onDelete} onToggleFeatured={onToggleFeatured} />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}

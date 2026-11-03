@@ -1,0 +1,130 @@
+rules_version = '2';
+
+// Paste into Firebase Console > Firestore Database > Rules (or deploy with the Firebase CLI).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ------------------------------------------------------------ helpers
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function agentDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    // An active agent (admin or agent): has a users/{uid} profile that is not deactivated.
+    function isAgent() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && agentDoc().data.active == true;
+    }
+
+    function isAdmin() {
+      return isAgent() && agentDoc().data.role == 'admin';
+    }
+
+    function validProperty(p) {
+      return p.title is string && p.title.size() > 0 && p.title.size() <= 200
+        && p.description is string && p.description.size() <= 10000
+        && p.type in ['apartment', 'house', 'land', 'commercial']
+        && p.operation in ['sale', 'rent', 'seasonal']
+        && p.price is number && p.price >= 0
+        && p.currency is string && p.currency.size() == 3
+        && p.status in ['active', 'reserved', 'sold']
+        && p.location is map
+        && p.specs is map
+        && p.photos is list && p.photos.size() <= 40
+        && (!('featured' in p) || p.featured is bool)
+        && p.agentId is string;
+    }
+
+    // ----------------------------------------------------------- properties
+    // Public visitors can read active listings. Public queries must include
+    // where('status', '==', 'active'), otherwise Firestore rejects the whole query.
+    // Only agents write; each agent edits their own listings, admins edit any.
+
+    match /properties/{id} {
+      allow read: if resource.data.status == 'active' || isAgent();
+
+      allow create: if isAgent()
+        && validProperty(request.resource.data)
+        && request.resource.data.agentId == request.auth.uid
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+
+      allow update: if isAgent()
+        && (resource.data.agentId == request.auth.uid || isAdmin())
+        && validProperty(request.resource.data)
+        && request.resource.data.agentId == resource.data.agentId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedAt == request.time;
+
+      allow delete: if isAgent()
+        && (resource.data.agentId == request.auth.uid || isAdmin());
+    }
+
+    // ------------------------------------------------------------- listings
+    // Used by the current admin dashboard and the homepage grid.
+
+    match /listings/{id} {
+      allow read: if resource.data.published == true || isAgent();
+      allow create, update, delete: if isAgent();
+    }
+
+    // ---------------------------------------------------------------- leads
+    // The public website can create a lead (and nothing else). Agents manage them,
+    // but the only fields they can change are status, notes and assignment.
+
+    match /leads/{id} {
+      allow create: if request.resource.data.keys().hasOnly([
+            'name', 'email', 'property', 'message', 'status', 'createdAt',
+            'propertyId', 'clientName', 'phone', 'channel'
+          ])
+        && request.resource.data.status == 'new'
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.email is string && request.resource.data.email.size() <= 320
+        && request.resource.data.message is string && request.resource.data.message.size() <= 5000
+        && (
+          ('name' in request.resource.data
+            && request.resource.data.name is string && request.resource.data.name.size() <= 200)
+          || ('clientName' in request.resource.data
+            && request.resource.data.clientName is string && request.resource.data.clientName.size() <= 200)
+        )
+        && (!('phone' in request.resource.data)
+            || (request.resource.data.phone is string && request.resource.data.phone.size() <= 50))
+        && (!('channel' in request.resource.data)
+            || request.resource.data.channel in ['WhatsApp', 'Portal', 'Direct']);
+
+      allow read, delete: if isAgent();
+
+      allow update: if isAgent()
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['status', 'notes', 'assignedAgentId'])
+        && request.resource.data.status in ['new', 'contacted', 'closed'];
+    }
+
+    // ---------------------------------------------------------------- users
+    // users/{uid} is the agent profile. You can read your own; admins read and manage all.
+    // Agents may edit their own name, phone and avatar but never their role or active flag.
+
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+
+      // First-admin bootstrap: to create your very first admin profile from the login page,
+      // temporarily change this to:
+      //   allow create: if isAdmin() || (signedIn() && request.auth.uid == uid
+      //                                  && request.resource.data.role == 'admin');
+      // then change it back right after you have signed in.
+      allow create: if isAdmin();
+
+      allow update: if isAdmin()
+        || (isAgent() && request.auth.uid == uid
+            && request.resource.data.diff(resource.data).affectedKeys()
+                 .hasOnly(['name', 'phone', 'avatarUrl']));
+
+      allow delete: if false;
+    }
+  }
+}

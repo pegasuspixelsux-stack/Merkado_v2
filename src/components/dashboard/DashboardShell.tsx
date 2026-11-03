@@ -1,0 +1,192 @@
+'use client';
+
+import { useState, type ReactNode } from 'react';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import {
+  Building2,
+  Inbox,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  Plus,
+  PlusSquare,
+  Settings,
+  X,
+} from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { useLeads } from '../../hooks/useLeads';
+import LeadInbox from '../LeadInbox';
+
+const nav = [
+  { href: '/dashboard', label: 'Overview', icon: LayoutDashboard, exact: true },
+  { href: '/dashboard/properties', label: 'Properties', icon: Building2 },
+  { href: '/dashboard/properties/new', label: 'Add Listing', icon: PlusSquare },
+  { href: '/dashboard/leads', label: 'Leads', icon: Inbox },
+  { href: '/dashboard/settings', label: 'Settings', icon: Settings },
+];
+
+export default function DashboardShell({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const { agent, logout } = useAuth();
+  const { leads, loading, error } = useLeads(100);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [inboxOpen, setInboxOpen] = useState(false);
+
+  const newLeads = leads.filter((l) => l.status === 'new').length;
+  const isActive = (href: string, exact?: boolean) => {
+    if (exact) return pathname === href;
+    // "Properties" should not light up on the Add Listing page.
+    if (href === '/dashboard/properties') {
+      return pathname.startsWith(href) && !pathname.startsWith('/dashboard/properties/new');
+    }
+    return pathname.startsWith(href);
+  };
+
+  const sidebar = (
+    <div className="flex h-full flex-col">
+      <div className="px-6 h-16 flex items-center justify-between shrink-0">
+        <Link href="/dashboard" className="font-semibold text-lg tracking-tight">
+          Coastal.
+        </Link>
+        <button
+          onClick={() => setMenuOpen(false)}
+          aria-label="Close menu"
+          className="lg:hidden p-2 rounded-full hover:bg-[#F5F5F7]"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+      <p className="px-6 pt-4 pb-2 text-xs uppercase tracking-widest text-[#515154] font-semibold">Dashboard</p>
+      <nav className="px-3 space-y-1" aria-label="Dashboard">
+        {nav.map(({ href, label, icon: Icon, exact }) => {
+          const active = isActive(href, exact);
+          return (
+            <Link
+              key={href}
+              href={href}
+              onClick={() => setMenuOpen(false)}
+              aria-current={active ? 'page' : undefined}
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-full text-sm font-medium transition-colors ${
+                active ? 'bg-[#1D1D1F] text-white' : 'text-[#515154] hover:bg-[#F5F5F7] hover:text-[#1D1D1F]'
+              }`}
+            >
+              <Icon className="w-4 h-4" /> {label}
+              {href === '/dashboard/leads' && newLeads > 0 && (
+                <span
+                  className={`ml-auto text-xs px-2 py-0.5 rounded-full ${
+                    active ? 'bg-white text-black' : 'bg-[#1D1D1F] text-white'
+                  }`}
+                >
+                  {newLeads}
+                </span>
+              )}
+            </Link>
+          );
+        })}
+      </nav>
+      <div className="mt-auto p-6">
+        <Link href="/" className="text-xs text-[#515154] hover:text-[#1D1D1F]">
+          ← View website
+        </Link>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-[#FBFBFD] text-[#1D1D1F] font-sans antialiased">
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:block fixed inset-y-0 left-0 w-64 bg-white border-r border-[#000000]/5">
+        {sidebar}
+      </aside>
+
+      {/* Mobile drawer */}
+      <div className={`lg:hidden fixed inset-0 z-40 ${menuOpen ? '' : 'pointer-events-none'}`}>
+        <div
+          onClick={() => setMenuOpen(false)}
+          className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${
+            menuOpen ? 'opacity-100' : 'opacity-0'
+          }`}
+        />
+        <aside
+          className={`absolute left-0 top-0 h-full w-72 bg-white shadow-2xl transition-transform duration-300 ${
+            menuOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
+          {sidebar}
+        </aside>
+      </div>
+
+      <div className="lg:pl-64">
+        {/* Top bar */}
+        <header className="sticky top-0 z-30 bg-[#FBFBFD]/80 backdrop-blur-md border-b border-[#000000]/5">
+          <div className="h-16 px-4 sm:px-8 flex items-center justify-between gap-3">
+            <button
+              onClick={() => setMenuOpen(true)}
+              aria-label="Open menu"
+              className="lg:hidden p-2 rounded-full hover:bg-[#F5F5F7]"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-2 sm:gap-3 ml-auto">
+              <Link
+                href="/dashboard/properties/new"
+                className="inline-flex items-center gap-2 bg-[#1D1D1F] text-white text-xs font-medium px-4 py-2.5 rounded-full hover:bg-[#333336] transition-all"
+              >
+                <Plus className="w-4 h-4" />
+                <span className="hidden sm:inline">New Listing</span>
+              </Link>
+
+              <button
+                onClick={() => setInboxOpen(true)}
+                aria-label={`Open lead inbox, ${newLeads} new`}
+                className="relative p-2.5 rounded-full bg-white border border-[#000000]/5 hover:bg-[#F5F5F7]"
+              >
+                <Inbox className="w-4 h-4" />
+                {newLeads > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-[#1D1D1F] text-white text-[10px] font-medium flex items-center justify-center ring-2 ring-[#FBFBFD]">
+                    {newLeads > 99 ? '99+' : newLeads}
+                  </span>
+                )}
+              </button>
+
+              <div className="flex items-center gap-3 pl-2 sm:pl-3 border-l border-[#000000]/10">
+                <div className="w-9 h-9 rounded-full bg-[#1D1D1F] text-white text-sm font-medium flex items-center justify-center">
+                  {(agent?.name || agent?.email || '?').charAt(0).toUpperCase()}
+                </div>
+                <div className="hidden md:block leading-tight">
+                  <p className="text-sm font-medium">{agent?.name || agent?.email}</p>
+                  <p className="text-xs text-[#515154] capitalize">{agent?.role}</p>
+                </div>
+                <button
+                  onClick={async () => {
+                    await logout();
+                    router.replace('/admin/login');
+                  }}
+                  aria-label="Sign out"
+                  title="Sign out"
+                  className="p-2 rounded-full hover:bg-[#F5F5F7]"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main className="px-4 sm:px-8 py-10 max-w-6xl">{children}</main>
+      </div>
+
+      <LeadInbox
+        open={inboxOpen}
+        onClose={() => setInboxOpen(false)}
+        leads={leads}
+        loading={loading}
+        error={error}
+        agentName={agent?.name ?? ''}
+      />
+    </div>
+  );
+}
