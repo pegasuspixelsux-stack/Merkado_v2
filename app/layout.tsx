@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Coastal Web | Private Coastal Real Estate",
+  title: "Merkado",
   description:
     "Curated architectural residences along the Pacific coastline, represented with absolute discretion.",
 };

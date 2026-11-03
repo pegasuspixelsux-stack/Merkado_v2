@@ -1,11 +1,13 @@
-import type { PropertyOperation, PropertyStatus, PropertyType } from '../types/firestore';
+import type { Category, PropertyOperation, PropertyStatus } from '../types/firestore';
 
 export function formatMoney(price: number, currency: string): string {
   try {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency,
-      maximumFractionDigits: 0,
+      // whole amounts stay compact ($14), fractional ones keep cents ($4.50)
+      minimumFractionDigits: Number.isInteger(price) ? 0 : 2,
+      maximumFractionDigits: 2,
     }).format(price);
   } catch {
     return `${currency} ${price.toLocaleString('en-US')}`;
@@ -23,12 +25,23 @@ export const operationLabels: Record<PropertyOperation, string> = {
   seasonal: 'Seasonal',
 };
 
-export const typeLabels: Record<PropertyType, string> = {
-  apartment: 'Apartment',
-  house: 'House',
-  land: 'Land',
-  commercial: 'Commercial',
+export const typeLabels: Record<string, string> = {
+  fruit: 'Fruits',
+  vegetable: 'Vegetables',
+  leafy: 'Leafy Greens',
+  tropical: 'Tropical',
 };
+
+export const weightUnits = ['kg', 'g', 'lb', 'oz', 'each', 'dozen', 'bunch', 'case'] as const;
+
+/** Built-ins first, then the custom categories (A-Z). */
+export function mergeCategories(custom: { id: string; name: string }[]): Category[] {
+  const builtin = Object.entries(typeLabels).map(([id, name]) => ({ id, name, builtin: true }));
+  const extra = custom
+    .filter((c) => !(c.id in typeLabels))
+    .sort((a, b) => a.name.localeCompare(b.name));
+  return [...builtin, ...extra];
+}
 
 export const statusLabels: Record<PropertyStatus, string> = {
   active: 'Active',

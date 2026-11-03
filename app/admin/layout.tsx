@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { AuthProvider } from '@/src/context/AuthContext';
 
 export const metadata: Metadata = {
-  title: 'Admin | Coastal Web',
+  title: 'Admin | Merkado',
   robots: { index: false, follow: false },
 };
 

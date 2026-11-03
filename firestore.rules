@@ -28,7 +28,7 @@ service cloud.firestore {
     function validProperty(p) {
       return p.title is string && p.title.size() > 0 && p.title.size() <= 200
         && p.description is string && p.description.size() <= 10000
-        && p.type in ['apartment', 'house', 'land', 'commercial']
+        && p.type is string && p.type.size() > 0 && p.type.size() <= 60
         && p.operation in ['sale', 'rent', 'seasonal']
         && p.price is number && p.price >= 0
         && p.currency is string && p.currency.size() == 3
@@ -37,6 +37,11 @@ service cloud.firestore {
         && p.specs is map
         && p.photos is list && p.photos.size() <= 40
         && (!('featured' in p) || p.featured is bool)
+        && (!('weight' in p) || (p.weight is number && p.weight >= 0))
+        && (!('unit' in p) || (p.unit is string && p.unit.size() <= 20))
+        && (!('inStock' in p) || p.inStock is bool)
+        && (!('salePrice' in p) || (p.salePrice is number && p.salePrice >= 0))
+        && (!('wholesalePrice' in p) || (p.wholesalePrice is number && p.wholesalePrice >= 0))
         && p.agentId is string;
     }
 
@@ -63,6 +68,21 @@ service cloud.firestore {
 
       allow delete: if isAgent()
         && (resource.data.agentId == request.auth.uid || isAdmin());
+    }
+
+    // ----------------------------------------------------------- categories
+    // Custom product categories (built-in ones live in the app). Public read so the
+    // homepage can show their names; only active agents add or delete them.
+
+    match /categories/{id} {
+      allow read: if true;
+      allow create: if isAgent()
+        && request.resource.data.keys().hasOnly(['name', 'createdAt'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 60
+        && request.resource.data.createdAt == request.time;
+      allow update: if false;
+      allow delete: if isAgent();
     }
 
     // ------------------------------------------------------------- listings

@@ -8,7 +8,7 @@ import {
   type User,
 } from 'firebase/auth';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { auth, db } from '../lib/firebase';
+import { auth, db, firebaseConfig } from '../lib/firebase';
 import type { Agent } from '../types/firestore';
 
 interface AuthState {
@@ -48,7 +48,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const snap = await getDoc(doc(firestore, 'users', firebaseUser.uid));
         const data = snap.data();
         if (!snap.exists() || !data) {
-          setError('This account does not have access to the dashboard.');
+          setError(
+            `This account does not have access to the dashboard. No profile found at users/${firebaseUser.uid} ` +
+              `(project ${firebaseConfig.projectId}, database "(default)").`
+          );
           await signOut(firebaseAuth);
           setAgent(null);
         } else if (data.active === false) {

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Bath, Bed, ExternalLink, MapPin, Maximize, Pencil, Star, Trash2 } from 'lucide-react';
+import { MapPin, Pencil, Star, Trash2 } from 'lucide-react';
 import PropertyImage from '../PropertyImage';
 import type { Property } from '../../types/firestore';
 import { formatMoney, operationLabels, typeLabels } from '../../utils/format';
@@ -11,6 +11,8 @@ interface ViewProps {
   properties: Property[];
   onDelete: (property: Property) => void;
   onToggleFeatured: (property: Property) => void;
+  /** Category display name; falls back to the id. */
+  categoryLabel?: (type: string) => string;
 }
 
 const locationText = (p: Property) =>
@@ -18,16 +20,20 @@ const locationText = (p: Property) =>
 
 function Specs({ p }: { p: Property }) {
   return (
-    <div className="flex items-center gap-4 text-xs text-[#515154] font-medium">
-      <span className="inline-flex items-center gap-1.5">
-        <Bed className="w-4 h-4" /> {p.specs.bedrooms}
-      </span>
-      <span className="inline-flex items-center gap-1.5">
-        <Bath className="w-4 h-4" /> {p.specs.bathrooms}
-      </span>
-      <span className="inline-flex items-center gap-1.5">
-        <Maximize className="w-4 h-4" /> {p.specs.areaM2} m²
-      </span>
+    <div className="flex flex-wrap items-center gap-2 text-xs font-medium">
+      {p.weight !== undefined && (
+        <span className="text-[#515154]">
+          {p.weight} {p.unit}
+        </span>
+      )}
+      {p.inStock === false ? (
+        <span className="rounded-full bg-red-50 text-red-700 px-2.5 py-1">Out of stock</span>
+      ) : (
+        <span className="rounded-full bg-green-50 text-green-700 px-2.5 py-1">In stock</span>
+      )}
+      {p.salePrice !== undefined && (
+        <span className="rounded-full bg-amber-50 text-amber-700 px-2.5 py-1">On sale</span>
+      )}
     </div>
   );
 }
@@ -52,17 +58,6 @@ function RowActions({
       >
         <Star className={`w-4 h-4 ${p.featured ? 'fill-[#1D1D1F]' : ''}`} />
       </button>
-      {p.status === 'active' && (
-        <Link
-          href={`/properties/${p.id}`}
-          target="_blank"
-          aria-label={`View ${p.title} on the website`}
-          title="View on website"
-          className="p-2 rounded-full hover:bg-[#F5F5F7]"
-        >
-          <ExternalLink className="w-4 h-4" />
-        </Link>
-      )}
       <Link
         href={`/dashboard/properties/${p.id}`}
         aria-label={`Edit ${p.title}`}
@@ -81,7 +76,7 @@ function RowActions({
   );
 }
 
-export function PropertyGrid({ properties, onDelete, onToggleFeatured }: ViewProps) {
+export function PropertyGrid({ properties, onDelete, onToggleFeatured, categoryLabel = (t) => typeLabels[t] ?? t }: ViewProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {properties.map((p) => (
@@ -111,7 +106,7 @@ export function PropertyGrid({ properties, onDelete, onToggleFeatured }: ViewPro
           <div className="p-5 space-y-3">
             <div>
               <p className="text-xs uppercase tracking-wider text-[#515154] font-medium">
-                {operationLabels[p.operation]} · {typeLabels[p.type]}
+                {operationLabels[p.operation]} · {categoryLabel(p.type)}
               </p>
               <h3 className="text-lg font-semibold tracking-tight truncate">
                 {p.featured && <Star aria-label="Featured" className="inline w-3.5 h-3.5 mr-1.5 -mt-0.5 fill-[#1D1D1F]" />}
@@ -132,13 +127,13 @@ export function PropertyGrid({ properties, onDelete, onToggleFeatured }: ViewPro
   );
 }
 
-export function PropertyTable({ properties, onDelete, onToggleFeatured }: ViewProps) {
+export function PropertyTable({ properties, onDelete, onToggleFeatured, categoryLabel = (t) => typeLabels[t] ?? t }: ViewProps) {
   return (
     <div className="bg-white rounded-2xl border border-[#000000]/5 shadow-sm overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
           <tr className="text-left text-xs uppercase tracking-wider text-[#515154]">
-            <th className="font-semibold px-5 py-4">Property</th>
+            <th className="font-semibold px-5 py-4">Item</th>
             <th className="font-semibold px-3 py-4 hidden md:table-cell">Type</th>
             <th className="font-semibold px-3 py-4 hidden lg:table-cell">Specs</th>
             <th className="font-semibold px-3 py-4">Price</th>
@@ -166,7 +161,7 @@ export function PropertyTable({ properties, onDelete, onToggleFeatured }: ViewPr
                 </div>
               </td>
               <td className="px-3 py-3 hidden md:table-cell text-[#515154]">
-                {operationLabels[p.operation]} · {typeLabels[p.type]}
+                {operationLabels[p.operation]} · {categoryLabel(p.type)}
               </td>
               <td className="px-3 py-3 hidden lg:table-cell">
                 <Specs p={p} />

@@ -12,6 +12,7 @@ import {
   Plus,
   PlusSquare,
   Settings,
+  Tags,
   X,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -20,9 +21,10 @@ import LeadInbox from '../LeadInbox';
 
 const nav = [
   { href: '/dashboard', label: 'Overview', icon: LayoutDashboard, exact: true },
-  { href: '/dashboard/properties', label: 'Properties', icon: Building2 },
-  { href: '/dashboard/properties/new', label: 'Add Listing', icon: PlusSquare },
-  { href: '/dashboard/leads', label: 'Leads', icon: Inbox },
+  { href: '/dashboard/properties', label: 'Items', icon: Building2 },
+  { href: '/dashboard/properties/new', label: 'Add Item', icon: PlusSquare },
+  { href: '/dashboard/categories', label: 'Categories', icon: Tags },
+  { href: '/dashboard/leads', label: 'Orders', icon: Inbox },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings },
 ];
 
@@ -48,7 +50,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
     <div className="flex h-full flex-col">
       <div className="px-6 h-16 flex items-center justify-between shrink-0">
         <Link href="/dashboard" className="font-semibold text-lg tracking-tight">
-          Coastal.
+          Merkado.
         </Link>
         <button
           onClick={() => setMenuOpen(false)}
@@ -136,7 +138,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
                 className="inline-flex items-center gap-2 bg-[#1D1D1F] text-white text-xs font-medium px-4 py-2.5 rounded-full hover:bg-[#333336] transition-all"
               >
                 <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">New Listing</span>
+                <span className="hidden sm:inline">New Item</span>
               </Link>
 
               <button

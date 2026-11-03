@@ -2,6 +2,7 @@ import {
   addDoc,
   collection,
   deleteDoc,
+  deleteField,
   doc,
   getDoc,
   getDocs,
@@ -10,6 +11,7 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  setDoc,
   startAfter,
   updateDoc,
   where,
@@ -23,6 +25,7 @@ import {
 import { db } from '../lib/firebase';
 import { sampleProperties } from '../data/sampleProperties';
 import type {
+  Category,
   Lead,
   LeadChannel,
   LeadStatus,
@@ -33,6 +36,7 @@ import type {
 
 const PROPERTIES = 'properties';
 const LEADS = 'leads';
+const CATEGORIES = 'categories';
 
 function requireDb(): Firestore {
   if (!db) {
@@ -70,7 +74,12 @@ function toProperty(id: string, d: DocumentData): Property {
     id,
     title: d.title ?? '',
     description: d.description ?? '',
-    type: d.type ?? 'house',
+    type: typeof d.type === 'string' && d.type ? d.type : 'fruit',
+    weight: typeof d.weight === 'number' ? d.weight : undefined,
+    unit: typeof d.unit === 'string' ? d.unit : undefined,
+    inStock: d.inStock !== false,
+    salePrice: typeof d.salePrice === 'number' ? d.salePrice : undefined,
+    wholesalePrice: typeof d.wholesalePrice === 'number' ? d.wholesalePrice : undefined,
     operation: d.operation ?? 'sale',
     price: Number(d.price) || 0,
     currency: d.currency ?? 'USD',
@@ -105,10 +114,11 @@ export async function createProperty(data: PropertyInput): Promise<string> {
 
 /** Updates only the supplied fields. The owner (agentId) cannot be changed. */
 export async function updateProperty(id: string, data: PropertyUpdate): Promise<void> {
-  await updateDoc(doc(requireDb(), PROPERTIES, id), {
-    ...clean(data),
-    updatedAt: serverTimestamp(),
-  });
+  const payload: Record<string, unknown> = { ...clean(data), updatedAt: serverTimestamp() };
+  // clean() drops undefined keys, so clearing a sale has to be an explicit field delete.
+  if ('salePrice' in data && data.salePrice === undefined) payload.salePrice = deleteField();
+  if ('wholesalePrice' in data && data.wholesalePrice === undefined) payload.wholesalePrice = deleteField();
+  await updateDoc(doc(requireDb(), PROPERTIES, id), payload);
 }
 
 /** Imports the website mockup properties for the given agent. Returns how many were created. */
@@ -142,36 +152,6 @@ export async function getActiveProperties(maxResults = 60): Promise<Property[]> 
     query(collection(requireDb(), PROPERTIES), where('status', '==', 'active'), limitTo(maxResults))
   );
   return snap.docs.map((d) => toProperty(d.id, d.data())).sort((a, b) => b.createdAt - a.createdAt);
-}
-
-/**
- * Active properties most similar to `base` (same area, type, operation and a close price),
- * best match first. Uses one simple query (no index needed) and ranks the results here.
- */
-export async function getSimilarProperties(base: Property, maxResults = 8): Promise<Property[]> {
-  const snap = await getDocs(
-    query(collection(requireDb(), PROPERTIES), where('status', '==', 'active'), limitTo(60))
-  );
-
-  const score = (p: Property) => {
-    let points = 0;
-    if (p.location.city && p.location.city === base.location.city) points += 3;
-    if (p.location.neighborhood && p.location.neighborhood === base.location.neighborhood) points += 2;
-    if (p.type === base.type) points += 2;
-    if (p.operation === base.operation) points += 1;
-    if (p.currency === base.currency && base.price > 0) {
-      const ratio = p.price / base.price;
-      if (ratio >= 0.7 && ratio <= 1.3) points += 2;
-      else if (ratio >= 0.5 && ratio <= 1.5) points += 1;
-    }
-    return points;
-  };
-
-  return snap.docs
-    .filter((d) => d.id !== base.id)
-    .map((d) => toProperty(d.id, d.data()))
-    .sort((a, b) => score(b) - score(a) || b.createdAt - a.createdAt)
-    .slice(0, maxResults);
 }
 
 export interface PropertyPageOptions {
@@ -307,4 +287,63 @@ export function subscribeToLeads(
     (snap) => onLeads(snap.docs.map((d) => toLead(d.id, d.data()))),
     (err) => onError?.(err)
   );
+}
+
+// ------------------------------------------------------------ categories
+
+/** Custom categories added in the dashboard (the built-in ones live in code). */
+export async function getCategories(): Promise<Category[]> {
+  const snap = await getDocs(collection(requireDb(), CATEGORIES));
+  return snap.docs.map((d) => ({ id: d.id, name: String(d.data().name ?? d.id) }));
+}
+
+export const categorySlug = (name: string) =>
+  name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+
+/** Adds a category; `existing` is the current list so duplicates are rejected. */
+export async function addCategory(name: string, existing: Category[]): Promise<void> {
+  const clean = name.trim().replace(/\s+/g, ' ');
+  const id = categorySlug(clean);
+  if (!clean || !id) throw new Error('Enter a category name.');
+  if (clean.length > 60) throw new Error('Category names can be at most 60 characters.');
+  if (existing.some((c) => c.id === id || c.name.toLowerCase() === clean.toLowerCase())) {
+    throw new Error('That category already exists.');
+  }
+  await setDoc(doc(requireDb(), CATEGORIES, id), { name: clean, createdAt: serverTimestamp() });
+}
+
+export async function deleteCategory(id: string): Promise<void> {
+  await deleteDoc(doc(requireDb(), CATEGORIES, id));
+}
+
+/**
+ * Bulk-creates items (and any new categories they need) for the given agent.
+ * Writes in batches of 400 (Firestore allows 500 per batch). Returns how many items were created.
+ */
+export async function importItems(
+  items: Omit<PropertyInput, 'agentId' | 'agentName' | 'agentPhone'>[],
+  newCategories: Category[],
+  agent: { id: string; name?: string; phone?: string }
+): Promise<number> {
+  const firestore = requireDb();
+  const writes: ((batch: ReturnType<typeof writeBatch>) => void)[] = [
+    ...newCategories.map((c) => (batch: ReturnType<typeof writeBatch>) =>
+      batch.set(doc(firestore, CATEGORIES, c.id), { name: c.name, createdAt: serverTimestamp() })
+    ),
+    ...items.map((item) => (batch: ReturnType<typeof writeBatch>) =>
+      batch.set(doc(collection(firestore, PROPERTIES)), {
+        ...clean(item),
+        agentId: agent.id,
+        ...clean({ agentName: agent.name || undefined, agentPhone: agent.phone || undefined }),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      })
+    ),
+  ];
+  for (let i = 0; i < writes.length; i += 400) {
+    const batch = writeBatch(firestore);
+    writes.slice(i, i + 400).forEach((w) => w(batch));
+    await batch.commit();
+  }
+  return items.length;
 }

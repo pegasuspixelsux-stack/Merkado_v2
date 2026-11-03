@@ -41,7 +41,7 @@ export default function LeadsPanel() {
         setLoading(false);
       },
       () => {
-        setError('Could not load leads. Check your Firestore rules.');
+        setError('Could not load orders. Check your Firestore rules.');
         setLoading(false);
       }
     );
@@ -52,7 +52,7 @@ export default function LeadsPanel() {
     try {
       await updateDoc(doc(db, 'leads', lead.id), { status });
     } catch {
-      setError('Could not update the lead.');
+      setError('Could not update the order.');
     }
   };
 
@@ -61,7 +61,7 @@ export default function LeadsPanel() {
     try {
       await deleteDoc(doc(db, 'leads', lead.id));
     } catch {
-      setError('Could not delete the lead.');
+      setError('Could not delete the order.');
     }
   };
 
@@ -72,7 +72,7 @@ export default function LeadsPanel() {
     <section>
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
-          <h2 className="text-xl font-semibold tracking-tight">Leads</h2>
+          <h2 className="text-xl font-semibold tracking-tight">Orders</h2>
           <p className="text-sm text-[#515154] font-light">
             Inquiries from the website contact form · {newCount} new
           </p>
@@ -80,7 +80,7 @@ export default function LeadsPanel() {
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value as LeadStatus | 'all')}
-          aria-label="Filter leads by status"
+          aria-label="Filter orders by status"
           className="bg-white rounded-full px-4 py-2.5 text-sm outline-none cursor-pointer"
         >
           <option value="all">All statuses</option>
@@ -94,9 +94,9 @@ export default function LeadsPanel() {
 
       <div className="bg-white rounded-3xl border border-[#000000]/5 overflow-hidden">
         {loading ? (
-          <p className="p-8 text-sm text-[#515154]">Loading leads…</p>
+          <p className="p-8 text-sm text-[#515154]">Loading orders…</p>
         ) : visible.length === 0 ? (
-          <p className="p-8 text-sm text-[#515154]">No leads to show.</p>
+          <p className="p-8 text-sm text-[#515154]">No orders to show.</p>
         ) : (
           <ul className="divide-y divide-[#000000]/5">
             {visible.map((lead) => (
@@ -125,7 +125,7 @@ export default function LeadsPanel() {
                       <option key={s.value} value={s.value}>{s.label}</option>
                     ))}
                   </select>
-                  <button onClick={() => remove(lead)} aria-label="Delete lead" className="p-2 rounded-full hover:bg-red-50 text-red-600">
+                  <button onClick={() => remove(lead)} aria-label="Delete order" className="p-2 rounded-full hover:bg-red-50 text-red-600">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>

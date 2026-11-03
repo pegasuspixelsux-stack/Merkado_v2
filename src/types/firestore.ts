@@ -1,10 +1,11 @@
 /**
- * Firestore data models for Coastal.
+ * Firestore data models for Merkado.
  *
  * Collections:
  *   users/{uid}       -> Agent      (document id = Firebase Auth uid)
  *   properties/{id}   -> Property
  *   leads/{id}        -> Lead
+ *   categories/{id}   -> Category (custom ones only; built-ins live in code)
  *
  * Dates are exposed as epoch milliseconds; the service layer converts from/to
  * Firestore Timestamps.
@@ -31,7 +32,19 @@ export interface Agent {
 
 // ------------------------------------------------------------ Properties
 
-export type PropertyType = 'apartment' | 'house' | 'land' | 'commercial';
+/**
+ * Product category id (slug). The field keeps its old name, `type`, in Firestore.
+ * Built-in ids: fruit, vegetable, leafy, tropical; more are added in the dashboard (categories/{id}).
+ */
+export type PropertyType = string;
+
+export interface Category {
+  /** Slug; also the Firestore document id. */
+  id: string;
+  name: string;
+  /** Built-in categories cannot be deleted. */
+  builtin?: boolean;
+}
 export type PropertyOperation = 'sale' | 'rent' | 'seasonal';
 /** Only `active` properties are publicly readable. */
 export type PropertyStatus = 'active' | 'reserved' | 'sold';
@@ -73,6 +86,15 @@ export interface Property {
   location: PropertyLocation;
   specs: PropertySpecs;
   photos: PropertyPhoto[];
+  /** Weight / quantity per sale unit, with its unit (kg, lb, each…). */
+  weight?: number;
+  unit?: string;
+  /** Defaults to true; out-of-stock items stay visible but are marked unavailable. */
+  inStock?: boolean;
+  /** When set, the item is on sale at this price (lower than `price`). */
+  salePrice?: number;
+  /** Mayorista (wholesale) price per unit; `price` is the minorista (retail) price. */
+  wholesalePrice?: number;
   status: PropertyStatus;
   /** Shown in the homepage hero slideshow (up to 5 are displayed). */
   featured?: boolean;

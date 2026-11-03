@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '@/src/context/AuthContext';
 import { useLeads } from '@/src/hooks/useLeads';
 import LeadList from '@/src/components/LeadList';
+import AddOrder from '@/src/components/dashboard/AddOrder';
 import { PageHeader, cardClass } from '@/src/components/dashboard/ui';
 import type { LeadStatus } from '@/src/types/firestore';
 
@@ -26,11 +27,13 @@ export default function LeadsPage() {
     <>
       <PageHeader
         eyebrow="CRM"
-        title="Leads"
-        description="Inquiries from the website, updated live. Reply on WhatsApp in one tap."
+        title="Orders"
+        description="Orders from the website and the ones you add, updated live. Reply on WhatsApp in one tap."
       />
 
-      <div className="flex flex-wrap gap-2 mb-6" role="group" aria-label="Filter leads by status">
+      <AddOrder />
+
+      <div className="flex flex-wrap gap-2 mb-6" role="group" aria-label="Filter orders by status">
         {filters.map((f) => (
           <button
             key={f.value}
@@ -51,12 +54,12 @@ export default function LeadsPage() {
             {error}
           </p>
         ) : loading ? (
-          <p className="p-6 text-sm text-[#515154]">Loading leads…</p>
+          <p className="p-6 text-sm text-[#515154]">Loading orders…</p>
         ) : (
           <LeadList
             leads={visible}
             agentName={agent?.name ?? ''}
-            emptyText={leads.length ? 'No leads with this status.' : 'No leads yet. Website inquiries appear here instantly.'}
+            emptyText={leads.length ? 'No orders with this status.' : 'No orders yet. Website orders appear here instantly.'}
           />
         )}
       </div>

@@ -29,7 +29,7 @@ function Dashboard() {
 
   const tabs: { key: Tab; label: string; icon: typeof Building2; adminOnly?: boolean }[] = [
     { key: 'listings', label: 'Listings', icon: Building2 },
-    { key: 'leads', label: 'Leads', icon: Inbox },
+    { key: 'leads', label: 'Orders', icon: Inbox },
     { key: 'users', label: 'Users', icon: Users, adminOnly: true },
   ];
 
@@ -38,7 +38,7 @@ function Dashboard() {
       <header className="bg-white border-b border-[#000000]/5">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/" className="font-semibold tracking-tight">Coastal.</Link>
+            <Link href="/" className="font-semibold tracking-tight">Merkado.</Link>
             <span className="text-xs text-[#515154] uppercase tracking-widest">Dashboard</span>
           </div>
           <div className="flex items-center gap-4 text-sm">

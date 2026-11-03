@@ -48,7 +48,7 @@ interface LeadListProps {
   emptyText?: string;
 }
 
-export default function LeadList({ leads, agentName, emptyText = 'No leads yet.' }: LeadListProps) {
+export default function LeadList({ leads, agentName, emptyText = 'No orders yet.' }: LeadListProps) {
   const titleFor = usePropertyTitles(leads.map((l) => l.propertyId));
   const [error, setError] = useState<string | null>(null);
 
@@ -57,7 +57,7 @@ export default function LeadList({ leads, agentName, emptyText = 'No leads yet.'
     try {
       await updateLeadStatus(lead.id, status);
     } catch {
-      setError('Could not update the lead.');
+      setError('Could not update the order.');
     }
   };
 
@@ -75,7 +75,7 @@ export default function LeadList({ leads, agentName, emptyText = 'No leads yet.'
           const property = titleFor(lead.propertyId);
           const firstName = lead.clientName.split(' ')[0] || 'there';
           const text =
-            `Hi ${firstName}, this is ${agentName || 'your advisor'} from Coastal. ` +
+            `Hi ${firstName}, this is ${agentName || 'your advisor'} from Merkado. ` +
             (property
               ? `Thank you for your interest in ${property}. `
               : 'Thank you for getting in touch. ') +
@@ -124,7 +124,7 @@ export default function LeadList({ leads, agentName, emptyText = 'No leads yet.'
                   </a>
                 ) : (
                   <span
-                    title="This lead has no phone number"
+                    title="This order has no phone number"
                     className="inline-flex items-center gap-1.5 bg-[#F5F5F7] text-[#86868B] px-4 py-2 rounded-full cursor-not-allowed"
                   >
                     <MessageCircle className="w-3.5 h-3.5" /> No phone

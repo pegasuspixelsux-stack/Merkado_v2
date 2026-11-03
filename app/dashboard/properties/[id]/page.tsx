@@ -20,10 +20,10 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
       .then((p) => {
         if (cancelled) return;
         if (p) setProperty(p);
-        else setError('This property no longer exists.');
+        else setError('This item no longer exists.');
       })
       .catch(() => {
-        if (!cancelled) setError('Could not load this property.');
+        if (!cancelled) setError('Could not load this item.');
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -33,18 +33,18 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
     };
   }, [id]);
 
-  if (loading) return <p className="text-sm text-[#515154]">Loading property…</p>;
+  if (loading) return <p className="text-sm text-[#515154]">Loading item…</p>;
   if (error || !property) {
     return (
       <p role="alert" className="text-sm text-red-600">
-        {error ?? 'Property not found.'}
+        {error ?? 'Item not found.'}
       </p>
     );
   }
 
   return (
     <>
-      <PageHeader eyebrow="Portfolio" title="Edit listing" description={property.title} />
+      <PageHeader eyebrow="Inventory" title="Edit item" description={property.title} />
       <PropertyForm
         initial={property}
         submitLabel="Save changes"

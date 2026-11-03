@@ -1,6 +1,6 @@
-import { getActiveProperties } from '../services/dbService';
-import type { Property } from '../types/firestore';
-import { formatMoney, operationLabels, typeLabels } from '../utils/format';
+import { getActiveProperties, getCategories } from '../services/dbService';
+import type { Property, PropertyType } from '../types/firestore';
+import { formatMoney, mergeCategories, operationLabels } from '../utils/format';
 import { ikUrl } from '../utils/imagekit';
 
 export type HeroSlide = {
@@ -10,8 +10,6 @@ export type HeroSlide = {
   price: string;
   tagline: string;
   image: string;
-  /** Property detail page; only set for slides built from Firestore properties. */
-  href?: string;
 };
 
 export type HomeProperty = {
@@ -23,22 +21,33 @@ export type HomeProperty = {
   baths: number;
   area: string;
   image: string;
-  /** Detail page; only set for properties stored in Firestore. */
+  /** Replaces the beds / baths / area labels on the card (used by the produce samples). */
+  stats?: [string, string, string];
+  /** Category (property type); absent on the built-in samples. */
+  type?: PropertyType;
+  /** Display name of the category. */
+  typeLabel?: string;
+  /** Item page; only set for items stored in Firestore. */
   href?: string;
+  /** False = shown as out of stock. Absent counts as in stock. */
+  inStock?: boolean;
+  /** Price of one unit as a number: the sale price while on sale, else the regular price. */
+  unitPrice?: number;
+  /** Formatted sale price; when set, `price` is the regular (crossed-out) price. */
+  salePrice?: string;
 };
 
 const place = (p: Property) => [p.location.city, p.location.state].filter(Boolean).join(', ');
 
-function toSlide(p: Property): HeroSlide {
+function toSlide(p: Property, label: (t: string) => string): HeroSlide {
   const sentence = p.description.split(/(?<=[.!?])\s/)[0].trim();
   const tagline = sentence
     ? sentence.length > 110
       ? `${sentence.slice(0, 107).trimEnd()}…`
       : sentence
-    : `${operationLabels[p.operation]} · ${typeLabels[p.type]}`;
+    : `${operationLabels[p.operation]} · ${label(p.type)}`;
   return {
     id: p.id,
-    href: `/properties/${p.id}`,
     title: p.title,
     location: place(p),
     price: formatMoney(p.price, p.currency),
@@ -47,17 +56,22 @@ function toSlide(p: Property): HeroSlide {
   };
 }
 
-function toHomeProperty(p: Property): HomeProperty {
+function toHomeProperty(p: Property, label: (t: string) => string): HomeProperty {
   return {
     id: p.id,
-    href: `/properties/${p.id}`,
     title: p.title,
     location: place(p),
     price: formatMoney(p.price, p.currency),
     beds: p.specs.bedrooms,
     baths: p.specs.bathrooms,
-    area: `${p.specs.areaM2.toLocaleString('en-US')} m²`,
+    area: p.weight ? `${p.weight.toLocaleString('en-US')} ${p.unit ?? ''}`.trim() : '',
     image: p.photos[0]?.url ?? '',
+    href: `/items/${p.id}`,
+    type: p.type,
+    typeLabel: label(p.type),
+    inStock: p.inStock !== false,
+    unitPrice: p.salePrice ?? p.price,
+    salePrice: p.salePrice === undefined ? undefined : formatMoney(p.salePrice, p.currency),
   };
 }
 
@@ -68,10 +82,15 @@ function toHomeProperty(p: Property): HomeProperty {
  */
 export async function loadHomeData(): Promise<{ properties: HomeProperty[]; slides: HeroSlide[] }> {
   try {
-    const active = await getActiveProperties();
+    const [active, custom] = await Promise.all([
+      getActiveProperties(),
+      getCategories().catch(() => []), // built-in categories still work if this read fails
+    ]);
+    const categories = mergeCategories(custom);
+    const label = (t: string) => categories.find((c) => c.id === t)?.name ?? t;
     const featured = active.filter((p) => p.featured);
     const hero = (featured.length ? featured : active).slice(0, 5);
-    return { properties: active.map(toHomeProperty), slides: hero.map(toSlide) };
+    return { properties: active.map((p) => toHomeProperty(p, label)), slides: hero.map((p) => toSlide(p, label)) };
   } catch {
     return { properties: [], slides: [] }; // the page falls back to its built-in samples
   }

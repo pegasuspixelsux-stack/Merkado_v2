@@ -81,7 +81,7 @@ export default function AdminLoginPage() {
         href="/"
         className="absolute top-8 left-8 z-20 text-lg font-semibold tracking-tight drop-shadow"
       >
-        Coastal.
+        Merkado.
       </Link>
 
       {/* Two-column overlay: left transparent, right 50% black */}
@@ -90,9 +90,9 @@ export default function AdminLoginPage() {
 
         <div className="bg-black/50 flex items-center justify-center px-6 py-24">
           <div className="w-full max-w-sm bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-2xl">
-            <p className="text-xs uppercase tracking-widest text-white/60 font-semibold mb-2">Coastal.</p>
+            <p className="text-xs uppercase tracking-widest text-white/60 font-semibold mb-2">Merkado.</p>
             <h1 className="text-2xl font-semibold tracking-tight mb-1">Admin sign in</h1>
-            <p className="text-sm text-white/70 font-light mb-8">Manage listings, leads and users.</p>
+            <p className="text-sm text-white/70 font-light mb-8">Manage items, orders and users.</p>
 
             {!isFirebaseConfigured && (
               <p className="mb-6 text-xs rounded-xl bg-amber-400/20 text-amber-100 p-3">

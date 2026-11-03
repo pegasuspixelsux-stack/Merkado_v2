@@ -22,7 +22,7 @@ export interface UploadedImage {
 interface ImageUploadProps {
   /** Called once per successfully uploaded file. Save the result to Firestore here. */
   onUploaded: (image: UploadedImage) => void;
-  /** ImageKit folder for the uploads. Default: /listings */
+  /** ImageKit folder for the uploads. Default: /Merkado-v2 */
   folder?: string;
   /** Allow picking several files at once. Default: false */
   multiple?: boolean;
@@ -60,7 +60,7 @@ function describeError(err: unknown): string {
 
 export default function ImageUpload({
   onUploaded,
-  folder = '/listings',
+  folder = '/Merkado-v2',
   multiple = false,
   onError,
   className = '',
