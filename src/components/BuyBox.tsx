@@ -40,8 +40,8 @@ export default function BuyBox({
   const buy = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inStock) return;
-    if (!form.name.trim()) return setFormError('Add your name.');
-    if (!form.phone.trim() && !form.email.trim()) return setFormError('Add a phone number or an email.');
+    if (!form.name.trim()) return setFormError('Ingresá tu nombre.');
+    if (!form.phone.trim() && !form.email.trim()) return setFormError('Ingresá un teléfono o un correo electrónico.');
     if (!db) {
       setState('error');
       return;
@@ -57,8 +57,8 @@ export default function BuyBox({
         ...(itemId ? { propertyId: itemId } : {}),
         channel: 'Portal',
         message: [
-          `[${buyer === 'wholesale' ? 'Mayorista' : 'Minorista'}] Quantity: ${qty}${unitLabel ? ` × ${unitLabel}` : ''}`,
-          form.instructions.trim() && `Instructions: ${form.instructions.trim()}`,
+          `[${buyer === 'wholesale' ? 'Mayorista' : 'Minorista'}] Cantidad: ${qty}${unitLabel ? ` × ${unitLabel}` : ''}`,
+          form.instructions.trim() && `Indicaciones: ${form.instructions.trim()}`,
         ]
           .filter(Boolean)
           .join('\n'),
@@ -74,7 +74,7 @@ export default function BuyBox({
   if (state === 'sent') {
     return (
       <p role="status" className="rounded-2xl bg-green-50 text-green-800 text-sm px-5 py-4">
-        Thank you! Your order for {qty} × {title} was sent. We will contact you shortly to confirm it.
+        ¡Gracias! Tu pedido de {qty} × {title} fue enviado. Nos vamos a comunicar con vos en breve para confirmarlo.
       </p>
     );
   }
@@ -82,8 +82,8 @@ export default function BuyBox({
   return (
     <form onSubmit={buy} className="space-y-5">
       <div>
-        <span className={labelClass}>Buying as</span>
-        <div role="radiogroup" aria-label="Buying as" className="inline-flex rounded-full bg-[#F5F5F7] border border-[#000000]/5 p-0.5 text-sm font-medium">
+        <span className={labelClass}>Comprás como</span>
+        <div role="radiogroup" aria-label="Comprás como" className="inline-flex rounded-full bg-[#F5F5F7] border border-[#000000]/5 p-0.5 text-sm font-medium">
           {([['retail', 'Minorista'], ['wholesale', 'Mayorista']] as const).map(([value, label]) => {
             const unavailable = value === 'wholesale' && wholesalePrice === undefined;
             return (
@@ -106,13 +106,13 @@ export default function BuyBox({
       </div>
 
       <div>
-        <span className={labelClass}>Quantity</span>
+        <span className={labelClass}>Cantidad</span>
         <div className="inline-flex items-center gap-3">
           <button
             type="button"
             onClick={() => setQty((q) => Math.max(1, q - 1))}
             disabled={qty <= 1}
-            aria-label="Decrease quantity"
+            aria-label="Disminuir cantidad"
             className="w-10 h-10 rounded-full bg-[#F5F5F7] flex items-center justify-center disabled:opacity-30"
           >
             <Minus className="w-4 h-4" />
@@ -121,7 +121,7 @@ export default function BuyBox({
           <button
             type="button"
             onClick={() => setQty((q) => Math.min(999, q + 1))}
-            aria-label="Increase quantity"
+            aria-label="Aumentar cantidad"
             className="w-10 h-10 rounded-full bg-[#F5F5F7] flex items-center justify-center"
           >
             <Plus className="w-4 h-4" />
@@ -130,35 +130,35 @@ export default function BuyBox({
       </div>
 
       <div>
-        <label htmlFor="b-instructions" className={labelClass}>Special instructions (optional)</label>
+        <label htmlFor="b-instructions" className={labelClass}>Indicaciones especiales (opcional)</label>
         <textarea
           id="b-instructions"
           rows={3}
           value={form.instructions}
           onChange={(e) => setForm({ ...form, instructions: e.target.value })}
-          placeholder="e.g. ripe for Friday, deliver before noon, leave at the back door"
+          placeholder="ej. maduros para el viernes, entregar antes del mediodía, dejar en la puerta de atrás"
           className={`${fieldClass} resize-none`}
         />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="b-name" className={labelClass}>Your name</label>
+          <label htmlFor="b-name" className={labelClass}>Tu nombre</label>
           <input id="b-name" className={fieldClass} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
         </div>
         <div>
-          <label htmlFor="b-phone" className={labelClass}>Phone</label>
+          <label htmlFor="b-phone" className={labelClass}>Teléfono</label>
           <input id="b-phone" type="tel" className={fieldClass} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
         </div>
       </div>
       <div>
-        <label htmlFor="b-email" className={labelClass}>Email (optional)</label>
+        <label htmlFor="b-email" className={labelClass}>Correo electrónico (opcional)</label>
         <input id="b-email" type="email" className={fieldClass} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
       </div>
 
       {(formError || state === 'error') && (
         <p role="alert" className="text-sm text-red-600">
-          {formError ?? 'Could not send your order. Please try again.'}
+          {formError ?? 'No se pudo enviar tu pedido. Probá de nuevo.'}
         </p>
       )}
 
@@ -167,7 +167,7 @@ export default function BuyBox({
         disabled={!inStock || state === 'sending'}
         className="w-full bg-[#1D1D1F] text-white py-4 rounded-full text-sm font-medium hover:bg-[#333336] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        {!inStock ? 'Out of stock' : state === 'sending' ? 'Sending…' : `Buy now · ${formatMoney(unitPrice * qty, 'USD')}`}
+        {!inStock ? 'Sin stock' : state === 'sending' ? 'Enviando…' : `Comprar ahora · ${formatMoney(unitPrice * qty, 'USD')}`}
       </button>
     </form>
   );

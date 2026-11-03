@@ -34,7 +34,7 @@ export default function RequireAuth({
   if (loading || !agent) {
     return (
       <div className="min-h-screen flex items-center justify-center text-sm text-[#515154]">
-        Loading…
+        Cargando…
       </div>
     );
   }
@@ -42,7 +42,7 @@ export default function RequireAuth({
   if (!allowed) {
     return (
       <div className="min-h-screen flex items-center justify-center text-sm text-[#515154]">
-        You don’t have permission to view this page.
+        No tenés permiso para ver esta página.
       </div>
     );
   }

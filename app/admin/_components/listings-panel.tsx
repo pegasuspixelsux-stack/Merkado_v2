@@ -69,7 +69,7 @@ export default function ListingsPanel() {
         setLoading(false);
       },
       () => {
-        setError('Could not load listings. Check your Firestore rules.');
+        setError('No se pudieron cargar las publicaciones. Revisá tus reglas de Firestore.');
         setLoading(false);
       }
     );
@@ -101,18 +101,18 @@ export default function ListingsPanel() {
       }
       setEditingId(null);
     } catch {
-      setError('Could not save the listing.');
+      setError('No se pudo guardar la publicación.');
     } finally {
       setSaving(false);
     }
   };
 
   const remove = async (l: Listing) => {
-    if (!db || !window.confirm(`Delete “${l.title}”? This cannot be undone.`)) return;
+    if (!db || !window.confirm(`¿Eliminar “${l.title}”? Esta acción no se puede deshacer.`)) return;
     try {
       await deleteDoc(doc(db, 'listings', l.id));
     } catch {
-      setError('Could not delete the listing.');
+      setError('No se pudo eliminar la publicación.');
     }
   };
 
@@ -121,7 +121,7 @@ export default function ListingsPanel() {
     try {
       await updateDoc(doc(db, 'listings', l.id), { published: !l.published });
     } catch {
-      setError('Could not update the listing.');
+      setError('No se pudo actualizar la publicación.');
     }
   };
 
@@ -132,16 +132,16 @@ export default function ListingsPanel() {
     <section>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-semibold tracking-tight">Listings</h2>
+          <h2 className="text-xl font-semibold tracking-tight">Publicaciones</h2>
           <p className="text-sm text-[#515154] font-light">
-            Published listings appear on the homepage. Drafts stay hidden.
+            Las publicaciones publicadas aparecen en el inicio. Los borradores quedan ocultos.
           </p>
         </div>
         <button
           onClick={openNew}
           className="inline-flex items-center gap-2 bg-[#1D1D1F] text-white text-xs font-medium px-5 py-3 rounded-full hover:bg-[#333336]"
         >
-          <Plus className="w-4 h-4" /> Add listing
+          <Plus className="w-4 h-4" /> Agregar publicación
         </button>
       </div>
 
@@ -149,10 +149,10 @@ export default function ListingsPanel() {
 
       <div className="bg-white rounded-3xl border border-[#000000]/5 overflow-hidden">
         {loading ? (
-          <p className="p-8 text-sm text-[#515154]">Loading listings…</p>
+          <p className="p-8 text-sm text-[#515154]">Cargando publicaciones…</p>
         ) : listings.length === 0 ? (
           <p className="p-8 text-sm text-[#515154]">
-            No listings yet. Add your first one — until you do, the homepage shows its sample properties.
+            Todavía no hay publicaciones. Agregá la primera; hasta entonces el inicio muestra sus artículos de muestra.
           </p>
         ) : (
           <ul className="divide-y divide-[#000000]/5">
@@ -173,22 +173,22 @@ export default function ListingsPanel() {
                     l.published ? 'bg-green-50 text-green-700' : 'bg-[#F5F5F7] text-[#515154]'
                   }`}
                 >
-                  {l.published ? 'Published' : 'Draft'}
+                  {l.published ? 'Publicada' : 'Borrador'}
                 </span>
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => togglePublished(l)}
-                    aria-label={l.published ? 'Unpublish' : 'Publish'}
+                    aria-label={l.published ? 'Despublicar' : 'Publicar'}
                     className="p-2 rounded-full hover:bg-[#F5F5F7]"
                   >
                     {l.published ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
-                  <button onClick={() => openEdit(l)} aria-label="Edit" className="p-2 rounded-full hover:bg-[#F5F5F7]">
+                  <button onClick={() => openEdit(l)} aria-label="Editar" className="p-2 rounded-full hover:bg-[#F5F5F7]">
                     <Pencil className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => remove(l)}
-                    aria-label="Delete"
+                    aria-label="Eliminar"
                     className="p-2 rounded-full hover:bg-red-50 text-red-600"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -205,42 +205,42 @@ export default function ListingsPanel() {
           <form onSubmit={save} className="bg-white rounded-3xl w-full max-w-2xl p-8 space-y-5 my-8">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold tracking-tight">
-                {editingId === 'new' ? 'Add listing' : 'Edit listing'}
+                {editingId === 'new' ? 'Agregar publicación' : 'Editar publicación'}
               </h3>
-              <button type="button" onClick={() => setEditingId(null)} aria-label="Close" className="p-2 rounded-full hover:bg-[#F5F5F7]">
+              <button type="button" onClick={() => setEditingId(null)} aria-label="Cerrar" className="p-2 rounded-full hover:bg-[#F5F5F7]">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className={labelClass} htmlFor="l-title">Title</label>
+                <label className={labelClass} htmlFor="l-title">Título</label>
                 <input id="l-title" required className={inputClass} value={form.title} onChange={(e) => set('title', e.target.value)} />
               </div>
               <div>
-                <label className={labelClass} htmlFor="l-location">Location</label>
-                <input id="l-location" required placeholder="Malibu, CA" className={inputClass} value={form.location} onChange={(e) => set('location', e.target.value)} />
+                <label className={labelClass} htmlFor="l-location">Ubicación</label>
+                <input id="l-location" required placeholder="Montevideo, UY" className={inputClass} value={form.location} onChange={(e) => set('location', e.target.value)} />
               </div>
               <div>
-                <label className={labelClass} htmlFor="l-price">Price (USD)</label>
+                <label className={labelClass} htmlFor="l-price">Precio (US$)</label>
                 <input id="l-price" type="number" min={0} required className={inputClass} value={form.price} onChange={(e) => set('price', Number(e.target.value))} />
               </div>
               <div>
-                <label className={labelClass} htmlFor="l-sqft">Square feet</label>
+                <label className={labelClass} htmlFor="l-sqft">Superficie (pies²)</label>
                 <input id="l-sqft" type="number" min={0} required className={inputClass} value={form.sqft} onChange={(e) => set('sqft', Number(e.target.value))} />
               </div>
               <div>
-                <label className={labelClass} htmlFor="l-beds">Bedrooms</label>
+                <label className={labelClass} htmlFor="l-beds">Dormitorios</label>
                 <input id="l-beds" type="number" min={0} required className={inputClass} value={form.beds} onChange={(e) => set('beds', Number(e.target.value))} />
               </div>
               <div>
-                <label className={labelClass} htmlFor="l-baths">Bathrooms</label>
+                <label className={labelClass} htmlFor="l-baths">Baños</label>
                 <input id="l-baths" type="number" min={0} step={0.5} required className={inputClass} value={form.baths} onChange={(e) => set('baths', Number(e.target.value))} />
               </div>
             </div>
 
             <div>
-              <label className={labelClass} htmlFor="l-image">Photo</label>
+              <label className={labelClass} htmlFor="l-image">Foto</label>
               {form.image && (
                 <div
                   className="w-full h-40 rounded-xl bg-[#E5E5EA] bg-cover bg-center mb-3"
@@ -257,14 +257,14 @@ export default function ListingsPanel() {
                 id="l-image"
                 type="url"
                 required
-                placeholder="…or paste an image URL"
+                placeholder="…o pegá la URL de una imagen"
                 className={`${inputClass} mt-3`}
                 value={form.image}
                 onChange={(e) => setForm((f) => ({ ...f, image: e.target.value, imageFileId: '' }))}
               />
             </div>
             <div>
-              <label className={labelClass} htmlFor="l-desc">Description</label>
+              <label className={labelClass} htmlFor="l-desc">Descripción</label>
               <textarea id="l-desc" rows={3} className={`${inputClass} resize-none`} value={form.description} onChange={(e) => set('description', e.target.value)} />
             </div>
             <label className="flex items-center gap-3 text-sm">
@@ -274,10 +274,10 @@ export default function ListingsPanel() {
 
             <div className="flex justify-end gap-3 pt-2">
               <button type="button" onClick={() => setEditingId(null)} className="text-sm px-5 py-2.5 rounded-full hover:bg-[#F5F5F7]">
-                Cancel
+                Cancelar
               </button>
               <button type="submit" disabled={saving} className="bg-[#1D1D1F] text-white text-sm font-medium px-6 py-2.5 rounded-full hover:bg-[#333336] disabled:opacity-50">
-                {saving ? 'Saving…' : 'Save listing'}
+                {saving ? 'Guardando…' : 'Guardar publicación'}
               </button>
             </div>
           </form>

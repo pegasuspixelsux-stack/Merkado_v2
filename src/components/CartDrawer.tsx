@@ -53,8 +53,8 @@ export default function CartDrawer({
   const place = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!lines.length) return;
-    if (!form.name.trim()) return setFormError('Add your name.');
-    if (!form.phone.trim() && !form.email.trim()) return setFormError('Add a phone number or an email.');
+    if (!form.name.trim()) return setFormError('Ingresá tu nombre.');
+    if (!form.phone.trim() && !form.email.trim()) return setFormError('Ingresá un teléfono o un correo electrónico.');
     if (!db) {
       setState('error');
       return;
@@ -74,7 +74,7 @@ export default function CartDrawer({
           // Firestore ids are strings; the built-in samples use numbers and are not real items.
           ...(typeof item.id === 'string' ? { propertyId: item.id } : {}),
           channel: 'Portal',
-          message: [`[${tag}] Quantity: ${qty}${item.area ? ` × ${item.area}` : ''}`, form.notes.trim()].filter(Boolean).join('\n'),
+          message: [`[${tag}] Cantidad: ${qty}${item.area ? ` × ${item.area}` : ''}`, form.notes.trim()].filter(Boolean).join('\n'),
           status: 'new',
           createdAt: serverTimestamp(),
         });
@@ -96,14 +96,14 @@ export default function CartDrawer({
       <aside
         role="dialog"
         aria-modal="true"
-        aria-label="Shopping cart"
+        aria-label="Carrito de compras"
         className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-xl flex flex-col"
       >
         <div className="flex items-center justify-between px-6 h-16 border-b border-[#000000]/5 shrink-0">
           <h2 className="font-semibold tracking-tight inline-flex items-center gap-2">
-            <ShoppingCart className="w-4 h-4" /> Your cart
+            <ShoppingCart className="w-4 h-4" /> Tu carrito
           </h2>
-          <button type="button" onClick={onClose} aria-label="Close cart" className="p-2 rounded-full hover:bg-[#F5F5F7]">
+          <button type="button" onClick={onClose} aria-label="Cerrar carrito" className="p-2 rounded-full hover:bg-[#F5F5F7]">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -111,10 +111,10 @@ export default function CartDrawer({
         <div className="flex-1 overflow-y-auto px-6 py-4">
           {state === 'sent' && lines.length === 0 ? (
             <p role="status" className="text-sm text-green-700 py-10 text-center">
-              Thanks! Your order was sent. We will contact you shortly.
+              ¡Gracias! Tu pedido fue enviado. Nos vamos a comunicar con vos en breve.
             </p>
           ) : lines.length === 0 ? (
-            <p className="text-sm text-[#515154] py-10 text-center">Your cart is empty.</p>
+            <p className="text-sm text-[#515154] py-10 text-center">Tu carrito está vacío.</p>
           ) : (
             <>
               <ul className="divide-y divide-[#000000]/5">
@@ -132,14 +132,14 @@ export default function CartDrawer({
                           {formatMoney(unitPriceOf(item), 'USD')}
                         </p>
                         <div className="mt-2 flex items-center gap-2">
-                          <button type="button" onClick={() => onChangeQty(id, -1)} disabled={qty <= 1} aria-label={`Decrease ${item.title}`} className="w-7 h-7 rounded-full bg-[#F5F5F7] flex items-center justify-center disabled:opacity-30">
+                          <button type="button" onClick={() => onChangeQty(id, -1)} disabled={qty <= 1} aria-label={`Disminuir ${item.title}`} className="w-7 h-7 rounded-full bg-[#F5F5F7] flex items-center justify-center disabled:opacity-30">
                             <Minus className="w-3.5 h-3.5" />
                           </button>
                           <span className="w-6 text-center text-sm" aria-live="polite">{qty}</span>
-                          <button type="button" onClick={() => onChangeQty(id, 1)} aria-label={`Increase ${item.title}`} className="w-7 h-7 rounded-full bg-[#F5F5F7] flex items-center justify-center">
+                          <button type="button" onClick={() => onChangeQty(id, 1)} aria-label={`Aumentar ${item.title}`} className="w-7 h-7 rounded-full bg-[#F5F5F7] flex items-center justify-center">
                             <Plus className="w-3.5 h-3.5" />
                           </button>
-                          <button type="button" onClick={() => onRemove(id)} aria-label={`Remove ${item.title}`} className="ml-auto p-2 rounded-full text-red-600 hover:bg-red-50">
+                          <button type="button" onClick={() => onRemove(id)} aria-label={`Quitar ${item.title}`} className="ml-auto p-2 rounded-full text-red-600 hover:bg-red-50">
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
@@ -151,10 +151,10 @@ export default function CartDrawer({
               </ul>
 
               <form id="cart-form" onSubmit={place} className="space-y-3 pt-4">
-                <input className={fieldClass} placeholder="Your name" aria-label="Your name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-                <input className={fieldClass} placeholder="Phone" aria-label="Phone" type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-                <input className={fieldClass} placeholder="Email (optional)" aria-label="Email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-                <textarea className={`${fieldClass} resize-none`} rows={2} placeholder="Delivery address or notes (optional)" aria-label="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+                <input className={fieldClass} placeholder="Tu nombre" aria-label="Tu nombre" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                <input className={fieldClass} placeholder="Teléfono" aria-label="Teléfono" type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+                <input className={fieldClass} placeholder="Correo electrónico (opcional)" aria-label="Correo electrónico" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+                <textarea className={`${fieldClass} resize-none`} rows={2} placeholder="Dirección de entrega o notas (opcional)" aria-label="Notas" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
               </form>
             </>
           )}
@@ -168,7 +168,7 @@ export default function CartDrawer({
             </div>
             {(formError || state === 'error') && (
               <p role="alert" className="text-xs text-red-600">
-                {formError ?? 'Could not send your order. Please try again.'}
+                {formError ?? 'No se pudo enviar tu pedido. Probá de nuevo.'}
               </p>
             )}
             <button
@@ -177,7 +177,7 @@ export default function CartDrawer({
               disabled={state === 'sending'}
               className="w-full bg-[#1D1D1F] text-white text-sm font-medium px-6 py-3.5 rounded-full hover:bg-[#333336] transition-all disabled:opacity-50"
             >
-              {state === 'sending' ? 'Sending…' : 'Place order'}
+              {state === 'sending' ? 'Enviando…' : 'Hacer pedido'}
             </button>
           </div>
         )}

@@ -5,10 +5,11 @@ import { Plus } from 'lucide-react';
 import { useProperties } from '../../hooks/useProperties';
 import { createLead } from '../../services/dbService';
 import type { LeadChannel } from '../../types/firestore';
-import { formatMoney } from '../../utils/format';
+import { formatMoney, formatQuantity } from '../../utils/format';
 import { cardClass, inputClass, labelClass } from './ui';
 
 const channels: LeadChannel[] = ['Direct', 'WhatsApp', 'Portal'];
+const channelLabels: Record<LeadChannel, string> = { Direct: 'En persona o teléfono', WhatsApp: 'WhatsApp', Portal: 'Sitio web' };
 
 const empty = { name: '', phone: '', email: '', itemId: '', quantity: '1', channel: 'Direct' as LeadChannel, notes: '' };
 
@@ -27,10 +28,10 @@ export default function AddOrder() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const quantity = Number(form.quantity);
-    if (!form.name.trim()) return setError('Add the customer name.');
-    if (!form.phone.trim() && !form.email.trim()) return setError('Add a phone number or an email.');
-    if (!form.itemId) return setError('Choose an item.');
-    if (!Number.isInteger(quantity) || quantity < 1) return setError('Quantity must be a whole number, 1 or more.');
+    if (!form.name.trim()) return setError('Ingresá el nombre del cliente.');
+    if (!form.phone.trim() && !form.email.trim()) return setError('Ingresá un teléfono o un correo electrónico.');
+    if (!form.itemId) return setError('Elegí un artículo.');
+    if (!Number.isInteger(quantity) || quantity < 1) return setError('La cantidad debe ser un número entero, 1 o más.');
     setSaving(true);
     setError(null);
     setDone(null);
@@ -42,18 +43,18 @@ export default function AddOrder() {
         phone: form.phone,
         email: form.email,
         channel: form.channel,
-        message: [`Quantity: ${quantity}${item?.weight ? ` × ${item.weight} ${item.unit ?? ''}`.trimEnd() : ''}`, form.notes.trim()]
+        message: [`Cantidad: ${quantity}${item?.weight ? ` × ${formatQuantity(item.weight, item.unit)}` : ''}`, form.notes.trim()]
           .filter(Boolean)
           .join('\n'),
       });
-      setDone(`Order added for ${form.name.trim()}.`);
+      setDone(`Pedido agregado para ${form.name.trim()}.`);
       setForm(empty);
     } catch (err) {
       const code = (err as { code?: string }).code;
       setError(
         code === 'permission-denied'
-          ? 'Permission denied. Check that the Firestore rules are published.'
-          : 'Could not add the order.'
+          ? 'Permiso denegado. Revisá que las reglas de Firestore estén publicadas.'
+          : 'No se pudo agregar el pedido.'
       );
     } finally {
       setSaving(false);
@@ -71,7 +72,7 @@ export default function AddOrder() {
         aria-expanded={open}
         className="inline-flex items-center gap-2 bg-[#1D1D1F] text-white text-xs font-medium px-5 py-3 rounded-full hover:bg-[#333336] transition-all"
       >
-        <Plus className="w-4 h-4" /> Add order
+        <Plus className="w-4 h-4" /> Agregar pedido
       </button>
 
       {done && !open && (
@@ -82,34 +83,34 @@ export default function AddOrder() {
 
       {open && (
         <form onSubmit={submit} className={`${cardClass} p-6 mt-3 max-w-2xl space-y-5`}>
-          <h2 className="font-semibold tracking-tight">New order</h2>
+          <h2 className="font-semibold tracking-tight">Nuevo pedido</h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
             <div>
-              <label htmlFor="o-name" className={labelClass}>Customer name</label>
+              <label htmlFor="o-name" className={labelClass}>Nombre del cliente</label>
               <input id="o-name" className={inputClass} value={form.name} onChange={(e) => set('name', e.target.value)} />
             </div>
             <div>
-              <label htmlFor="o-phone" className={labelClass}>Phone</label>
+              <label htmlFor="o-phone" className={labelClass}>Teléfono</label>
               <input id="o-phone" type="tel" className={inputClass} value={form.phone} onChange={(e) => set('phone', e.target.value)} />
             </div>
             <div>
-              <label htmlFor="o-email" className={labelClass}>Email (optional)</label>
+              <label htmlFor="o-email" className={labelClass}>Correo electrónico (opcional)</label>
               <input id="o-email" type="email" className={inputClass} value={form.email} onChange={(e) => set('email', e.target.value)} />
             </div>
             <div>
-              <label htmlFor="o-channel" className={labelClass}>Received by</label>
+              <label htmlFor="o-channel" className={labelClass}>Recibido por</label>
               <select id="o-channel" className={inputClass} value={form.channel} onChange={(e) => set('channel', e.target.value as LeadChannel)}>
-                {channels.map((c) => <option key={c} value={c}>{c}</option>)}
+                {channels.map((c) => <option key={c} value={c}>{channelLabels[c]}</option>)}
               </select>
             </div>
           </div>
 
           <div className="grid grid-cols-3 gap-4 md:gap-6">
             <div className="col-span-2">
-              <label htmlFor="o-item" className={labelClass}>Item</label>
+              <label htmlFor="o-item" className={labelClass}>Artículo</label>
               <select id="o-item" className={inputClass} value={form.itemId} onChange={(e) => set('itemId', e.target.value)}>
-                <option value="">Choose an item…</option>
+                <option value="">Elegí un artículo…</option>
                 {available.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.title} — {formatMoney(p.salePrice ?? p.price, p.currency)}
@@ -118,14 +119,14 @@ export default function AddOrder() {
               </select>
             </div>
             <div>
-              <label htmlFor="o-qty" className={labelClass}>Quantity</label>
+              <label htmlFor="o-qty" className={labelClass}>Cantidad</label>
               <input id="o-qty" type="number" min={1} step={1} inputMode="numeric" className={inputClass} value={form.quantity} onChange={(e) => set('quantity', e.target.value)} />
             </div>
           </div>
 
           <div>
-            <label htmlFor="o-notes" className={labelClass}>Notes (optional)</label>
-            <textarea id="o-notes" rows={3} className={`${inputClass} resize-none`} value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder="Delivery address, preferred time…" />
+            <label htmlFor="o-notes" className={labelClass}>Notas (opcional)</label>
+            <textarea id="o-notes" rows={3} className={`${inputClass} resize-none`} value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder="Dirección de entrega, horario preferido…" />
           </div>
 
           {error && (
@@ -140,10 +141,10 @@ export default function AddOrder() {
               disabled={saving}
               className="bg-[#1D1D1F] text-white text-sm font-medium px-6 py-3 rounded-full hover:bg-[#333336] transition-all disabled:opacity-50"
             >
-              {saving ? 'Saving…' : 'Add order'}
+              {saving ? 'Guardando…' : 'Agregar pedido'}
             </button>
             <button type="button" onClick={() => setOpen(false)} className="text-sm px-5 py-3 rounded-full hover:bg-[#F5F5F7]">
-              Close
+              Cerrar
             </button>
           </div>
           {done && (

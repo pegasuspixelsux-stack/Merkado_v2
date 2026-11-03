@@ -11,12 +11,12 @@ export default function NewPropertyPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Inventory"
-        title="Add item"
-        description="Add a photo, title, weight, price and category."
+        eyebrow="Inventario"
+        title="Agregar artículo"
+        description="Agregá una foto, el título, el peso, el precio y la categoría."
       />
       <PropertyForm
-        submitLabel="Publish item"
+        submitLabel="Publicar artículo"
         onSubmit={async (data) => {
           await createProperty(data);
           router.push('/dashboard/properties');

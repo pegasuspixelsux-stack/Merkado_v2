@@ -7,9 +7,9 @@ import type { Lead, LeadStatus } from '../types/firestore';
 import { timeAgo, whatsappUrl } from '../utils/format';
 
 const statuses: { value: LeadStatus; label: string }[] = [
-  { value: 'new', label: 'New' },
-  { value: 'contacted', label: 'Contacted' },
-  { value: 'closed', label: 'Closed' },
+  { value: 'new', label: 'Nuevo' },
+  { value: 'contacted', label: 'Contactado' },
+  { value: 'closed', label: 'Cerrado' },
 ];
 
 const FIRESTORE_ID = /^[A-Za-z0-9]{20}$/;
@@ -48,7 +48,7 @@ interface LeadListProps {
   emptyText?: string;
 }
 
-export default function LeadList({ leads, agentName, emptyText = 'No orders yet.' }: LeadListProps) {
+export default function LeadList({ leads, agentName, emptyText = 'Todavía no hay pedidos.' }: LeadListProps) {
   const titleFor = usePropertyTitles(leads.map((l) => l.propertyId));
   const [error, setError] = useState<string | null>(null);
 
@@ -57,7 +57,7 @@ export default function LeadList({ leads, agentName, emptyText = 'No orders yet.
     try {
       await updateLeadStatus(lead.id, status);
     } catch {
-      setError('Could not update the order.');
+      setError('No se pudo actualizar el pedido.');
     }
   };
 
@@ -73,20 +73,20 @@ export default function LeadList({ leads, agentName, emptyText = 'No orders yet.
       <ul className="divide-y divide-[#000000]/5">
         {leads.map((lead) => {
           const property = titleFor(lead.propertyId);
-          const firstName = lead.clientName.split(' ')[0] || 'there';
+          const firstName = lead.clientName.split(' ')[0];
           const text =
-            `Hi ${firstName}, this is ${agentName || 'your advisor'} from Merkado. ` +
+            `Hola${firstName ? ` ${firstName}` : ''}, te escribe ${agentName || 'tu asesor/a'} de Merkado. ` +
             (property
-              ? `Thank you for your interest in ${property}. `
-              : 'Thank you for getting in touch. ') +
-            'When would be a good time to talk?';
+              ? `Gracias por tu pedido de ${property}. `
+              : 'Gracias por contactarte. ') +
+            '¿Cuándo te queda bien que hablemos?';
           const wa = lead.phone ? whatsappUrl(lead.phone, text) : null;
 
           return (
             <li key={lead.id} className="p-5 space-y-3">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="font-medium truncate">{lead.clientName || 'Unnamed'}</p>
+                  <p className="font-medium truncate">{lead.clientName || 'Sin nombre'}</p>
                   <p className="text-xs text-[#515154]">
                     {timeAgo(lead.createdAt)} · {lead.channel}
                   </p>
@@ -94,7 +94,7 @@ export default function LeadList({ leads, agentName, emptyText = 'No orders yet.
                 <select
                   value={lead.status}
                   onChange={(e) => setStatus(lead, e.target.value as LeadStatus)}
-                  aria-label={`Status for ${lead.clientName || lead.email}`}
+                  aria-label={`Estado de ${lead.clientName || lead.email}`}
                   className={`shrink-0 rounded-full px-3 py-1.5 text-xs outline-none cursor-pointer ${
                     lead.status === 'new' ? 'bg-[#1D1D1F] text-white' : 'bg-[#F5F5F7] text-[#1D1D1F]'
                   }`}
@@ -124,10 +124,10 @@ export default function LeadList({ leads, agentName, emptyText = 'No orders yet.
                   </a>
                 ) : (
                   <span
-                    title="This order has no phone number"
+                    title="Este pedido no tiene teléfono"
                     className="inline-flex items-center gap-1.5 bg-[#F5F5F7] text-[#86868B] px-4 py-2 rounded-full cursor-not-allowed"
                   >
-                    <MessageCircle className="w-3.5 h-3.5" /> No phone
+                    <MessageCircle className="w-3.5 h-3.5" /> Sin teléfono
                   </span>
                 )}
                 {lead.email && (
@@ -135,7 +135,7 @@ export default function LeadList({ leads, agentName, emptyText = 'No orders yet.
                     href={`mailto:${lead.email}`}
                     className="inline-flex items-center gap-1.5 bg-[#F5F5F7] px-4 py-2 rounded-full hover:bg-[#E5E5EA] transition-colors"
                   >
-                    <Mail className="w-3.5 h-3.5" /> Email
+                    <Mail className="w-3.5 h-3.5" /> Correo
                   </a>
                 )}
                 {lead.phone && (
@@ -143,7 +143,7 @@ export default function LeadList({ leads, agentName, emptyText = 'No orders yet.
                     href={`tel:${lead.phone}`}
                     className="inline-flex items-center gap-1.5 bg-[#F5F5F7] px-4 py-2 rounded-full hover:bg-[#E5E5EA] transition-colors"
                   >
-                    <Phone className="w-3.5 h-3.5" /> Call
+                    <Phone className="w-3.5 h-3.5" /> Llamar
                   </a>
                 )}
               </div>

@@ -1,6 +1,6 @@
 import { getActiveProperties, getCategories } from '../services/dbService';
 import type { Property, PropertyType } from '../types/firestore';
-import { formatMoney, mergeCategories, operationLabels } from '../utils/format';
+import { formatMoney, formatQuantity, mergeCategories, operationLabels } from '../utils/format';
 import { ikUrl } from '../utils/imagekit';
 
 export type HeroSlide = {
@@ -64,7 +64,7 @@ function toHomeProperty(p: Property, label: (t: string) => string): HomeProperty
     price: formatMoney(p.price, p.currency),
     beds: p.specs.bedrooms,
     baths: p.specs.bathrooms,
-    area: p.weight ? `${p.weight.toLocaleString('en-US')} ${p.unit ?? ''}`.trim() : '',
+    area: formatQuantity(p.weight, p.unit),
     image: p.photos[0]?.url ?? '',
     href: `/items/${p.id}`,
     type: p.type,

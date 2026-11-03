@@ -49,7 +49,7 @@ function PropertiesContent() {
       await seedSampleProperties(agent.id, { name: agent.name, phone: agent.phone });
       await reload();
     } catch {
-      setActionError('Could not import the sample items. Check that the Firestore rules are published.');
+      setActionError('No se pudieron importar los artículos de muestra. Revisá que las reglas de Firestore estén publicadas.');
     } finally {
       setImporting(false);
     }
@@ -60,32 +60,32 @@ function PropertiesContent() {
     try {
       await update(p, { featured: !p.featured });
     } catch {
-      setActionError('Could not update the item. You can only change your own items.');
+      setActionError('No se pudo actualizar el artículo. Solo podés modificar tus propios artículos.');
     }
   };
 
   const onDelete = async (p: Property) => {
-    if (!window.confirm(`Delete “${p.title}”? This cannot be undone.`)) return;
+    if (!window.confirm(`¿Eliminar “${p.title}”? Esta acción no se puede deshacer.`)) return;
     setActionError(null);
     try {
       await remove(p);
     } catch {
-      setActionError('Could not delete the item. You can only delete your own items.');
+      setActionError('No se pudo eliminar el artículo. Solo podés eliminar tus propios artículos.');
     }
   };
 
   return (
     <>
       <PageHeader
-        eyebrow="Inventory"
-        title="Items"
-        description={`${items.length} item${items.length === 1 ? '' : 's'} loaded`}
+        eyebrow="Inventario"
+        title="Artículos"
+        description={`${items.length} ${items.length === 1 ? 'artículo cargado' : 'artículos cargados'}`}
         action={
           <Link
             href="/dashboard/properties/new"
             className="inline-flex items-center gap-2 bg-[#1D1D1F] text-white text-xs font-medium px-5 py-3 rounded-full hover:bg-[#333336] transition-all"
           >
-            <Plus className="w-4 h-4" /> Add item
+            <Plus className="w-4 h-4" /> Agregar artículo
           </Link>
         }
       />
@@ -94,15 +94,15 @@ function PropertiesContent() {
 
       {/* Filters + view toggle */}
       <div className="flex flex-wrap items-center gap-3 mb-6">
-        <select value={type} onChange={(e) => setType(e.target.value as PropertyType | 'all')} aria-label="Filter by category" className={selectClass}>
-          <option value="all">All categories</option>
+        <select value={type} onChange={(e) => setType(e.target.value as PropertyType | 'all')} aria-label="Filtrar por categoría" className={selectClass}>
+          <option value="all">Todas las categorías</option>
           {categories.map((c) => (
             <option key={c.id} value={c.id}>{c.name}</option>
           ))}
         </select>
         <label className="inline-flex items-center gap-2 bg-white border border-[#000000]/5 rounded-full px-4 py-2.5 text-xs cursor-pointer">
           <input type="checkbox" checked={featuredOnly} onChange={(e) => setFeaturedOnly(e.target.checked)} />
-          Featured only
+          Solo destacados
         </label>
         {hasFilters && (
           <button
@@ -112,14 +112,14 @@ function PropertiesContent() {
             }}
             className="text-xs underline underline-offset-2 text-[#515154] hover:text-[#1D1D1F]"
           >
-            Reset
+            Restablecer
           </button>
         )}
 
-        <div className="ml-auto inline-flex rounded-full bg-white border border-[#000000]/5 p-1" role="group" aria-label="View">
+        <div className="ml-auto inline-flex rounded-full bg-white border border-[#000000]/5 p-1" role="group" aria-label="Vista">
           {([
-            ['grid', LayoutGrid, 'Grid view'],
-            ['table', Rows3, 'Table view'],
+            ['grid', LayoutGrid, 'Vista de cuadrícula'],
+            ['table', Rows3, 'Vista de tabla'],
           ] as const).map(([key, Icon, label]) => (
             <button
               key={key}
@@ -138,7 +138,7 @@ function PropertiesContent() {
 
       {featuredCount > 5 && (
         <p className="mb-4 rounded-2xl bg-[#F5F5F7] px-5 py-3 text-sm">
-          {featuredCount} items are featured. The homepage hero shows the 5 most recent.
+          Hay {featuredCount} artículos destacados. El inicio del sitio muestra los 5 más recientes.
         </p>
       )}
 
@@ -149,13 +149,13 @@ function PropertiesContent() {
       )}
 
       {loading ? (
-        <p className="text-sm text-[#515154]">Loading items…</p>
+        <p className="text-sm text-[#515154]">Cargando artículos…</p>
       ) : filtered.length === 0 ? (
         <div className={`${cardClass} p-10 text-center`}>
           <p className="text-sm text-[#515154]">
             {items.length === 0
-              ? 'No items yet. Add your first item, or start with the nine sample items from the website.'
-              : 'No items match these filters.'}
+              ? 'Todavía no hay artículos. Agregá el primero o empezá con los nueve artículos de muestra del sitio.'
+              : 'Ningún artículo coincide con estos filtros.'}
           </p>
           {items.length === 0 && (
             <button
@@ -163,7 +163,7 @@ function PropertiesContent() {
               disabled={importing}
               className="mt-5 bg-[#1D1D1F] text-white text-xs font-medium px-6 py-3 rounded-full hover:bg-[#333336] transition-all disabled:opacity-50"
             >
-              {importing ? 'Importing…' : 'Import sample items'}
+              {importing ? 'Importando…' : 'Importar artículos de muestra'}
             </button>
           )}
         </div>
@@ -193,12 +193,12 @@ function PropertiesContent() {
             disabled={loadingMore}
             className="text-xs font-medium px-6 py-3 rounded-full bg-white border border-[#000000]/5 hover:bg-[#F5F5F7] disabled:opacity-50"
           >
-            {loadingMore ? 'Loading…' : 'Load more'}
+            {loadingMore ? 'Cargando…' : 'Cargar más'}
           </button>
         </div>
       )}
       {hasFilters && hasMore && (
-        <p className="text-center text-xs text-[#515154] mt-3">Filters apply to the items loaded so far.</p>
+        <p className="text-center text-xs text-[#515154] mt-3">Los filtros se aplican a los artículos cargados hasta ahora.</p>
       )}
     </>
   );

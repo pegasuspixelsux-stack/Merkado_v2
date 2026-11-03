@@ -9,10 +9,10 @@ import { PageHeader, cardClass } from '@/src/components/dashboard/ui';
 import type { LeadStatus } from '@/src/types/firestore';
 
 const filters: { value: LeadStatus | 'all'; label: string }[] = [
-  { value: 'all', label: 'All' },
-  { value: 'new', label: 'New' },
-  { value: 'contacted', label: 'Contacted' },
-  { value: 'closed', label: 'Closed' },
+  { value: 'all', label: 'Todos' },
+  { value: 'new', label: 'Nuevos' },
+  { value: 'contacted', label: 'Contactados' },
+  { value: 'closed', label: 'Cerrados' },
 ];
 
 export default function LeadsPage() {
@@ -26,14 +26,14 @@ export default function LeadsPage() {
   return (
     <>
       <PageHeader
-        eyebrow="CRM"
-        title="Orders"
-        description="Orders from the website and the ones you add, updated live. Reply on WhatsApp in one tap."
+        eyebrow="Clientes"
+        title="Pedidos"
+        description="Pedidos del sitio y los que agregás vos, actualizados en vivo. Respondé por WhatsApp con un toque."
       />
 
       <AddOrder />
 
-      <div className="flex flex-wrap gap-2 mb-6" role="group" aria-label="Filter orders by status">
+      <div className="flex flex-wrap gap-2 mb-6" role="group" aria-label="Filtrar pedidos por estado">
         {filters.map((f) => (
           <button
             key={f.value}
@@ -54,12 +54,12 @@ export default function LeadsPage() {
             {error}
           </p>
         ) : loading ? (
-          <p className="p-6 text-sm text-[#515154]">Loading orders…</p>
+          <p className="p-6 text-sm text-[#515154]">Cargando pedidos…</p>
         ) : (
           <LeadList
             leads={visible}
             agentName={agent?.name ?? ''}
-            emptyText={leads.length ? 'No orders with this status.' : 'No orders yet. Website orders appear here instantly.'}
+            emptyText={leads.length ? 'No hay pedidos con este estado.' : 'Todavía no hay pedidos. Los pedidos del sitio aparecen acá al instante.'}
           />
         )}
       </div>

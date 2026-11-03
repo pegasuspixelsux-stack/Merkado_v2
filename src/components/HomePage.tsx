@@ -23,46 +23,46 @@ import {
 const PAGE_SIZE = 12;
 
 // --- HERO SLIDES DATA ---
-// Shown until featured properties load (or if there are none yet).
+// Se muestran hasta que haya artículos destacados (o si todavía no hay ninguno).
 const fallbackSlides: HeroSlide[] = [
   {
     id: 1,
-    title: "Vine Tomatoes",
-    location: "Salinas Valley, CA",
-    price: "$4.50 / lb",
-    tagline: "Sun-ripened and picked at dawn.",
+    title: "Tomates perita",
+    location: "Canelones, UY",
+    price: "US$ 4,50 / lb",
+    tagline: "Madurados al sol y cosechados al amanecer.",
     image: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?q=80&w=2000&auto=format&fit=crop",
   },
   {
     id: 2,
-    title: "Seedless Watermelon",
-    location: "Fresno, CA",
-    price: "$6.90 each",
-    tagline: "Crisp, sweet, and chilled to order.",
+    title: "Sandía sin semillas",
+    location: "Salto, UY",
+    price: "US$ 6,90 c/u",
+    tagline: "Crocante, dulce y bien fría.",
     image: "https://images.unsplash.com/photo-1587049352846-4a222e784d38?q=80&w=2000&auto=format&fit=crop",
   },
   {
     id: 3,
-    title: "Ataulfo Mangoes",
-    location: "Oxnard, CA",
-    price: "$18.00 / case",
-    tagline: "Buttery flesh, no fibers, peak season.",
+    title: "Mangos Ataulfo",
+    location: "Rivera, UY",
+    price: "US$ 18,00 / cajón",
+    tagline: "Pulpa cremosa y sin fibras, en plena temporada.",
     image: "https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?q=80&w=2000&auto=format&fit=crop",
   },
   {
     id: 4,
-    title: "Farmers Market Box",
-    location: "Watsonville, CA",
-    price: "$32.00 / box",
-    tagline: "A week of seasonal vegetables in one crate.",
+    title: "Caja de la feria",
+    location: "Montevideo, UY",
+    price: "US$ 32,00 / caja",
+    tagline: "Una semana de verduras de estación en un solo cajón.",
     image: "https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?q=80&w=2000&auto=format&fit=crop",
   },
   {
     id: 5,
-    title: "Tropical Fruit Mix",
-    location: "Santa Barbara, CA",
-    price: "$24.00 / box",
-    tagline: "Papaya, kiwi, grapes and citrus, ready to eat.",
+    title: "Mix de frutas tropicales",
+    location: "Paysandú, UY",
+    price: "US$ 24,00 / caja",
+    tagline: "Papaya, kiwi, uvas y cítricos, listos para comer.",
     image: "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=2000&auto=format&fit=crop",
   },
 ];
@@ -71,109 +71,109 @@ const fallbackSlides: HeroSlide[] = [
 const fallbackProperties: HomeProperty[] = [
   {
     id: 1,
-    title: "Vine Tomatoes",
-    location: "Salinas, CA",
-    price: "$4.50 / lb",
+    title: "Tomates perita",
+    location: "Canelones, UY",
+    price: "US$ 4,50 / lb",
     beds: 0,
     baths: 0,
     area: "",
-    stats: ["Organic", "12 lb case", "Grade A"],
+    stats: ["Orgánico", "Cajón 12 lb", "Calidad A"],
     type: 'vegetable',
     image: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?q=80&w=1200&auto=format&fit=crop",
   },
   {
     id: 2,
-    title: "Seedless Watermelon",
-    location: "Fresno, CA",
-    price: "$6.90 each",
+    title: "Sandía sin semillas",
+    location: "Salto, UY",
+    price: "US$ 6,90 c/u",
     beds: 0,
     baths: 0,
     area: "",
-    stats: ["Non-GMO", "18 lb each", "Grade A"],
+    stats: ["Sin transgénicos", "18 lb c/u", "Calidad A"],
     type: 'fruit',
     image: "https://images.unsplash.com/photo-1587049352846-4a222e784d38?q=80&w=800&auto=format&fit=crop",
   },
   {
     id: 3,
-    title: "Ataulfo Mangoes",
-    location: "Oxnard, CA",
-    price: "$18.00 / case",
+    title: "Mangos Ataulfo",
+    location: "Rivera, UY",
+    price: "US$ 18,00 / cajón",
     beds: 0,
     baths: 0,
     area: "",
-    stats: ["Organic", "10 lb case", "Grade A"],
+    stats: ["Orgánico", "Cajón 10 lb", "Calidad A"],
     type: 'tropical',
     image: "https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?q=80&w=800&auto=format&fit=crop",
   },
   {
     id: 4,
-    title: "Gold Pineapples",
-    location: "Santa Barbara, CA",
-    price: "$3.80 each",
+    title: "Ananás dorados",
+    location: "Rivera, UY",
+    price: "US$ 3,80 c/u",
     beds: 0,
     baths: 0,
     area: "",
-    stats: ["Conventional", "4 lb each", "Grade A"],
+    stats: ["Convencional", "4 lb c/u", "Calidad A"],
     type: 'tropical',
     image: "https://images.unsplash.com/photo-1550258987-190a2d41a8ba?q=80&w=1200&auto=format&fit=crop",
   },
   {
     id: 5,
-    title: "Russet Potatoes",
-    location: "Idaho Falls, ID",
-    price: "$0.85 / lb",
+    title: "Papas blancas",
+    location: "San José, UY",
+    price: "US$ 0,85 / lb",
     beds: 0,
     baths: 0,
     area: "",
-    stats: ["Conventional", "50 lb sack", "Grade B"],
+    stats: ["Convencional", "Bolsa 50 lb", "Calidad B"],
     type: 'vegetable',
     image: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?q=80&w=800&auto=format&fit=crop",
   },
   {
     id: 6,
-    title: "Clementine Tangerines",
-    location: "Bakersfield, CA",
-    price: "$2.20 / lb",
+    title: "Mandarinas clementinas",
+    location: "Salto, UY",
+    price: "US$ 2,20 / lb",
     beds: 0,
     baths: 0,
     area: "",
-    stats: ["Organic", "5 lb box", "Grade A"],
+    stats: ["Orgánico", "Caja 5 lb", "Calidad A"],
     type: 'fruit',
     image: "https://images.unsplash.com/photo-1557800636-894a64c1696f?q=80&w=800&auto=format&fit=crop",
   },
   {
     id: 7,
-    title: "Garden Vegetable Mix",
-    location: "Watsonville, CA",
-    price: "$32.00 / box",
+    title: "Mix de verduras de huerta",
+    location: "Montevideo, UY",
+    price: "US$ 32,00 / caja",
     beds: 0,
     baths: 0,
     area: "",
-    stats: ["Organic", "20 lb box", "Grade A"],
+    stats: ["Orgánico", "Caja 20 lb", "Calidad A"],
     type: 'vegetable',
     image: "https://images.unsplash.com/photo-1597362925123-77861d3fbac7?q=80&w=800&auto=format&fit=crop",
   },
   {
     id: 8,
-    title: "Berry & Citrus Mix",
-    location: "Oxnard, CA",
-    price: "$21.00 / box",
+    title: "Mix de frutos rojos y cítricos",
+    location: "Paysandú, UY",
+    price: "US$ 21,00 / caja",
     beds: 0,
     baths: 0,
     area: "",
-    stats: ["Non-GMO", "8 lb box", "Grade A"],
+    stats: ["Sin transgénicos", "Caja 8 lb", "Calidad A"],
     type: 'fruit',
     image: "https://images.unsplash.com/photo-1519996529931-28324d5a630e?q=80&w=800&auto=format&fit=crop",
   },
   {
     id: 9,
-    title: "Salad Greens",
-    location: "Castroville, CA",
-    price: "$3.20 / lb",
+    title: "Hojas verdes para ensalada",
+    location: "Canelones, UY",
+    price: "US$ 3,20 / lb",
     beds: 0,
     baths: 0,
     area: "",
-    stats: ["Organic", "10 lb case", "Grade A"],
+    stats: ["Orgánico", "Cajón 10 lb", "Calidad A"],
     type: 'leafy',
     image: "https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=800&auto=format&fit=crop",
   },
@@ -203,7 +203,7 @@ export default function CoastalWebHome({
     name: '',
     email: '',
     phone: '',
-    kind: 'Restaurant',
+    kind: 'Restaurante',
     volume: '',
     message: '',
   });
@@ -221,11 +221,11 @@ export default function CoastalWebHome({
         name: wholesale.name.trim(),
         email: wholesale.email.trim(),
         phone: wholesale.phone.trim(),
-        property: 'Mayorista enrollment',
+        property: 'Alta de mayorista',
         channel: 'Portal',
         message: [
-          `[Mayorista] Business: ${wholesale.business.trim()} (${wholesale.kind})`,
-          wholesale.volume.trim() && `Estimated weekly volume: ${wholesale.volume.trim()}`,
+          `[Mayorista] Negocio: ${wholesale.business.trim()} (${wholesale.kind})`,
+          wholesale.volume.trim() && `Volumen semanal estimado: ${wholesale.volume.trim()}`,
           wholesale.message.trim(),
         ]
           .filter(Boolean)
@@ -233,7 +233,7 @@ export default function CoastalWebHome({
         status: 'new',
         createdAt: serverTimestamp(),
       });
-      setWholesale({ business: '', name: '', email: '', phone: '', kind: 'Restaurant', volume: '', message: '' });
+      setWholesale({ business: '', name: '', email: '', phone: '', kind: 'Restaurante', volume: '', message: '' });
       setLeadState('sent');
     } catch {
       setLeadState('error');
@@ -315,13 +315,13 @@ export default function CoastalWebHome({
       {/* --- NAVIGATION --- */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-[#FBFBFD]/80 backdrop-blur-md border-b border-[#000000]/5">
         <div className="bg-black text-white text-center text-xs font-medium tracking-wide py-1.5 px-6">
-          Free delivery on orders over $50
+          Envío gratis en pedidos de más de US$ 50
         </div>
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <span className="font-semibold text-lg tracking-tight">Merkado.</span>
           <div
             role="radiogroup"
-            aria-label="Customer type"
+            aria-label="Tipo de cliente"
             className="inline-flex rounded-full bg-[#F5F5F7] border border-[#000000]/5 p-0.5 text-xs font-medium"
           >
             {([['retail', 'Minorista'], ['wholesale', 'Mayorista']] as const).map(([value, label]) => (
@@ -342,7 +342,7 @@ export default function CoastalWebHome({
           <button
             type="button"
             onClick={() => setCartOpen(true)}
-            aria-label={`Open cart, ${cartCount} item${cartCount === 1 ? '' : 's'}`}
+            aria-label={`Abrir carrito, ${cartCount} ${cartCount === 1 ? 'artículo' : 'artículos'}`}
             className="relative ml-2 w-10 h-10 shrink-0 rounded-full flex items-center justify-center hover:bg-[#F5F5F7] transition-colors"
           >
             <ShoppingCart className="w-5 h-5" />
@@ -396,7 +396,7 @@ export default function CoastalWebHome({
                   href="#contact"
                   className="inline-flex items-center space-x-2 bg-white text-black px-6 py-3 rounded-full text-sm font-medium hover:bg-white/90 transition-all"
                 >
-                  <span>Request Details</span>
+                  <span>Pedir detalles</span>
                   <ArrowUpRight className="w-4 h-4" />
                 </a>
               </div>
@@ -414,7 +414,7 @@ export default function CoastalWebHome({
               <button
                 key={slideIndex}
                 onClick={() => setCurrentSlide(slideIndex)}
-                aria-label={`Go to slide ${slideIndex + 1}`}
+                aria-label={`Ir a la diapositiva ${slideIndex + 1}`}
                 aria-current={active ? 'true' : undefined}
                 className={`w-2.5 h-2.5 rounded-full transition-all ${
                   active ? 'bg-white scale-125' : 'bg-white/40 hover:bg-white/70'
@@ -452,17 +452,17 @@ export default function CoastalWebHome({
                 setQuery(e.target.value);
                 setPage(1);
               }}
-              placeholder="Search by name, category or price…"
-              aria-label="Search items by name, category or price"
+              placeholder="Buscá por nombre, categoría o precio…"
+              aria-label="Buscar artículos por nombre, categoría o precio"
               className="min-w-0 flex-1 bg-transparent px-2 md:px-4 py-3 text-sm text-[#1D1D1F] placeholder:text-[#86868B] outline-none"
             />
             <button
               type="submit"
-              aria-label="Search"
+              aria-label="Buscar"
               className="shrink-0 bg-[#1D1D1F] text-white text-xs font-medium w-11 h-11 md:w-auto md:h-auto md:px-6 md:py-3 rounded-full hover:bg-[#333336] transition-all flex items-center justify-center"
             >
               <Search className="w-4 h-4 md:hidden" />
-              <span className="hidden md:inline">Search</span>
+              <span className="hidden md:inline">Buscar</span>
             </button>
           </div>
         </form>
@@ -473,10 +473,10 @@ export default function CoastalWebHome({
         {categories.length > 0 && (
           <div
             role="group"
-            aria-label="Categories"
+            aria-label="Categorías"
             className="flex flex-nowrap items-center gap-2 mb-6 overflow-x-auto -mx-3 px-3 md:mx-0 md:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
-            {[{ id: 'all', label: 'All' }, ...categories].map((c) => {
+            {[{ id: 'all', label: 'Todas' }, ...categories].map((c) => {
               const active = category === c.id;
               return (
                 <button
@@ -500,7 +500,7 @@ export default function CoastalWebHome({
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
           {filteredProperties.length === 0 && (
             <p className="col-span-full text-center text-[#515154] text-sm">
-              No items match your search.
+              No hay artículos que coincidan con tu búsqueda.
             </p>
           )}
           {visibleProperties.map((prop) => {
@@ -519,7 +519,7 @@ export default function CoastalWebHome({
               </div>
               {/* Whole card opens the item page (real items only); the cart button sits above it */}
               {prop.href && (
-                <a href={prop.href} aria-label={`View ${prop.title}`} className="absolute inset-0 z-[5]" />
+                <a href={prop.href} aria-label={`Ver ${prop.title}`} className="absolute inset-0 z-[5]" />
               )}
               {/* Gradient */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
@@ -527,10 +527,10 @@ export default function CoastalWebHome({
               {/* Stock / sale badges */}
               <div className="absolute top-3 left-3 md:top-5 md:left-5 z-10 flex flex-wrap gap-1.5">
                 {prop.inStock === false && (
-                  <span className="bg-black/80 text-white text-[10px] md:text-xs font-semibold px-2 md:px-3 py-1 rounded-full">Out of stock</span>
+                  <span className="bg-black/80 text-white text-[10px] md:text-xs font-semibold px-2 md:px-3 py-1 rounded-full">Sin stock</span>
                 )}
                 {prop.salePrice && prop.inStock !== false && (
-                  <span className="bg-white text-black text-[10px] md:text-xs font-semibold px-2 md:px-3 py-1 rounded-full">Sale</span>
+                  <span className="bg-white text-black text-[10px] md:text-xs font-semibold px-2 md:px-3 py-1 rounded-full">Oferta</span>
                 )}
               </div>
 
@@ -539,7 +539,7 @@ export default function CoastalWebHome({
                 type="button"
                 onClick={() => addToCart(String(prop.id))}
                 disabled={prop.inStock === false}
-                aria-label={prop.inStock === false ? `${prop.title} is out of stock` : `Add ${prop.title} to cart`}
+                aria-label={prop.inStock === false ? `${prop.title} está sin stock` : `Agregar ${prop.title} al carrito`}
                 className="absolute top-3 right-3 md:top-5 md:right-5 z-10 w-8 h-8 rounded-full bg-white text-black flex items-center justify-center shadow-sm hover:bg-[#F5F5F7] active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <Plus className="w-4 h-4" />
@@ -579,15 +579,15 @@ export default function CoastalWebHome({
             onClick={resetFilters}
             className="justify-self-center md:justify-self-start inline-flex items-center space-x-2 font-medium text-[#1D1D1F] hover:text-[#515154] transition-colors"
           >
-            <span>See all items</span>
+            <span>Ver todos los artículos</span>
             <ArrowUpRight className="w-4 h-4" />
           </button>
-          <nav aria-label="Pagination" className={`justify-self-center flex items-center gap-1 ${totalPages < 2 ? 'invisible' : ''}`}>
+          <nav aria-label="Paginación" className={`justify-self-center flex items-center gap-1 ${totalPages < 2 ? 'invisible' : ''}`}>
             <button
               type="button"
               onClick={() => goToPage(currentPage - 1)}
               disabled={currentPage === 1}
-              aria-label="Previous page"
+              aria-label="Página anterior"
               className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-[#F5F5F7] disabled:opacity-30 disabled:hover:bg-transparent"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -600,7 +600,7 @@ export default function CoastalWebHome({
                   key={n}
                   type="button"
                   onClick={() => goToPage(n)}
-                  aria-label={`Page ${n}`}
+                  aria-label={`Página ${n}`}
                   aria-current={n === currentPage ? 'page' : undefined}
                   className={`w-9 h-9 rounded-full text-xs font-medium transition-colors ${
                     n === currentPage ? 'bg-[#1D1D1F] text-white' : 'hover:bg-[#F5F5F7]'
@@ -614,7 +614,7 @@ export default function CoastalWebHome({
               type="button"
               onClick={() => goToPage(currentPage + 1)}
               disabled={currentPage === totalPages}
-              aria-label="Next page"
+              aria-label="Página siguiente"
               className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-[#F5F5F7] disabled:opacity-30 disabled:hover:bg-transparent"
             >
               <ChevronRight className="w-4 h-4" />
@@ -622,8 +622,8 @@ export default function CoastalWebHome({
           </nav>
           <p className="justify-self-center md:justify-self-end text-xs text-[#515154]">
             {filteredProperties.length === 0
-              ? 'No items'
-              : `Showing ${pageStart + 1}–${pageStart + visibleProperties.length} of ${filteredProperties.length} items`}
+              ? 'Sin artículos'
+              : `Mostrando ${pageStart + 1}–${pageStart + visibleProperties.length} de ${filteredProperties.length} artículos`}
           </p>
         </div>
       </section>
@@ -632,25 +632,25 @@ export default function CoastalWebHome({
       <section id="vision" className="pb-44 px-6 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
           <div className="space-y-6">
-            <h2 className="text-xs uppercase tracking-widest text-[#515154] font-semibold">Who We Are</h2>
+            <h2 className="text-xs uppercase tracking-widest text-[#515154] font-semibold">Quiénes somos</h2>
             <p className="text-3xl md:text-4xl font-semibold tracking-tight">
-              Fresh produce, delivered straight from the grower.
+              Productos frescos, directo del productor.
             </p>
             <p className="text-[#515154] font-light leading-relaxed">
-              Merkado is a food distributor that connects farms and growers with restaurants,
-              grocers and families. We source fruit, vegetables and leafy greens directly,
-              handle them with care from the field to the cold chain, and deliver them fresh
-              to your door.
+              Merkado es un distribuidor de alimentos que conecta chacras y productores con
+              restaurantes, almacenes y familias. Compramos frutas, verduras y hojas verdes
+              directamente, las cuidamos desde el campo hasta la cadena de frío y te las
+              llevamos frescas hasta la puerta.
             </p>
             <p className="text-[#515154] font-light leading-relaxed">
-              Every order is packed to size, weighed and priced clearly, so you always know
-              what you are getting. Tell us what you need and we will take care of the rest.
+              Cada pedido se arma a medida, se pesa y tiene el precio claro, para que siempre
+              sepas qué estás llevando. Contanos qué necesitás y nosotros nos encargamos del resto.
             </p>
             <a
               href="#contact"
               className="inline-flex items-center space-x-2 text-sm font-medium text-[#1D1D1F] hover:text-[#515154] transition-colors"
             >
-              <span>Get in touch</span>
+              <span>Contactanos</span>
               <ArrowUpRight className="w-4 h-4" />
             </a>
           </div>
@@ -672,12 +672,12 @@ export default function CoastalWebHome({
           <div>
             <h2 className="text-xs uppercase tracking-widest text-[#515154] font-semibold mb-3">Mayoristas</h2>
             <p className="text-3xl md:text-5xl font-semibold tracking-tight mb-6">
-              Buy more, pay less. Open a wholesale account.
+              Comprá más, pagá menos. Abrí tu cuenta mayorista.
             </p>
             <p className="text-[#515154] font-light leading-relaxed mb-12">
-              Restaurants, grocers, hotels and caterers: enroll as a mayorista and get better prices on
-              the quantities your business buys. Tell us what you need each week and we will set up
-              your account and contact you with your wholesale prices.
+              Restaurantes, almacenes, hoteles y servicios de catering: registrate como mayorista y
+              conseguí mejores precios por las cantidades que compra tu negocio. Contanos qué
+              necesitás cada semana y te armamos la cuenta y te pasamos tus precios mayoristas.
             </p>
           </div>
 
@@ -685,57 +685,57 @@ export default function CoastalWebHome({
           <div className="bg-white p-8 md:p-10 rounded-2xl shadow-sm border border-[#000000]/5">
             <form onSubmit={submitWholesale} className="space-y-5">
               <div>
-                <label htmlFor="w-business" className="block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2">Business name</label>
-                <input id="w-business" type="text" required value={wholesale.business} onChange={(e) => setWholesale({ ...wholesale, business: e.target.value })} placeholder="La Esquina Restaurant" className="w-full bg-[#FBFBFD] border border-[#000000]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1D1D1F] transition-colors" />
+                <label htmlFor="w-business" className="block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2">Nombre del negocio</label>
+                <input id="w-business" type="text" required value={wholesale.business} onChange={(e) => setWholesale({ ...wholesale, business: e.target.value })} placeholder="Restaurante La Esquina" className="w-full bg-[#FBFBFD] border border-[#000000]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1D1D1F] transition-colors" />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label htmlFor="w-name" className="block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2">Contact name</label>
+                  <label htmlFor="w-name" className="block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2">Nombre de contacto</label>
                   <input id="w-name" type="text" required value={wholesale.name} onChange={(e) => setWholesale({ ...wholesale, name: e.target.value })} className="w-full bg-[#FBFBFD] border border-[#000000]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1D1D1F] transition-colors" />
                 </div>
                 <div>
-                  <label htmlFor="w-phone" className="block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2">Phone</label>
+                  <label htmlFor="w-phone" className="block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2">Teléfono</label>
                   <input id="w-phone" type="tel" required value={wholesale.phone} onChange={(e) => setWholesale({ ...wholesale, phone: e.target.value })} className="w-full bg-[#FBFBFD] border border-[#000000]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1D1D1F] transition-colors" />
                 </div>
               </div>
               <div>
-                <label htmlFor="w-email" className="block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2">Email</label>
+                <label htmlFor="w-email" className="block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2">Correo electrónico</label>
                 <input id="w-email" type="email" required value={wholesale.email} onChange={(e) => setWholesale({ ...wholesale, email: e.target.value })} className="w-full bg-[#FBFBFD] border border-[#000000]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1D1D1F] transition-colors" />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label htmlFor="w-kind" className="block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2">Type of business</label>
+                  <label htmlFor="w-kind" className="block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2">Tipo de negocio</label>
                   <select id="w-kind" value={wholesale.kind} onChange={(e) => setWholesale({ ...wholesale, kind: e.target.value })} className="w-full bg-[#FBFBFD] border border-[#000000]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1D1D1F] transition-colors">
-                    {['Restaurant', 'Grocery or market', 'Hotel or catering', 'Reseller', 'Other'].map((k) => (
+                    {['Restaurante', 'Almacén o mercado', 'Hotel o catering', 'Revendedor', 'Otro'].map((k) => (
                       <option key={k} value={k}>{k}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="w-volume" className="block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2">Weekly volume</label>
-                  <input id="w-volume" type="text" value={wholesale.volume} onChange={(e) => setWholesale({ ...wholesale, volume: e.target.value })} placeholder="e.g. 200 lb of tomatoes" className="w-full bg-[#FBFBFD] border border-[#000000]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1D1D1F] transition-colors" />
+                  <label htmlFor="w-volume" className="block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2">Volumen semanal</label>
+                  <input id="w-volume" type="text" value={wholesale.volume} onChange={(e) => setWholesale({ ...wholesale, volume: e.target.value })} placeholder="ej. 200 lb de tomates" className="w-full bg-[#FBFBFD] border border-[#000000]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1D1D1F] transition-colors" />
                 </div>
               </div>
               <div>
-                <label htmlFor="w-message" className="block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2">What do you need? (optional)</label>
-                <textarea id="w-message" rows={3} value={wholesale.message} onChange={(e) => setWholesale({ ...wholesale, message: e.target.value })} placeholder="Products, delivery days, anything we should know…" className="w-full bg-[#FBFBFD] border border-[#000000]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1D1D1F] transition-colors resize-none" />
+                <label htmlFor="w-message" className="block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2">¿Qué necesitás? (opcional)</label>
+                <textarea id="w-message" rows={3} value={wholesale.message} onChange={(e) => setWholesale({ ...wholesale, message: e.target.value })} placeholder="Productos, días de entrega, cualquier cosa que debamos saber…" className="w-full bg-[#FBFBFD] border border-[#000000]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1D1D1F] transition-colors resize-none" />
               </div>
               <button
                 type="submit"
                 disabled={leadState === 'sending'}
                 className="w-full bg-[#1D1D1F] text-white py-3.5 rounded-xl text-sm font-medium hover:bg-[#333336] transition-all flex items-center justify-center space-x-2 shadow-sm disabled:opacity-50"
               >
-                <span>{leadState === 'sending' ? 'Sending…' : 'Enroll as Mayorista'}</span>
+                <span>{leadState === 'sending' ? 'Enviando…' : 'Registrarme como mayorista'}</span>
                 <Send className="w-4 h-4" />
               </button>
               {leadState === 'sent' && (
                 <p role="status" className="text-sm text-green-700 text-center">
-                  Thank you! We will contact you shortly about your wholesale account.
+                  ¡Gracias! Nos vamos a comunicar con vos en breve por tu cuenta mayorista.
                 </p>
               )}
               {leadState === 'error' && (
                 <p role="alert" className="text-sm text-red-600 text-center">
-                  Something went wrong. Please try again or contact us directly.
+                  Algo salió mal. Probá de nuevo o contactanos directamente.
                 </p>
               )}
             </form>

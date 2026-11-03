@@ -16,16 +16,17 @@ import {
   X,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { roleLabels } from '../../utils/format';
 import { useLeads } from '../../hooks/useLeads';
 import LeadInbox from '../LeadInbox';
 
 const nav = [
-  { href: '/dashboard', label: 'Overview', icon: LayoutDashboard, exact: true },
-  { href: '/dashboard/properties', label: 'Items', icon: Building2 },
-  { href: '/dashboard/properties/new', label: 'Add Item', icon: PlusSquare },
-  { href: '/dashboard/categories', label: 'Categories', icon: Tags },
-  { href: '/dashboard/leads', label: 'Orders', icon: Inbox },
-  { href: '/dashboard/settings', label: 'Settings', icon: Settings },
+  { href: '/dashboard', label: 'Resumen', icon: LayoutDashboard, exact: true },
+  { href: '/dashboard/properties', label: 'Artículos', icon: Building2 },
+  { href: '/dashboard/properties/new', label: 'Agregar artículo', icon: PlusSquare },
+  { href: '/dashboard/categories', label: 'Categorías', icon: Tags },
+  { href: '/dashboard/leads', label: 'Pedidos', icon: Inbox },
+  { href: '/dashboard/settings', label: 'Ajustes', icon: Settings },
 ];
 
 export default function DashboardShell({ children }: { children: ReactNode }) {
@@ -54,14 +55,14 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
         </Link>
         <button
           onClick={() => setMenuOpen(false)}
-          aria-label="Close menu"
+          aria-label="Cerrar menú"
           className="lg:hidden p-2 rounded-full hover:bg-[#F5F5F7]"
         >
           <X className="w-4 h-4" />
         </button>
       </div>
-      <p className="px-6 pt-4 pb-2 text-xs uppercase tracking-widest text-[#515154] font-semibold">Dashboard</p>
-      <nav className="px-3 space-y-1" aria-label="Dashboard">
+      <p className="px-6 pt-4 pb-2 text-xs uppercase tracking-widest text-[#515154] font-semibold">Panel</p>
+      <nav className="px-3 space-y-1" aria-label="Panel">
         {nav.map(({ href, label, icon: Icon, exact }) => {
           const active = isActive(href, exact);
           return (
@@ -90,7 +91,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
       </nav>
       <div className="mt-auto p-6">
         <Link href="/" className="text-xs text-[#515154] hover:text-[#1D1D1F]">
-          ← View website
+          ← Ver el sitio
         </Link>
       </div>
     </div>
@@ -126,7 +127,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
           <div className="h-16 px-4 sm:px-8 flex items-center justify-between gap-3">
             <button
               onClick={() => setMenuOpen(true)}
-              aria-label="Open menu"
+              aria-label="Abrir menú"
               className="lg:hidden p-2 rounded-full hover:bg-[#F5F5F7]"
             >
               <Menu className="w-5 h-5" />
@@ -138,12 +139,12 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
                 className="inline-flex items-center gap-2 bg-[#1D1D1F] text-white text-xs font-medium px-4 py-2.5 rounded-full hover:bg-[#333336] transition-all"
               >
                 <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">New Item</span>
+                <span className="hidden sm:inline">Nuevo artículo</span>
               </Link>
 
               <button
                 onClick={() => setInboxOpen(true)}
-                aria-label={`Open lead inbox, ${newLeads} new`}
+                aria-label={`Abrir bandeja de pedidos, ${newLeads} nuevos`}
                 className="relative p-2.5 rounded-full bg-white border border-[#000000]/5 hover:bg-[#F5F5F7]"
               >
                 <Inbox className="w-4 h-4" />
@@ -160,15 +161,15 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
                 </div>
                 <div className="hidden md:block leading-tight">
                   <p className="text-sm font-medium">{agent?.name || agent?.email}</p>
-                  <p className="text-xs text-[#515154] capitalize">{agent?.role}</p>
+                  <p className="text-xs text-[#515154]">{agent ? (roleLabels[agent.role] ?? agent.role) : ""}</p>
                 </div>
                 <button
                   onClick={async () => {
                     await logout();
                     router.replace('/admin/login');
                   }}
-                  aria-label="Sign out"
-                  title="Sign out"
+                  aria-label="Cerrar sesión"
+                  title="Cerrar sesión"
                   className="p-2 rounded-full hover:bg-[#F5F5F7]"
                 >
                   <LogOut className="w-4 h-4" />

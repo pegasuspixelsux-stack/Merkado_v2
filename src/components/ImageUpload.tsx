@@ -33,13 +33,13 @@ interface ImageUploadProps {
 
 async function getAuthParams() {
   const user = auth?.currentUser;
-  if (!user) throw new Error('You must be signed in to upload images.');
+  if (!user) throw new Error('Tenés que iniciar sesión para subir imágenes.');
   const res = await fetch('/api/upload-auth', {
     headers: { Authorization: `Bearer ${await user.getIdToken()}` },
   });
   if (!res.ok) {
     const { error } = await res.json().catch(() => ({ error: '' }));
-    throw new Error(error || 'Could not get upload permission.');
+    throw new Error(error || 'No se pudo obtener el permiso de subida.');
   }
   return (await res.json()) as {
     token: string;
@@ -50,12 +50,12 @@ async function getAuthParams() {
 }
 
 function describeError(err: unknown): string {
-  if (err instanceof ImageKitAbortError) return 'Upload cancelled.';
+  if (err instanceof ImageKitAbortError) return 'Subida cancelada.';
   if (err instanceof ImageKitInvalidRequestError || err instanceof ImageKitServerError) {
-    return err.message || 'ImageKit rejected the upload.';
+    return err.message || 'ImageKit rechazó la subida.';
   }
-  if (err instanceof ImageKitUploadNetworkError) return 'Network error while uploading.';
-  return err instanceof Error ? err.message : 'Upload failed.';
+  if (err instanceof ImageKitUploadNetworkError) return 'Error de red al subir la imagen.';
+  return err instanceof Error ? err.message : 'No se pudo subir la imagen.';
 }
 
 export default function ImageUpload({
@@ -80,7 +80,7 @@ export default function ImageUpload({
   const handleFiles = async (fileList: FileList | File[]) => {
     const files = Array.from(fileList).filter((f) => f.type.startsWith('image/'));
     if (!files.length) {
-      fail('Please choose an image file.');
+      fail('Elegí un archivo de imagen.');
       return;
     }
     setBusy(true);
@@ -90,10 +90,10 @@ export default function ImageUpload({
         const prefix = files.length > 1 && multiple ? `(${i + 1}/${files.length}) ` : '';
         setProgress(0);
 
-        setStatus(`${prefix}Optimizing…`);
+        setStatus(`${prefix}Optimizando…`);
         const file = await compressImageToWebP(original); // WebP, under 1 MB
 
-        setStatus(`${prefix}Uploading…`);
+        setStatus(`${prefix}Subiendo…`);
         const { token, expire, signature, publicKey } = await getAuthParams();
         const result = await upload({
           file,
@@ -106,7 +106,7 @@ export default function ImageUpload({
           publicKey,
           onProgress: (e) => setProgress(Math.round((e.loaded / e.total) * 100)),
         });
-        if (!result.url || !result.fileId) throw new Error('ImageKit returned no URL.');
+        if (!result.url || !result.fileId) throw new Error('ImageKit no devolvió una URL.');
         onUploaded({ url: result.url, fileId: result.fileId });
       }
     } catch (err) {
@@ -124,7 +124,7 @@ export default function ImageUpload({
       <div
         role="button"
         tabIndex={0}
-        aria-label="Upload a photo"
+        aria-label="Subir una foto"
         onClick={() => !busy && inputRef.current?.click()}
         onKeyDown={(e) => {
           if ((e.key === 'Enter' || e.key === ' ') && !busy) {
@@ -158,9 +158,9 @@ export default function ImageUpload({
           <>
             <ImagePlus className="w-5 h-5" />
             <span>
-              <span className="font-medium">Click to upload</span> or drag a photo here
+              <span className="font-medium">Hacé clic para subir</span> o arrastrá una foto acá
             </span>
-            <span className="text-xs text-[#515154]">Converted to WebP under 1 MB automatically</span>
+            <span className="text-xs text-[#515154]">Se convierte automáticamente a WebP, de menos de 1 MB</span>
           </>
         )}
         <input

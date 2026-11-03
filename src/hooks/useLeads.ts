@@ -28,7 +28,7 @@ export function useLeads(maxResults = 100) {
     } catch (err) {
       // Firebase not configured.
       queueMicrotask(() => {
-        setError(err instanceof Error ? err.message : 'Could not load leads.');
+        setError(err instanceof Error ? err.message : 'No se pudieron cargar los pedidos.');
         setLoading(false);
       });
     }

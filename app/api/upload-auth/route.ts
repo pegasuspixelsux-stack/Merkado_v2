@@ -37,7 +37,7 @@ export async function GET(request: Request) {
   const privateKey = process.env.IMAGEKIT_PRIVATE_KEY;
   const publicKey = process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY;
   if (!privateKey || !publicKey) {
-    return Response.json({ error: 'ImageKit is not configured on the server.' }, { status: 500 });
+    return Response.json({ error: 'ImageKit no está configurado en el servidor.' }, { status: 500 });
   }
 
   const idToken = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '');

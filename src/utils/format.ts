@@ -1,52 +1,80 @@
 import type { Category, PropertyOperation, PropertyStatus } from '../types/firestore';
 
+const LOCALE = 'es-UY';
+
 export function formatMoney(price: number, currency: string): string {
   try {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat(LOCALE, {
       style: 'currency',
       currency,
-      // whole amounts stay compact ($14), fractional ones keep cents ($4.50)
+      // whole amounts stay compact (US$ 14), fractional ones keep cents (US$ 4,50)
       minimumFractionDigits: Number.isInteger(price) ? 0 : 2,
       maximumFractionDigits: 2,
     }).format(price);
   } catch {
-    return `${currency} ${price.toLocaleString('en-US')}`;
+    return `${currency} ${price.toLocaleString(LOCALE)}`;
   }
 }
 
-/** "USD $250,000" / "UYU $10,200,000": currency code plus a $-prefixed amount. */
+/** "USD $250.000" / "UYU $10.200.000": currency code plus a $-prefixed amount. */
 export function formatPriceWithCode(price: number, currency: string): string {
-  return `${currency} $${Math.round(price).toLocaleString('en-US')}`;
+  return `${currency} $${Math.round(price).toLocaleString(LOCALE)}`;
 }
 
 export const operationLabels: Record<PropertyOperation, string> = {
-  sale: 'Sale',
-  rent: 'Rent',
-  seasonal: 'Seasonal',
+  sale: 'Venta',
+  rent: 'Alquiler',
+  seasonal: 'Temporada',
 };
 
 export const typeLabels: Record<string, string> = {
-  fruit: 'Fruits',
-  vegetable: 'Vegetables',
-  leafy: 'Leafy Greens',
-  tropical: 'Tropical',
+  fruit: 'Frutas',
+  vegetable: 'Verduras',
+  leafy: 'Hojas verdes',
+  tropical: 'Tropicales',
 };
 
+/** Stored values (kept in English so existing data keeps working). */
 export const weightUnits = ['kg', 'g', 'lb', 'oz', 'each', 'dozen', 'bunch', 'case'] as const;
+
+/** How each unit is shown to people. */
+export const unitLabels: Record<string, string> = {
+  kg: 'kg',
+  g: 'g',
+  lb: 'lb',
+  oz: 'oz',
+  each: 'unidad',
+  dozen: 'docena',
+  bunch: 'atado',
+  case: 'cajón',
+};
+
+export const unitLabel = (unit?: string) => (unit ? (unitLabels[unit] ?? unit) : '');
+
+/** "12 lb", "2,5 kg": a weight with its unit, in the local number format. */
+export function formatQuantity(weight?: number, unit?: string): string {
+  if (!weight) return '';
+  return `${weight.toLocaleString(LOCALE)} ${unitLabel(unit)}`.trim();
+}
 
 /** Built-ins first, then the custom categories (A-Z). */
 export function mergeCategories(custom: { id: string; name: string }[]): Category[] {
   const builtin = Object.entries(typeLabels).map(([id, name]) => ({ id, name, builtin: true }));
   const extra = custom
     .filter((c) => !(c.id in typeLabels))
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) => a.name.localeCompare(b.name, LOCALE));
   return [...builtin, ...extra];
 }
 
+export const roleLabels: Record<string, string> = {
+  admin: 'Administrador',
+  agent: 'Agente',
+};
+
 export const statusLabels: Record<PropertyStatus, string> = {
-  active: 'Active',
-  reserved: 'Reserved',
-  sold: 'Sold',
+  active: 'Activo',
+  reserved: 'Reservado',
+  sold: 'Vendido',
 };
 
 /** Builds a click-to-chat link. Returns null if the number has no usable digits. */
@@ -60,12 +88,12 @@ export function whatsappUrl(phone: string, text: string): string | null {
 export function timeAgo(ms: number): string {
   if (!ms) return '';
   const seconds = Math.round((Date.now() - ms) / 1000);
-  if (seconds < 60) return 'just now';
+  if (seconds < 60) return 'recién';
   const minutes = Math.round(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
+  if (minutes < 60) return `hace ${minutes} min`;
   const hours = Math.round(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
+  if (hours < 24) return `hace ${hours} h`;
   const days = Math.round(hours / 24);
-  if (days < 30) return `${days}d ago`;
-  return new Date(ms).toLocaleDateString();
+  if (days < 30) return `hace ${days} d`;
+  return new Date(ms).toLocaleDateString(LOCALE);
 }

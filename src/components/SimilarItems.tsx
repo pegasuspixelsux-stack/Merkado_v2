@@ -31,10 +31,10 @@ export default function SimilarItems({ title, items }: { title: string; items: S
       <div className="flex items-end justify-between mb-6">
         <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">{title}</h2>
         <div className="hidden md:flex gap-2">
-          <button type="button" onClick={() => scroll(-1)} aria-label="Scroll left" className="w-10 h-10 rounded-full bg-white border border-[#000000]/5 flex items-center justify-center hover:bg-[#F5F5F7]">
+          <button type="button" onClick={() => scroll(-1)} aria-label="Desplazar a la izquierda" className="w-10 h-10 rounded-full bg-white border border-[#000000]/5 flex items-center justify-center hover:bg-[#F5F5F7]">
             <ChevronLeft className="w-4 h-4" />
           </button>
-          <button type="button" onClick={() => scroll(1)} aria-label="Scroll right" className="w-10 h-10 rounded-full bg-white border border-[#000000]/5 flex items-center justify-center hover:bg-[#F5F5F7]">
+          <button type="button" onClick={() => scroll(1)} aria-label="Desplazar a la derecha" className="w-10 h-10 rounded-full bg-white border border-[#000000]/5 flex items-center justify-center hover:bg-[#F5F5F7]">
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
@@ -56,10 +56,10 @@ export default function SimilarItems({ title, items }: { title: string; items: S
                   className={`object-cover transition-transform duration-500 group-hover:scale-105 ${item.inStock ? '' : 'opacity-50 grayscale'}`}
                 />
                 {!item.inStock && (
-                  <span className="absolute top-3 left-3 bg-black/80 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full">Out of stock</span>
+                  <span className="absolute top-3 left-3 bg-black/80 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full">Sin stock</span>
                 )}
                 {item.salePrice && item.inStock && (
-                  <span className="absolute top-3 left-3 bg-white text-black text-[10px] font-semibold px-2.5 py-1 rounded-full">Sale</span>
+                  <span className="absolute top-3 left-3 bg-white text-black text-[10px] font-semibold px-2.5 py-1 rounded-full">Oferta</span>
                 )}
               </div>
               <h3 className="mt-3 text-sm font-medium tracking-tight truncate">{item.title}</h3>

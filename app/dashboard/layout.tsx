@@ -4,7 +4,7 @@ import RequireAuth from '@/src/components/RequireAuth';
 import DashboardShell from '@/src/components/dashboard/DashboardShell';
 
 export const metadata: Metadata = {
-  title: 'Dashboard | Merkado',
+  title: 'Panel | Merkado',
   robots: { index: false, follow: false },
 };
 

@@ -36,14 +36,14 @@ export default function AdminLoginPage() {
       console.error('Sign-in failed:', err);
       setFormError(
         code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found'
-          ? 'Invalid email or password.'
+          ? 'Correo o contraseña incorrectos.'
           : code === 'auth/operation-not-allowed'
-            ? 'Email/Password sign-in is not enabled in Firebase (Authentication → Sign-in method).'
+            ? 'El inicio de sesión con correo y contraseña no está habilitado en Firebase (Authentication → Sign-in method).'
             : code === 'auth/too-many-requests'
-              ? 'Too many attempts. Wait a few minutes and try again.'
+              ? 'Demasiados intentos. Esperá unos minutos y probá de nuevo.'
               : code === 'auth/network-request-failed'
-                ? 'Network error reaching Firebase.'
-                : `Sign-in failed (${code}).`
+                ? 'Error de red al conectar con Firebase.'
+                : `No se pudo iniciar sesión (${code}).`
       );
     } finally {
       setSubmitting(false);
@@ -54,7 +54,7 @@ export default function AdminLoginPage() {
     setFormError(null);
     setNotice(null);
     if (!email.trim()) {
-      setFormError('Enter your email above, then click “Forgot password?”.');
+      setFormError('Ingresá tu correo arriba y después hacé clic en “¿Olvidaste tu contraseña?”.');
       return;
     }
     if (!auth) return;
@@ -63,7 +63,7 @@ export default function AdminLoginPage() {
     } catch {
       // Don't reveal whether the account exists.
     }
-    setNotice('If an account exists for that email, a reset link is on its way.');
+    setNotice('Si existe una cuenta con ese correo, te va a llegar un enlace para restablecer la contraseña.');
   };
 
   const message = formError ?? error;
@@ -91,19 +91,19 @@ export default function AdminLoginPage() {
         <div className="bg-black/50 flex items-center justify-center px-6 py-24">
           <div className="w-full max-w-sm bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-2xl">
             <p className="text-xs uppercase tracking-widest text-white/60 font-semibold mb-2">Merkado.</p>
-            <h1 className="text-2xl font-semibold tracking-tight mb-1">Admin sign in</h1>
-            <p className="text-sm text-white/70 font-light mb-8">Manage items, orders and users.</p>
+            <h1 className="text-2xl font-semibold tracking-tight mb-1">Iniciar sesión</h1>
+            <p className="text-sm text-white/70 font-light mb-8">Administrá artículos, pedidos y usuarios.</p>
 
             {!isFirebaseConfigured && (
               <p className="mb-6 text-xs rounded-xl bg-amber-400/20 text-amber-100 p-3">
-                Firebase isn’t configured yet. Copy <code>.env.local.example</code> to <code>.env.local</code>,
-                fill in your project keys and restart the dev server.
+                Firebase todavía no está configurado. Copiá <code>.env.local.example</code> a <code>.env.local</code>,
+                completá las claves de tu proyecto y reiniciá el servidor.
               </p>
             )}
 
             <form onSubmit={onSubmit} className="space-y-5">
               <div>
-                <label htmlFor="email" className={labelClass}>Email</label>
+                <label htmlFor="email" className={labelClass}>Correo electrónico</label>
                 <input
                   id="email"
                   type="email"
@@ -117,14 +117,14 @@ export default function AdminLoginPage() {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label htmlFor="password" className="text-xs uppercase tracking-wider font-semibold text-white/60">
-                    Password
+                    Contraseña
                   </label>
                   <button
                     type="button"
                     onClick={onForgotPassword}
                     className="text-xs text-white/70 hover:text-white underline underline-offset-2"
                   >
-                    Forgot password?
+                    ¿Olvidaste tu contraseña?
                   </button>
                 </div>
                 <input
@@ -145,12 +145,12 @@ export default function AdminLoginPage() {
                 disabled={submitting || !isFirebaseConfigured}
                 className="w-full bg-white text-black py-3.5 rounded-xl text-sm font-medium hover:bg-white/90 transition-all disabled:opacity-50"
               >
-                {submitting ? 'Signing in…' : 'Sign in'}
+                {submitting ? 'Ingresando…' : 'Ingresar'}
               </button>
             </form>
 
             <Link href="/" className="block text-center text-xs text-white/70 hover:text-white mt-6">
-              ← Back to homepage
+              ← Volver al inicio
             </Link>
           </div>
         </div>

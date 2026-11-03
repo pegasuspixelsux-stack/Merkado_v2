@@ -40,10 +40,10 @@ export async function compressImageToWebP(
   } = options;
 
   if (typeof document === 'undefined') {
-    throw new Error('compressImageToWebP can only run in the browser.');
+    throw new Error('La compresión de imágenes solo funciona en el navegador.');
   }
   if (!file.type.startsWith('image/')) {
-    throw new Error(`"${file.name}" is not an image.`);
+    throw new Error(`"${file.name}" no es una imagen.`);
   }
 
   const bitmap = await loadBitmap(file);
@@ -59,12 +59,12 @@ export async function compressImageToWebP(
       canvas.width = width;
       canvas.height = height;
       const ctx = canvas.getContext('2d');
-      if (!ctx) throw new Error('Canvas is not available in this browser.');
+      if (!ctx) throw new Error('Este navegador no tiene canvas disponible.');
       ctx.drawImage(bitmap, 0, 0, width, height);
 
       for (let quality = initialQuality; quality >= minQuality - 1e-6; quality -= 0.1) {
         const blob = await canvasToBlob(canvas, quality);
-        if (!blob) throw new Error('Could not encode the image.');
+        if (!blob) throw new Error('No se pudo codificar la imagen.');
         if (blob.type !== 'image/webp') {
           throw new Error('This browser cannot encode WebP images.');
         }
@@ -77,7 +77,7 @@ export async function compressImageToWebP(
     }
 
     throw new Error(
-      `Could not compress "${file.name}" below ${(maxBytes / ONE_MB).toFixed(1)} MB.`
+      `No se pudo comprimir "${file.name}" por debajo de ${(maxBytes / ONE_MB).toFixed(1)} MB.`
     );
   } finally {
     bitmap.close();

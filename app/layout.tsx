@@ -15,13 +15,13 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Merkado",
   description:
-    "Curated architectural residences along the Pacific coastline, represented with absolute discretion.",
+    "Frutas y verduras frescas directo del productor, para minoristas y mayoristas.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang="en"
+      lang="es-UY"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>

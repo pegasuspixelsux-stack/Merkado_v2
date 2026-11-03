@@ -16,7 +16,7 @@ export function useCategories() {
       setCustom(await getCategories());
       setError(null);
     } catch {
-      setError('Could not load custom categories. Check that the Firestore rules are published.');
+      setError('No se pudieron cargar las categorías propias. Revisá que las reglas de Firestore estén publicadas.');
     } finally {
       setLoading(false);
     }

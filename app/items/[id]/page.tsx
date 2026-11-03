@@ -6,7 +6,7 @@ import { ArrowLeft } from 'lucide-react';
 import { getActiveProperties, getCategories, getProperty } from '@/src/services/dbService';
 import { sampleProperties } from '@/src/data/sampleProperties';
 import type { Property } from '@/src/types/firestore';
-import { formatMoney, mergeCategories } from '@/src/utils/format';
+import { formatMoney, formatQuantity, mergeCategories } from '@/src/utils/format';
 import BuyBox from '@/src/components/BuyBox';
 import SimilarItems, { type SimilarItem } from '@/src/components/SimilarItems';
 import PropertyImage from '@/src/components/PropertyImage';
@@ -33,7 +33,7 @@ const loadItem = cache(async (id: string): Promise<Property | null> => {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const item = await loadItem(id);
-  if (!item) return { title: 'Item not found | Merkado', robots: { index: false, follow: false } };
+  if (!item) return { title: 'Artículo no encontrado | Merkado', robots: { index: false, follow: false } };
   return {
     title: `${item.title} | Merkado`,
     description: item.description.slice(0, 160),
@@ -53,7 +53,7 @@ export default async function ItemPage({ params }: Props) {
   const retailPrice = item.salePrice ?? item.price;
   const isSample = id.startsWith('sample-');
   const inStock = item.inStock !== false;
-  const quantity = item.weight ? `${item.weight.toLocaleString('en-US')} ${item.unit ?? ''}`.trim() : '';
+  const quantity = formatQuantity(item.weight, item.unit);
   const photo = item.photos[0]?.url;
 
   // Other items to browse: same category first, then the rest (at most 10).
@@ -70,7 +70,7 @@ export default async function ItemPage({ params }: Props) {
       image: p.photos[0]?.url ?? '',
       price: formatMoney(p.price, p.currency),
       salePrice: p.salePrice === undefined ? undefined : formatMoney(p.salePrice, p.currency),
-      quantity: p.weight ? `${p.weight.toLocaleString('en-US')} ${p.unit ?? ''}`.trim() : '',
+      quantity: formatQuantity(p.weight, p.unit),
       inStock: p.inStock !== false,
     }));
 
@@ -80,7 +80,7 @@ export default async function ItemPage({ params }: Props) {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="font-semibold text-lg tracking-tight">Merkado.</Link>
           <Link href="/#properties" className="inline-flex items-center gap-2 text-sm text-[#515154] hover:text-[#1D1D1F] transition-colors">
-            <ArrowLeft className="w-4 h-4" /> All items
+            <ArrowLeft className="w-4 h-4" /> Todos los artículos
           </Link>
         </div>
       </header>
@@ -99,7 +99,7 @@ export default async function ItemPage({ params }: Props) {
           )}
           {!inStock && (
             <span className="absolute top-4 left-4 bg-black/80 text-white text-xs font-semibold px-3 py-1.5 rounded-full">
-              Out of stock
+              Sin stock
             </span>
           )}
         </div>
@@ -115,7 +115,7 @@ export default async function ItemPage({ params }: Props) {
                   <span className="text-2xl font-semibold">{formatMoney(retailPrice, item.currency)}</span>
                   {onSale && <s className="text-sm text-[#86868B]">{formatMoney(item.price, item.currency)}</s>}
                 </dd>
-                {onSale && <span className="inline-block mt-2 bg-[#1D1D1F] text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">Sale</span>}
+                {onSale && <span className="inline-block mt-2 bg-[#1D1D1F] text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">Oferta</span>}
               </div>
               <div className="rounded-2xl bg-white border border-[#000000]/5 p-4">
                 <dt className="text-xs uppercase tracking-wider text-[#515154] font-semibold">Mayorista</dt>
@@ -123,17 +123,17 @@ export default async function ItemPage({ params }: Props) {
                   {item.wholesalePrice !== undefined ? (
                     <span className="text-2xl font-semibold">{formatMoney(item.wholesalePrice, item.currency)}</span>
                   ) : (
-                    <span className="text-sm text-[#515154]">Ask us for a quote</span>
+                    <span className="text-sm text-[#515154]">Pedinos un presupuesto</span>
                   )}
                 </dd>
                 <Link href="/#contact" className="inline-block mt-2 text-xs underline underline-offset-2 text-[#515154] hover:text-[#1D1D1F]">
-                  Get wholesale prices
+                  Conseguí precios mayoristas
                 </Link>
               </div>
             </dl>
             {quantity && (
               <p className="text-sm text-[#515154]">
-                <span className="font-medium text-[#1D1D1F]">Quantity:</span> {quantity} per unit
+                <span className="font-medium text-[#1D1D1F]">Cantidad:</span> {quantity} por unidad
               </p>
             )}
             {item.description && (
@@ -152,7 +152,7 @@ export default async function ItemPage({ params }: Props) {
         </div>
       </main>
 
-      <SimilarItems title="Customers also like" items={similar} />
+      <SimilarItems title="También te puede gustar" items={similar} />
 
       <SiteFooter />
     </div>

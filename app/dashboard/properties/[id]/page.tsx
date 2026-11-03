@@ -20,10 +20,10 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
       .then((p) => {
         if (cancelled) return;
         if (p) setProperty(p);
-        else setError('This item no longer exists.');
+        else setError('Este artículo ya no existe.');
       })
       .catch(() => {
-        if (!cancelled) setError('Could not load this item.');
+        if (!cancelled) setError('No se pudo cargar este artículo.');
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -33,21 +33,21 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
     };
   }, [id]);
 
-  if (loading) return <p className="text-sm text-[#515154]">Loading item…</p>;
+  if (loading) return <p className="text-sm text-[#515154]">Cargando artículo…</p>;
   if (error || !property) {
     return (
       <p role="alert" className="text-sm text-red-600">
-        {error ?? 'Item not found.'}
+        {error ?? 'Artículo no encontrado.'}
       </p>
     );
   }
 
   return (
     <>
-      <PageHeader eyebrow="Inventory" title="Edit item" description={property.title} />
+      <PageHeader eyebrow="Inventario" title="Editar artículo" description={property.title} />
       <PropertyForm
         initial={property}
-        submitLabel="Save changes"
+        submitLabel="Guardar cambios"
         onSubmit={async (data) => {
           // The owner of a listing never changes.
           const { agentId, ...changes } = data;

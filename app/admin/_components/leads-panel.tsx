@@ -7,9 +7,9 @@ import { db } from '@/lib/firebase';
 import type { Lead, LeadStatus } from '@/lib/types';
 
 const statuses: { value: LeadStatus; label: string }[] = [
-  { value: 'new', label: 'New' },
-  { value: 'contacted', label: 'Contacted' },
-  { value: 'closed', label: 'Closed' },
+  { value: 'new', label: 'Nuevo' },
+  { value: 'contacted', label: 'Contactado' },
+  { value: 'closed', label: 'Cerrado' },
 ];
 
 export default function LeadsPanel() {
@@ -41,7 +41,7 @@ export default function LeadsPanel() {
         setLoading(false);
       },
       () => {
-        setError('Could not load orders. Check your Firestore rules.');
+        setError('No se pudieron cargar los pedidos. Revisá tus reglas de Firestore.');
         setLoading(false);
       }
     );
@@ -52,16 +52,16 @@ export default function LeadsPanel() {
     try {
       await updateDoc(doc(db, 'leads', lead.id), { status });
     } catch {
-      setError('Could not update the order.');
+      setError('No se pudo actualizar el pedido.');
     }
   };
 
   const remove = async (lead: Lead) => {
-    if (!db || !window.confirm(`Delete the lead from ${lead.name || lead.email}?`)) return;
+    if (!db || !window.confirm(`¿Eliminar el pedido de ${lead.name || lead.email}?`)) return;
     try {
       await deleteDoc(doc(db, 'leads', lead.id));
     } catch {
-      setError('Could not delete the order.');
+      setError('No se pudo eliminar el pedido.');
     }
   };
 
@@ -72,7 +72,7 @@ export default function LeadsPanel() {
     <section>
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
-          <h2 className="text-xl font-semibold tracking-tight">Orders</h2>
+          <h2 className="text-xl font-semibold tracking-tight">Pedidos</h2>
           <p className="text-sm text-[#515154] font-light">
             Inquiries from the website contact form · {newCount} new
           </p>
@@ -80,10 +80,10 @@ export default function LeadsPanel() {
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value as LeadStatus | 'all')}
-          aria-label="Filter orders by status"
+          aria-label="Filtrar pedidos por estado"
           className="bg-white rounded-full px-4 py-2.5 text-sm outline-none cursor-pointer"
         >
-          <option value="all">All statuses</option>
+          <option value="all">Todos los estados</option>
           {statuses.map((s) => (
             <option key={s.value} value={s.value}>{s.label}</option>
           ))}
@@ -94,18 +94,18 @@ export default function LeadsPanel() {
 
       <div className="bg-white rounded-3xl border border-[#000000]/5 overflow-hidden">
         {loading ? (
-          <p className="p-8 text-sm text-[#515154]">Loading orders…</p>
+          <p className="p-8 text-sm text-[#515154]">Cargando pedidos…</p>
         ) : visible.length === 0 ? (
-          <p className="p-8 text-sm text-[#515154]">No orders to show.</p>
+          <p className="p-8 text-sm text-[#515154]">No hay pedidos para mostrar.</p>
         ) : (
           <ul className="divide-y divide-[#000000]/5">
             {visible.map((lead) => (
               <li key={lead.id} className="p-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
                   <p className="font-medium">
-                    {lead.name || 'Unnamed'}{' '}
+                    {lead.name || 'Sin nombre'}{' '}
                     <span className="text-xs text-[#515154] font-normal">
-                      {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString() : ''}
+                      {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString('es-UY') : ''}
                     </span>
                   </p>
                   <a href={`mailto:${lead.email}`} className="text-sm text-[#515154] hover:text-[#1D1D1F] inline-flex items-center gap-1.5">
@@ -118,14 +118,14 @@ export default function LeadsPanel() {
                   <select
                     value={lead.status}
                     onChange={(e) => setStatus(lead, e.target.value as LeadStatus)}
-                    aria-label={`Status for ${lead.name || lead.email}`}
+                    aria-label={`Estado de ${lead.name || lead.email}`}
                     className="bg-[#F5F5F7] rounded-full px-4 py-2 text-xs outline-none cursor-pointer"
                   >
                     {statuses.map((s) => (
                       <option key={s.value} value={s.value}>{s.label}</option>
                     ))}
                   </select>
-                  <button onClick={() => remove(lead)} aria-label="Delete order" className="p-2 rounded-full hover:bg-red-50 text-red-600">
+                  <button onClick={() => remove(lead)} aria-label="Eliminar pedido" className="p-2 rounded-full hover:bg-red-50 text-red-600">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>

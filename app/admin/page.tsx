@@ -28,9 +28,9 @@ function Dashboard() {
   if (!staff) return null; // RequireAuth guarantees an agent; this narrows the type
 
   const tabs: { key: Tab; label: string; icon: typeof Building2; adminOnly?: boolean }[] = [
-    { key: 'listings', label: 'Listings', icon: Building2 },
-    { key: 'leads', label: 'Orders', icon: Inbox },
-    { key: 'users', label: 'Users', icon: Users, adminOnly: true },
+    { key: 'listings', label: 'Publicaciones', icon: Building2 },
+    { key: 'leads', label: 'Pedidos', icon: Inbox },
+    { key: 'users', label: 'Usuarios', icon: Users, adminOnly: true },
   ];
 
   return (
@@ -39,7 +39,7 @@ function Dashboard() {
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/" className="font-semibold tracking-tight">Merkado.</Link>
-            <span className="text-xs text-[#515154] uppercase tracking-widest">Dashboard</span>
+            <span className="text-xs text-[#515154] uppercase tracking-widest">Panel</span>
           </div>
           <div className="flex items-center gap-4 text-sm">
             <span className="hidden sm:inline text-[#515154]">
@@ -59,7 +59,7 @@ function Dashboard() {
       </header>
 
       <main className="max-w-6xl mx-auto px-6 py-10">
-        <nav className="flex gap-2 mb-8" aria-label="Dashboard sections">
+        <nav className="flex gap-2 mb-8" aria-label="Secciones del panel">
           {tabs
             .filter((t) => !t.adminOnly || staff.role === 'admin')
             .map(({ key, label, icon: Icon }) => (

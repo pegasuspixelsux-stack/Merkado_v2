@@ -49,13 +49,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const data = snap.data();
         if (!snap.exists() || !data) {
           setError(
-            `This account does not have access to the dashboard. No profile found at users/${firebaseUser.uid} ` +
-              `(project ${firebaseConfig.projectId}, database "(default)").`
+            `Esta cuenta no tiene acceso al panel. No se encontró el perfil en users/${firebaseUser.uid} ` +
+              `(proyecto ${firebaseConfig.projectId}, base de datos "(default)").`
           );
           await signOut(firebaseAuth);
           setAgent(null);
         } else if (data.active === false) {
-          setError('This account is deactivated.');
+          setError('Esta cuenta está desactivada.');
           await signOut(firebaseAuth);
           setAgent(null);
         } else {
@@ -75,7 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const code = (err as { code?: string }).code ?? 'unknown';
         console.error('Loading agent profile failed:', err);
         setError(
-          `Could not load your profile (${code}). Check that Firestore exists and the rules are published.`
+          `No se pudo cargar tu perfil (${code}). Revisá que Firestore exista y que las reglas estén publicadas.`
         );
         await signOut(firebaseAuth);
         setAgent(null);
@@ -86,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    if (!auth) throw new Error('Firebase is not configured.');
+    if (!auth) throw new Error('Firebase no está configurado.');
     setError(null);
     await signInWithEmailAndPassword(auth, email, password);
   };

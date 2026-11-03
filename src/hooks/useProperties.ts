@@ -45,7 +45,7 @@ export function useProperties(pageSize = 48) {
         setError(null);
       })
       .catch((err: Error) => {
-        if (!cancelled) setError(err.message || 'Could not load properties.');
+        if (!cancelled) setError(err.message || 'No se pudieron cargar los artículos.');
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -63,7 +63,7 @@ export function useProperties(pageSize = 48) {
       setItems((prev) => [...prev, ...page.items]);
       setCursor(page.nextCursor);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not load more properties.');
+      setError(err instanceof Error ? err.message : 'No se pudieron cargar más artículos.');
     } finally {
       setLoadingMore(false);
     }

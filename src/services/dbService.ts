@@ -41,7 +41,7 @@ const CATEGORIES = 'categories';
 function requireDb(): Firestore {
   if (!db) {
     throw new Error(
-      'Firebase is not configured. Set the NEXT_PUBLIC_FIREBASE_* variables in .env.local and restart the dev server.'
+      'Firebase no está configurado. Completá las variables NEXT_PUBLIC_FIREBASE_* en .env.local y reiniciá el servidor.'
     );
   }
   return db;
@@ -304,10 +304,10 @@ export const categorySlug = (name: string) =>
 export async function addCategory(name: string, existing: Category[]): Promise<void> {
   const clean = name.trim().replace(/\s+/g, ' ');
   const id = categorySlug(clean);
-  if (!clean || !id) throw new Error('Enter a category name.');
-  if (clean.length > 60) throw new Error('Category names can be at most 60 characters.');
+  if (!clean || !id) throw new Error('Ingresá un nombre para la categoría.');
+  if (clean.length > 60) throw new Error('El nombre de la categoría puede tener hasta 60 caracteres.');
   if (existing.some((c) => c.id === id || c.name.toLowerCase() === clean.toLowerCase())) {
-    throw new Error('That category already exists.');
+    throw new Error('Esa categoría ya existe.');
   }
   await setDoc(doc(requireDb(), CATEGORIES, id), { name: clean, createdAt: serverTimestamp() });
 }

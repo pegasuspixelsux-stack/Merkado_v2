@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { MapPin, Pencil, Star, Trash2 } from 'lucide-react';
 import PropertyImage from '../PropertyImage';
 import type { Property } from '../../types/firestore';
-import { formatMoney, operationLabels, typeLabels } from '../../utils/format';
+import { formatMoney, formatQuantity, operationLabels, typeLabels } from '../../utils/format';
 import { StatusPill } from './ui';
 
 interface ViewProps {
@@ -23,16 +23,16 @@ function Specs({ p }: { p: Property }) {
     <div className="flex flex-wrap items-center gap-2 text-xs font-medium">
       {p.weight !== undefined && (
         <span className="text-[#515154]">
-          {p.weight} {p.unit}
+          {formatQuantity(p.weight, p.unit)}
         </span>
       )}
       {p.inStock === false ? (
-        <span className="rounded-full bg-red-50 text-red-700 px-2.5 py-1">Out of stock</span>
+        <span className="rounded-full bg-red-50 text-red-700 px-2.5 py-1">Sin stock</span>
       ) : (
-        <span className="rounded-full bg-green-50 text-green-700 px-2.5 py-1">In stock</span>
+        <span className="rounded-full bg-green-50 text-green-700 px-2.5 py-1">En stock</span>
       )}
       {p.salePrice !== undefined && (
-        <span className="rounded-full bg-amber-50 text-amber-700 px-2.5 py-1">On sale</span>
+        <span className="rounded-full bg-amber-50 text-amber-700 px-2.5 py-1">En oferta</span>
       )}
     </div>
   );
@@ -51,23 +51,23 @@ function RowActions({
     <div className="flex items-center gap-1">
       <button
         onClick={() => onToggleFeatured(p)}
-        aria-label={p.featured ? `Remove ${p.title} from featured` : `Feature ${p.title} on the homepage`}
+        aria-label={p.featured ? `Quitar ${p.title} de destacados` : `Destacar ${p.title} en el inicio`}
         aria-pressed={Boolean(p.featured)}
-        title={p.featured ? 'Featured on the homepage' : 'Feature on the homepage'}
+        title={p.featured ? 'Destacado en el inicio' : 'Destacar en el inicio'}
         className="p-2 rounded-full hover:bg-[#F5F5F7]"
       >
         <Star className={`w-4 h-4 ${p.featured ? 'fill-[#1D1D1F]' : ''}`} />
       </button>
       <Link
         href={`/dashboard/properties/${p.id}`}
-        aria-label={`Edit ${p.title}`}
+        aria-label={`Editar ${p.title}`}
         className="p-2 rounded-full hover:bg-[#F5F5F7]"
       >
         <Pencil className="w-4 h-4" />
       </Link>
       <button
         onClick={() => onDelete(p)}
-        aria-label={`Delete ${p.title}`}
+        aria-label={`Eliminar ${p.title}`}
         className="p-2 rounded-full hover:bg-red-50 text-red-600"
       >
         <Trash2 className="w-4 h-4" />
@@ -97,7 +97,7 @@ export function PropertyGrid({ properties, onDelete, onToggleFeatured, categoryL
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
             <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-black text-xs font-semibold px-3.5 py-1.5 rounded-full shadow-sm">
               {formatMoney(p.price, p.currency)}
-              {p.operation === 'rent' ? ' / mo' : ''}
+              {p.operation === 'rent' ? ' / mes' : ''}
             </span>
             <span className="absolute top-4 right-4">
               <StatusPill status={p.status} />
@@ -109,7 +109,7 @@ export function PropertyGrid({ properties, onDelete, onToggleFeatured, categoryL
                 {operationLabels[p.operation]} · {categoryLabel(p.type)}
               </p>
               <h3 className="text-lg font-semibold tracking-tight truncate">
-                {p.featured && <Star aria-label="Featured" className="inline w-3.5 h-3.5 mr-1.5 -mt-0.5 fill-[#1D1D1F]" />}
+                {p.featured && <Star aria-label="Destacado" className="inline w-3.5 h-3.5 mr-1.5 -mt-0.5 fill-[#1D1D1F]" />}
                 {p.title}
               </h3>
               <p className="text-sm text-[#515154] font-light inline-flex items-center gap-1.5">
@@ -133,11 +133,11 @@ export function PropertyTable({ properties, onDelete, onToggleFeatured, category
       <table className="w-full text-sm">
         <thead>
           <tr className="text-left text-xs uppercase tracking-wider text-[#515154]">
-            <th className="font-semibold px-5 py-4">Item</th>
-            <th className="font-semibold px-3 py-4 hidden md:table-cell">Type</th>
-            <th className="font-semibold px-3 py-4 hidden lg:table-cell">Specs</th>
-            <th className="font-semibold px-3 py-4">Price</th>
-            <th className="font-semibold px-3 py-4">Status</th>
+            <th className="font-semibold px-5 py-4">Artículo</th>
+            <th className="font-semibold px-3 py-4 hidden md:table-cell">Categoría</th>
+            <th className="font-semibold px-3 py-4 hidden lg:table-cell">Detalle</th>
+            <th className="font-semibold px-3 py-4">Precio</th>
+            <th className="font-semibold px-3 py-4">Estado</th>
             <th className="px-5 py-4" />
           </tr>
         </thead>
@@ -153,7 +153,7 @@ export function PropertyTable({ properties, onDelete, onToggleFeatured, category
                   </div>
                   <div className="min-w-0">
                     <Link href={`/dashboard/properties/${p.id}`} className="font-medium hover:underline truncate block">
-                      {p.featured && <Star aria-label="Featured" className="inline w-3.5 h-3.5 mr-1.5 -mt-0.5 fill-[#1D1D1F]" />}
+                      {p.featured && <Star aria-label="Destacado" className="inline w-3.5 h-3.5 mr-1.5 -mt-0.5 fill-[#1D1D1F]" />}
                       {p.title}
                     </Link>
                     <p className="text-xs text-[#515154] truncate">{locationText(p) || '—'}</p>
@@ -168,7 +168,7 @@ export function PropertyTable({ properties, onDelete, onToggleFeatured, category
               </td>
               <td className="px-3 py-3 font-medium whitespace-nowrap">
                 {formatMoney(p.price, p.currency)}
-                {p.operation === 'rent' ? ' / mo' : ''}
+                {p.operation === 'rent' ? ' / mes' : ''}
               </td>
               <td className="px-3 py-3">
                 <StatusPill status={p.status} />

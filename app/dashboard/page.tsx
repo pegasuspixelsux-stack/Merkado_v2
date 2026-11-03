@@ -11,7 +11,7 @@ import PropertyImage from '@/src/components/PropertyImage';
 import DonutChart, { donutColors } from '@/src/components/dashboard/DonutChart';
 import { useCategories } from '@/src/hooks/useCategories';
 import { PageHeader, StatusPill, cardClass } from '@/src/components/dashboard/ui';
-import { formatMoney } from '@/src/utils/format';
+import { formatMoney, formatQuantity } from '@/src/utils/format';
 
 export default function OverviewPage() {
   const { agent } = useAuth();
@@ -45,20 +45,20 @@ export default function OverviewPage() {
   }, [items, leads, labelFor]);
 
   const money = (n: number) => formatMoney(n, 'USD');
-  const orderKpis = ['Total orders', 'New orders', 'Sales value'];
+  const orderKpis = ['Pedidos totales', 'Pedidos nuevos', 'Ventas'];
   const stats = [
-    { label: 'Items', value: `${items.length}${hasMore ? '+' : ''}`, icon: Building2 },
-    { label: 'Total orders', value: leads.length, icon: ClipboardList },
-    { label: 'New orders', value: leads.filter((l) => l.status === 'new').length, icon: Inbox },
-    { label: 'Sales value', value: money(salesTotal), icon: DollarSign },
+    { label: 'Artículos', value: `${items.length}${hasMore ? '+' : ''}`, icon: Building2 },
+    { label: 'Pedidos totales', value: leads.length, icon: ClipboardList },
+    { label: 'Pedidos nuevos', value: leads.filter((l) => l.status === 'new').length, icon: Inbox },
+    { label: 'Ventas', value: money(salesTotal), icon: DollarSign },
   ];
 
   return (
     <>
       <PageHeader
-        eyebrow="Overview"
-        title={`Welcome back${agent?.name ? `, ${agent.name.split(' ')[0]}` : ''}`}
-        description="Here’s what’s happening with your inventory."
+        eyebrow="Resumen"
+        title={`Bienvenido/a${agent?.name ? `, ${agent.name.split(' ')[0]}` : ''}`}
+        description="Esto es lo que está pasando con tu inventario."
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
@@ -75,41 +75,41 @@ export default function OverviewPage() {
         </div>
         <DonutChart
           large
-          title="Sales by category"
-          description="Share of total sales value by category, from all orders."
+          title="Ventas por categoría"
+          description="Porcentaje del total de ventas por categoría, a partir de todos los pedidos."
           slices={salesByCategory}
           centerValue={money(salesTotal)}
-          centerLabel="total sales"
+          centerLabel="ventas totales"
           formatValue={money}
-          emptyText="No sales yet."
+          emptyText="Todavía no hay ventas."
         />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <DonutChart
-          title="Best-selling categories"
-          description="Share of orders by category."
+          title="Categorías más vendidas"
+          description="Porcentaje de pedidos por categoría."
           slices={bestSellers}
           centerValue={String(matchedOrders)}
-          centerLabel="orders"
-          formatValue={(v) => `${v} order${v === 1 ? '' : 's'}`}
-          emptyText="No orders for items yet. They appear here once customers order."
+          centerLabel="pedidos"
+          formatValue={(v) => `${v} ${v === 1 ? 'pedido' : 'pedidos'}`}
+          emptyText="Todavía no hay pedidos de artículos. Aparecen acá cuando los clientes pidan."
         />
         <section className={`${cardClass} overflow-hidden`}>
           <div className="flex items-center justify-between px-6 py-5 border-b border-[#000000]/5">
-            <h2 className="font-semibold tracking-tight">Recent items</h2>
+            <h2 className="font-semibold tracking-tight">Artículos recientes</h2>
             <Link href="/dashboard/properties" className="text-xs inline-flex items-center gap-1 text-[#515154] hover:text-[#1D1D1F]">
-              View all <ArrowUpRight className="w-3.5 h-3.5" />
+              Ver todos <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
           </div>
           {propsError ? (
             <p role="alert" className="p-6 text-sm text-red-600">{propsError}</p>
           ) : propsLoading ? (
-            <p className="p-6 text-sm text-[#515154]">Loading…</p>
+            <p className="p-6 text-sm text-[#515154]">Cargando…</p>
           ) : items.length === 0 ? (
             <p className="p-6 text-sm text-[#515154]">
-              No items yet.{' '}
-              <Link href="/dashboard/properties/new" className="underline underline-offset-2">Add your first item</Link>.
+              Todavía no hay artículos.{' '}
+              <Link href="/dashboard/properties/new" className="underline underline-offset-2">Agregá tu primer artículo</Link>.
             </p>
           ) : (
             <ul className="divide-y divide-[#000000]/5">
@@ -122,7 +122,7 @@ export default function OverviewPage() {
                     <div className="min-w-0 flex-1">
                       <p className="font-medium truncate">{p.title}</p>
                       <p className="text-xs text-[#515154] truncate">
-                        {formatMoney(p.price, p.currency)} · {[p.location.neighborhood, p.location.city].filter(Boolean).join(', ')}
+                        {formatMoney(p.price, p.currency)}{p.weight ? ` · ${formatQuantity(p.weight, p.unit)}` : ''}
                       </p>
                     </div>
                     <StatusPill status={p.status} />
@@ -135,15 +135,15 @@ export default function OverviewPage() {
 
         <section className={`${cardClass} overflow-hidden lg:col-span-2`}>
           <div className="flex items-center justify-between px-6 py-5 border-b border-[#000000]/5">
-            <h2 className="font-semibold tracking-tight">Latest orders</h2>
+            <h2 className="font-semibold tracking-tight">Últimos pedidos</h2>
             <Link href="/dashboard/leads" className="text-xs inline-flex items-center gap-1 text-[#515154] hover:text-[#1D1D1F]">
-              View all <ArrowUpRight className="w-3.5 h-3.5" />
+              Ver todos <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
           </div>
           {leadsError ? (
             <p role="alert" className="p-6 text-sm text-red-600">{leadsError}</p>
           ) : leadsLoading ? (
-            <p className="p-6 text-sm text-[#515154]">Loading…</p>
+            <p className="p-6 text-sm text-[#515154]">Cargando…</p>
           ) : (
             <LeadList leads={leads.slice(0, 3)} agentName={agent?.name ?? ''} />
           )}

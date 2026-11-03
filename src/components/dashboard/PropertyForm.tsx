@@ -7,7 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 import ImageUpload from '../ImageUpload';
 import PropertyImage from '../PropertyImage';
 import type { Property, PropertyInput, PropertyPhoto } from '../../types/firestore';
-import { weightUnits } from '../../utils/format';
+import { unitLabels, weightUnits } from '../../utils/format';
 import { useCategories } from '../../hooks/useCategories';
 import { cardClass, inputClass, labelClass } from './ui';
 
@@ -77,23 +77,23 @@ export default function PropertyForm({ initial, submitLabel, onSubmit }: Propert
     setForm((f) => ({ ...f, [key]: value }));
 
   const validate = (): string | null => {
-    if (!form.photo) return 'Upload an image.';
-    if (!form.title.trim()) return 'Add a title.';
-    if (!form.description.trim()) return 'Add a description.';
+    if (!form.photo) return 'Subí una imagen.';
+    if (!form.title.trim()) return 'Agregá un título.';
+    if (!form.description.trim()) return 'Agregá una descripción.';
     const weight = Number(form.weight);
-    if (form.weight === '' || Number.isNaN(weight) || weight <= 0) return 'Enter a weight greater than 0.';
+    if (form.weight === '' || Number.isNaN(weight) || weight <= 0) return 'Ingresá un peso mayor a 0.';
     const price = Number(form.price);
-    if (form.price === '' || Number.isNaN(price) || price < 0) return 'Enter a valid price.';
+    if (form.price === '' || Number.isNaN(price) || price < 0) return 'Ingresá un precio válido.';
     if (form.wholesalePrice !== '') {
       const w = Number(form.wholesalePrice);
-      if (Number.isNaN(w) || w < 0) return 'Enter a valid mayorista price.';
-      if (w > price) return 'The mayorista price should not be higher than the minorista price.';
+      if (Number.isNaN(w) || w < 0) return 'Ingresá un precio mayorista válido.';
+      if (w > price) return 'El precio mayorista no puede ser mayor al minorista.';
     }
-    if (!form.category) return 'Choose a category.';
+    if (!form.category) return 'Elegí una categoría.';
     if (form.onSale) {
       const sale = Number(form.salePrice);
-      if (form.salePrice === '' || Number.isNaN(sale) || sale < 0) return 'Enter a valid sale price.';
-      if (sale >= price) return 'The sale price must be lower than the regular price.';
+      if (form.salePrice === '' || Number.isNaN(sale) || sale < 0) return 'Ingresá un precio de oferta válido.';
+      if (sale >= price) return 'El precio de oferta tiene que ser menor al precio normal.';
     }
     return null;
   };
@@ -136,10 +136,10 @@ export default function PropertyForm({ initial, submitLabel, onSubmit }: Propert
       const code = (err as { code?: string }).code;
       setError(
         code === 'permission-denied'
-          ? 'Permission denied. Check that the Firestore rules are published and that you own this item.'
+          ? 'Permiso denegado. Revisá que las reglas de Firestore estén publicadas y que el artículo sea tuyo.'
           : err instanceof Error
             ? err.message
-            : 'Could not save the item.'
+            : 'No se pudo guardar el artículo.'
       );
       setSaving(false);
     }
@@ -149,14 +149,14 @@ export default function PropertyForm({ initial, submitLabel, onSubmit }: Propert
     <form onSubmit={submit} className="space-y-6 max-w-2xl">
       <div className={`${cardClass} p-6 md:p-8 space-y-6`}>
         <div>
-          <span className={labelClass}>Image</span>
+          <span className={labelClass}>Imagen</span>
           {form.photo ? (
             <div className="relative aspect-[4/3] max-w-sm rounded-2xl overflow-hidden bg-[#E5E5EA]">
-              <PropertyImage src={form.photo.url} alt="Item image" variant="thumb" sizes="384px" />
+              <PropertyImage src={form.photo.url} alt="Imagen del artículo" variant="thumb" sizes="384px" />
               <button
                 type="button"
                 onClick={() => set('photo', null)}
-                aria-label="Remove image"
+                aria-label="Quitar imagen"
                 className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black"
               >
                 <X className="w-4 h-4" />
@@ -174,41 +174,41 @@ export default function PropertyForm({ initial, submitLabel, onSubmit }: Propert
         </div>
 
         <div>
-          <label htmlFor="i-title" className={labelClass}>Title</label>
-          <input id="i-title" className={inputClass} value={form.title} onChange={(e) => set('title', e.target.value)} placeholder="Vine tomatoes" />
+          <label htmlFor="i-title" className={labelClass}>Título</label>
+          <input id="i-title" className={inputClass} value={form.title} onChange={(e) => set('title', e.target.value)} placeholder="Tomates perita" />
         </div>
 
         <div>
-          <label htmlFor="i-desc" className={labelClass}>Description</label>
-          <textarea id="i-desc" rows={4} className={`${inputClass} resize-none`} value={form.description} onChange={(e) => set('description', e.target.value)} placeholder="Origin, taste, how it is grown and packed…" />
+          <label htmlFor="i-desc" className={labelClass}>Descripción</label>
+          <textarea id="i-desc" rows={4} className={`${inputClass} resize-none`} value={form.description} onChange={(e) => set('description', e.target.value)} placeholder="Origen, sabor, cómo se cultiva y se empaca…" />
         </div>
 
         <div className="grid grid-cols-3 gap-4 md:gap-6">
           <div className="col-span-2">
-            <label htmlFor="i-weight" className={labelClass}>Weight</label>
+            <label htmlFor="i-weight" className={labelClass}>Peso</label>
             <input id="i-weight" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.weight} onChange={(e) => set('weight', e.target.value)} placeholder="12" />
           </div>
           <div>
-            <label htmlFor="i-unit" className={labelClass}>Unit</label>
+            <label htmlFor="i-unit" className={labelClass}>Unidad</label>
             <select id="i-unit" className={inputClass} value={form.unit} onChange={(e) => set('unit', e.target.value)}>
-              {weightUnits.map((u) => <option key={u} value={u}>{u}</option>)}
+              {weightUnits.map((u) => <option key={u} value={u}>{unitLabels[u]}</option>)}
             </select>
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
           <div>
-            <label htmlFor="i-price" className={labelClass}>Minorista price (USD)</label>
+            <label htmlFor="i-price" className={labelClass}>Precio minorista (US$)</label>
             <input id="i-price" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.price} onChange={(e) => set('price', e.target.value)} placeholder="4.50" />
           </div>
           <div>
-            <label htmlFor="i-wholesale" className={labelClass}>Mayorista price (USD, optional)</label>
+            <label htmlFor="i-wholesale" className={labelClass}>Precio mayorista (US$, opcional)</label>
             <input id="i-wholesale" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.wholesalePrice} onChange={(e) => set('wholesalePrice', e.target.value)} placeholder="3.80" />
           </div>
         </div>
 
         <div>
-          <label htmlFor="i-cat" className={labelClass}>Category</label>
+          <label htmlFor="i-cat" className={labelClass}>Categoría</label>
           <select id="i-cat" className={inputClass} value={form.category} onChange={(e) => set('category', e.target.value)}>
             {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
@@ -218,29 +218,29 @@ export default function PropertyForm({ initial, submitLabel, onSubmit }: Propert
           <label className="flex items-start gap-3 rounded-2xl bg-[#F5F5F7] px-5 py-4 text-sm cursor-pointer">
             <input type="checkbox" className="mt-0.5" checked={form.inStock} onChange={(e) => set('inStock', e.target.checked)} />
             <span>
-              <span className="font-medium">{form.inStock ? 'In stock' : 'Out of stock'}</span>
-              <span className="block text-xs text-[#515154] mt-0.5">Out-of-stock items stay on the website, marked as unavailable.</span>
+              <span className="font-medium">{form.inStock ? 'En stock' : 'Sin stock'}</span>
+              <span className="block text-xs text-[#515154] mt-0.5">Los artículos sin stock siguen en el sitio, marcados como no disponibles.</span>
             </span>
           </label>
 
           <label className="flex items-start gap-3 rounded-2xl bg-[#F5F5F7] px-5 py-4 text-sm cursor-pointer">
             <input type="checkbox" className="mt-0.5" checked={form.featured} onChange={(e) => set('featured', e.target.checked)} />
             <span>
-              <span className="font-medium">Featured (destacado)</span>
-              <span className="block text-xs text-[#515154] mt-0.5">Shown as a slide in the homepage hero (the 5 most recent featured items).</span>
+              <span className="font-medium">Destacado</span>
+              <span className="block text-xs text-[#515154] mt-0.5">Se muestra como diapositiva en el inicio del sitio (los 5 destacados más recientes).</span>
             </span>
           </label>
 
           <label className="flex items-start gap-3 rounded-2xl bg-[#F5F5F7] px-5 py-4 text-sm cursor-pointer">
             <input type="checkbox" className="mt-0.5" checked={form.onSale} onChange={(e) => set('onSale', e.target.checked)} />
             <span>
-              <span className="font-medium">On sale</span>
-              <span className="block text-xs text-[#515154] mt-0.5">Shows a sale price next to the regular price, which is crossed out.</span>
+              <span className="font-medium">En oferta</span>
+              <span className="block text-xs text-[#515154] mt-0.5">Muestra el precio de oferta junto al precio normal, que aparece tachado.</span>
             </span>
           </label>
           {form.onSale && (
             <div>
-              <label htmlFor="i-sale" className={labelClass}>Sale price (USD)</label>
+              <label htmlFor="i-sale" className={labelClass}>Precio de oferta (US$)</label>
               <input id="i-sale" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.salePrice} onChange={(e) => set('salePrice', e.target.value)} placeholder="3.50" />
             </div>
           )}
@@ -255,14 +255,14 @@ export default function PropertyForm({ initial, submitLabel, onSubmit }: Propert
 
       <div className="flex items-center justify-between gap-3">
         <button type="button" onClick={() => router.back()} className="text-sm px-5 py-3 rounded-full hover:bg-[#F5F5F7]">
-          Cancel
+          Cancelar
         </button>
         <button
           type="submit"
           disabled={saving}
           className="bg-[#1D1D1F] text-white text-sm font-medium px-6 py-3 rounded-full hover:bg-[#333336] transition-all disabled:opacity-50"
         >
-          {saving ? 'Saving…' : submitLabel}
+          {saving ? 'Guardando…' : submitLabel}
         </button>
       </div>
     </form>

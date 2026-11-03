@@ -1,17 +1,66 @@
 import type { Category, PropertyInput } from '../types/firestore';
 import { weightUnits } from './format';
 
+/** Column headers of the Excel sample, in order (Spanish). English headers are accepted too. */
 export const IMPORT_COLUMNS = [
-  'Title',
-  'Description',
-  'Weight',
-  'Unit',
-  'Price',
-  'Category',
-  'In stock',
-  'Sale price',
-  'Image URL',
+  'Título',
+  'Descripción',
+  'Peso',
+  'Unidad',
+  'Precio minorista',
+  'Categoría',
+  'En stock',
+  'Precio de oferta',
+  'Precio mayorista',
+  'URL de imagen',
 ] as const;
+
+type Field =
+  | 'title'
+  | 'description'
+  | 'weight'
+  | 'unit'
+  | 'price'
+  | 'category'
+  | 'inStock'
+  | 'salePrice'
+  | 'wholesalePrice'
+  | 'image';
+
+/** Header names (after normalising) that map to each field. */
+const HEADERS: Record<Field, string[]> = {
+  title: ['Título', 'Titulo', 'Nombre', 'Title', 'Name'],
+  description: ['Descripción', 'Descripcion', 'Description'],
+  weight: ['Peso', 'Cantidad', 'Weight'],
+  unit: ['Unidad', 'Unit'],
+  price: ['Precio minorista', 'Precio', 'Price', 'Retail price'],
+  category: ['Categoría', 'Categoria', 'Category'],
+  inStock: ['En stock', 'Stock', 'In stock'],
+  salePrice: ['Precio de oferta', 'Precio oferta', 'Oferta', 'Sale price'],
+  wholesalePrice: ['Precio mayorista', 'Wholesale price'],
+  image: ['URL de imagen', 'Imagen', 'Image URL', 'Image'],
+};
+
+const REQUIRED: { field: Field; label: string }[] = [
+  { field: 'title', label: 'Título' },
+  { field: 'description', label: 'Descripción' },
+  { field: 'weight', label: 'Peso' },
+  { field: 'unit', label: 'Unidad' },
+  { field: 'price', label: 'Precio minorista' },
+  { field: 'category', label: 'Categoría' },
+];
+
+/** Spanish names for the units (stored values stay English). */
+const UNIT_ALIASES: Record<string, string> = {
+  unidad: 'each',
+  unidades: 'each',
+  docena: 'dozen',
+  docenas: 'dozen',
+  atado: 'bunch',
+  atados: 'bunch',
+  cajon: 'case',
+  caja: 'case',
+};
 
 export interface ImportRowError {
   /** Spreadsheet row number (header = 1). */
@@ -26,14 +75,28 @@ export interface ParsedImport {
   newCategories: Category[];
 }
 
-const norm = (v: unknown) => String(v ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
+// Lower-case, no accents, letters and digits only: "Categoría " -> "categoria".
+const norm = (v: unknown) =>
+  String(v ?? '')
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
 const text = (v: unknown) => (v === null || v === undefined ? '' : String(v).trim());
 const slug = (name: string) =>
-  name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+  name
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60);
 
 function toNumber(v: unknown): number | null {
   if (typeof v === 'number') return Number.isFinite(v) ? v : null;
-  const s = text(v).replace(/[$,\s]/g, '');
+  // Accept "4,50" and "4.50", with or without "$" / "US$".
+  const s = text(v).replace(/us\$|\$|\s/gi, '').replace(',', '.');
   if (s === '') return null;
   const n = Number(s);
   return Number.isFinite(n) ? n : null;
@@ -41,8 +104,8 @@ function toNumber(v: unknown): number | null {
 
 function toStock(v: unknown): boolean | null {
   const s = norm(v);
-  if (s === '' || ['yes', 'y', 'true', '1', 'instock', 'si'].includes(s)) return true;
-  if (['no', 'n', 'false', '0', 'outofstock'].includes(s)) return false;
+  if (s === '' || ['si', 'yes', 'y', 's', 'true', '1', 'enstock', 'instock'].includes(s)) return true;
+  if (['no', 'n', 'false', '0', 'sinstock', 'agotado', 'outofstock'].includes(s)) return false;
   return null;
 }
 
@@ -50,59 +113,67 @@ function toStock(v: unknown): boolean | null {
 export function parseItemRows(data: unknown[][], existing: Category[]): ParsedImport {
   const result: ParsedImport = { items: [], errors: [], newCategories: [] };
   if (data.length === 0) {
-    result.errors.push({ row: 1, message: 'The sheet is empty.' });
+    result.errors.push({ row: 1, message: 'La hoja está vacía.' });
     return result;
   }
 
   const headers = data[0].map(norm);
-  const col = (name: string) => headers.indexOf(norm(name));
-  const idx = Object.fromEntries(IMPORT_COLUMNS.map((c) => [c, col(c)])) as Record<(typeof IMPORT_COLUMNS)[number], number>;
+  const col = {} as Record<Field, number>;
+  (Object.keys(HEADERS) as Field[]).forEach((f) => {
+    col[f] = headers.findIndex((h) => HEADERS[f].some((name) => norm(name) === h));
+  });
 
-  const missing = (['Title', 'Description', 'Weight', 'Unit', 'Price', 'Category'] as const).filter((c) => idx[c] < 0);
+  const missing = REQUIRED.filter((r) => col[r.field] < 0).map((r) => r.label);
   if (missing.length) {
-    result.errors.push({ row: 1, message: `Missing column${missing.length > 1 ? 's' : ''}: ${missing.join(', ')}.` });
+    result.errors.push({ row: 1, message: `Falta${missing.length > 1 ? 'n las columnas' : ' la columna'}: ${missing.join(', ')}.` });
     return result;
   }
 
   const known = new Map<string, Category>();
   for (const c of existing) {
     known.set(c.id, c);
-    known.set(c.name.toLowerCase(), c);
+    known.set(norm(c.name), c);
   }
   const created = new Map<string, Category>();
-  const cell = (row: unknown[], name: (typeof IMPORT_COLUMNS)[number]) => (idx[name] < 0 ? undefined : row[idx[name]]);
+  const cell = (row: unknown[], f: Field) => (col[f] < 0 ? undefined : row[col[f]]);
+  const units = weightUnits as readonly string[];
 
   data.slice(1).forEach((row, i) => {
     const rowNumber = i + 2;
     if (row.every((v) => text(v) === '')) return; // blank line
     const fail = (message: string) => result.errors.push({ row: rowNumber, message });
 
-    const title = text(cell(row, 'Title'));
-    const description = text(cell(row, 'Description'));
-    const weight = toNumber(cell(row, 'Weight'));
-    const unit = text(cell(row, 'Unit')).toLowerCase();
-    const price = toNumber(cell(row, 'Price'));
-    const categoryName = text(cell(row, 'Category'));
-    const inStock = toStock(cell(row, 'In stock'));
-    const saleRaw = cell(row, 'Sale price');
+    const title = text(cell(row, 'title'));
+    const description = text(cell(row, 'description'));
+    const weight = toNumber(cell(row, 'weight'));
+    const unitRaw = norm(cell(row, 'unit'));
+    const unit = UNIT_ALIASES[unitRaw] ?? unitRaw;
+    const price = toNumber(cell(row, 'price'));
+    const categoryName = text(cell(row, 'category'));
+    const inStock = toStock(cell(row, 'inStock'));
+    const saleRaw = cell(row, 'salePrice');
     const salePrice = text(saleRaw) === '' ? undefined : toNumber(saleRaw);
-    const image = text(cell(row, 'Image URL'));
+    const wholesaleRaw = cell(row, 'wholesalePrice');
+    const wholesalePrice = text(wholesaleRaw) === '' ? undefined : toNumber(wholesaleRaw);
+    const image = text(cell(row, 'image'));
 
-    if (!title) return fail('Title is required.');
-    if (!description) return fail('Description is required.');
-    if (weight === null || weight <= 0) return fail('Weight must be a number greater than 0.');
-    if (!(weightUnits as readonly string[]).includes(unit)) return fail(`Unit must be one of: ${weightUnits.join(', ')}.`);
-    if (price === null || price < 0) return fail('Price must be a number.');
-    if (!categoryName) return fail('Category is required.');
-    if (inStock === null) return fail('In stock must be yes or no.');
-    if (salePrice === null) return fail('Sale price must be a number.');
-    if (salePrice !== undefined && salePrice >= price) return fail('Sale price must be lower than Price.');
-    if (image && !/^https?:\/\//i.test(image)) return fail('Image URL must start with http:// or https://.');
+    if (!title) return fail('Falta el título.');
+    if (!description) return fail('Falta la descripción.');
+    if (weight === null || weight <= 0) return fail('El peso debe ser un número mayor a 0.');
+    if (!units.includes(unit)) return fail(`La unidad debe ser una de: ${units.join(', ')}, unidad, docena, atado, cajón.`);
+    if (price === null || price < 0) return fail('El precio debe ser un número.');
+    if (!categoryName) return fail('Falta la categoría.');
+    if (inStock === null) return fail('"En stock" debe ser sí o no.');
+    if (salePrice === null) return fail('El precio de oferta debe ser un número.');
+    if (salePrice !== undefined && salePrice >= price) return fail('El precio de oferta debe ser menor al precio minorista.');
+    if (wholesalePrice === null) return fail('El precio mayorista debe ser un número.');
+    if (wholesalePrice !== undefined && wholesalePrice > price) return fail('El precio mayorista no puede ser mayor al minorista.');
+    if (image && !/^https?:\/\//i.test(image)) return fail('La URL de imagen debe empezar con http:// o https://.');
 
-    let category = known.get(categoryName.toLowerCase()) ?? known.get(slug(categoryName));
+    let category = known.get(norm(categoryName)) ?? known.get(slug(categoryName));
     if (!category) {
       const id = slug(categoryName);
-      if (!id) return fail('Category name has no usable letters or digits.');
+      if (!id) return fail('El nombre de la categoría no tiene letras ni números.');
       category = created.get(id) ?? { id, name: categoryName };
       created.set(id, category);
     }
@@ -114,6 +185,7 @@ export function parseItemRows(data: unknown[][], existing: Category[]): ParsedIm
       weight,
       unit,
       price,
+      wholesalePrice,
       inStock,
       salePrice,
       photos: image ? [{ url: image }] : [],
@@ -128,7 +200,7 @@ export function parseItemRows(data: unknown[][], existing: Category[]): ParsedIm
 
   result.newCategories = [...created.values()];
   if (result.items.length === 0 && result.errors.length === 0) {
-    result.errors.push({ row: 2, message: 'No item rows found under the header.' });
+    result.errors.push({ row: 2, message: 'No se encontraron filas de artículos debajo del encabezado.' });
   }
   return result;
 }
