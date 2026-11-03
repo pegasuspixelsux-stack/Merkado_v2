@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -10,6 +10,9 @@ import { typeLabels } from '@/src/utils/format';
 import SiteFooter from '@/src/components/SiteFooter';
 import PropertyImage from '@/src/components/PropertyImage';
 import CartDrawer, { type CartLine } from '@/src/components/CartDrawer';
+import WholesaleAccess from '@/src/components/WholesaleAccess';
+import { useClient } from '@/src/context/ClientContext';
+import { applyLevel } from '@/src/utils/pricing';
 import {
   ArrowUpRight,
   MapPin,
@@ -192,11 +195,14 @@ export default function CoastalWebHome({
   const [currentSlide, setCurrentSlide] = useState(0);
   const [slides] = useState<HeroSlide[]>(initialSlides.length ? initialSlides : fallbackSlides);
   // The built-in samples open /items/sample-N, which the item page fills from the same sample data.
-  const [properties] = useState<HomeProperty[]>(
+  const [baseProperties] = useState<HomeProperty[]>(
     initialProperties.length
       ? initialProperties
       : fallbackProperties.map((p) => ({ ...p, href: `/items/sample-${p.id}` })),
   );
+  // A customer who logged in with Acceso mayoristas sees their price level; everyone else sees list prices.
+  const { level } = useClient();
+  const properties = useMemo(() => applyLevel(baseProperties, level), [baseProperties, level]);
   const [query, setQuery] = useState('');
   // Wholesale (mayorista) enrollment form in the contact section.
   const [wholesale, setWholesale] = useState({
@@ -256,7 +262,6 @@ export default function CoastalWebHome({
     setCart((c) => ({ ...c, [id]: Math.max(1, (c[id] ?? 1) + delta) }));
   const removeFromCart = (id: string) =>
     setCart((c) => Object.fromEntries(Object.entries(c).filter(([k]) => k !== id)));
-  const [buyerType, setBuyerType] = useState<'retail' | 'wholesale'>('retail');
   // Pills: one per category that has items, in the order they first appear.
   const categories = Array.from(
     new Map(
@@ -315,26 +320,7 @@ export default function CoastalWebHome({
         </div>
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <span className="font-semibold text-lg tracking-tight">Merkado.</span>
-          <div
-            role="radiogroup"
-            aria-label="Tipo de cliente"
-            className="inline-flex rounded-full bg-[#F5F5F7] border border-[#000000]/5 p-0.5 text-xs font-medium"
-          >
-            {([['retail', 'Minorista'], ['wholesale', 'Mayorista']] as const).map(([value, label]) => (
-              <button
-                key={value}
-                type="button"
-                role="radio"
-                aria-checked={buyerType === value}
-                onClick={() => setBuyerType(value)}
-                className={`px-3 md:px-4 py-1.5 rounded-full transition-colors ${
-                  buyerType === value ? 'bg-[#1D1D1F] text-white' : 'text-[#515154] hover:text-[#1D1D1F]'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+          <WholesaleAccess />
           <button
             type="button"
             onClick={() => setCartOpen(true)}
@@ -746,7 +732,7 @@ export default function CoastalWebHome({
         onChangeQty={changeQty}
         onRemove={removeFromCart}
         onPlaced={() => setCart({})}
-        buyerType={buyerType}
+        buyerType={level ? 'wholesale' : 'retail'}
       />
 
       <SiteFooter />

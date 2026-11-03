@@ -252,6 +252,10 @@ function toLead(id: string, d: DocumentData): Lead {
     status: (d.status as LeadStatus) ?? 'new',
     assignedAgentId: d.assignedAgentId ?? undefined,
     notes: d.notes ?? undefined,
+    unitPrice: typeof d.unitPrice === 'number' ? d.unitPrice : undefined,
+    quantity: typeof d.quantity === 'number' ? d.quantity : undefined,
+    priceLevelId: d.priceLevelId ?? undefined,
+    clientId: d.clientId ?? undefined,
     createdAt: toMillis(d.createdAt),
   };
 }

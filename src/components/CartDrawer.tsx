@@ -7,6 +7,7 @@ import { db } from '@/lib/firebase';
 import type { HomeProperty } from '@/src/lib/homeData';
 import { formatMoney } from '@/src/utils/format';
 import PropertyImage from '@/src/components/PropertyImage';
+import { useClient } from '@/src/context/ClientContext';
 
 export interface CartLine {
   item: HomeProperty;
@@ -37,6 +38,7 @@ export default function CartDrawer({
   onPlaced: () => void;
   buyerType: 'retail' | 'wholesale';
 }) {
+  const { client, level } = useClient();
   const [form, setForm] = useState({ name: '', phone: '', email: '', notes: '' });
   const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [formError, setFormError] = useState<string | null>(null);
@@ -53,8 +55,11 @@ export default function CartDrawer({
   const place = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!lines.length) return;
-    if (!form.name.trim()) return setFormError('Ingresá tu nombre.');
-    if (!form.phone.trim() && !form.email.trim()) return setFormError('Ingresá un teléfono o un correo electrónico.');
+    // A logged-in wholesale customer's business name and WhatsApp number fill in what they leave empty.
+    const name = form.name.trim() || client?.businessName || '';
+    const phone = form.phone.trim() || client?.phone || '';
+    if (!name) return setFormError('Ingresá tu nombre.');
+    if (!phone && !form.email.trim()) return setFormError('Ingresá un teléfono o un correo electrónico.');
     if (!db) {
       setState('error');
       return;
@@ -64,17 +69,28 @@ export default function CartDrawer({
     try {
       // One order per cart line, written together: either all of them are saved or none.
       const batch = writeBatch(db);
-      const tag = buyerType === 'wholesale' ? 'Mayorista' : 'Minorista';
+      const tag =
+        client && level ? `Mayorista · ${level.name}` : buyerType === 'wholesale' ? 'Mayorista' : 'Minorista';
       for (const { item, qty } of lines) {
+        const unit = unitPriceOf(item);
         batch.set(doc(collection(db, 'leads')), {
-          name: form.name.trim(),
-          phone: form.phone.trim(),
+          name: client ? `${client.businessName}${name !== client.businessName ? ` (${name})` : ''}` : name,
+          phone,
+          // The price the customer saw and accepted (their price level included), and who they are.
+          unitPrice: unit,
+          quantity: qty,
+          ...(client && level ? { clientId: client.clientId, priceLevelId: level.id } : {}),
           email: form.email.trim(),
           property: item.title,
           // Firestore ids are strings; the built-in samples use numbers and are not real items.
           ...(typeof item.id === 'string' ? { propertyId: item.id } : {}),
           channel: 'Portal',
-          message: [`[${tag}] Cantidad: ${qty}${item.area ? ` × ${item.area}` : ''}`, form.notes.trim()].filter(Boolean).join('\n'),
+          message: [
+            `[${tag}] Cantidad: ${qty}${item.area ? ` × ${item.area}` : ''} · Precio unitario: ${formatMoney(unit, 'USD')} · Subtotal: ${formatMoney(unit * qty, 'USD')}`,
+            form.notes.trim(),
+          ]
+            .filter(Boolean)
+            .join('\n'),
           status: 'new',
           createdAt: serverTimestamp(),
         });
@@ -151,8 +167,8 @@ export default function CartDrawer({
               </ul>
 
               <form id="cart-form" onSubmit={place} className="space-y-3 pt-4">
-                <input className={fieldClass} placeholder="Tu nombre" aria-label="Tu nombre" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-                <input className={fieldClass} placeholder="Teléfono" aria-label="Teléfono" type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+                <input className={fieldClass} placeholder={client ? `Nombre de contacto (${client.businessName})` : 'Tu nombre'} aria-label="Tu nombre" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                <input className={fieldClass} placeholder={client?.phone ? `Teléfono (${client.phone})` : 'Teléfono'} aria-label="Teléfono" type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
                 <input className={fieldClass} placeholder="Correo electrónico (opcional)" aria-label="Correo electrónico" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
                 <textarea className={`${fieldClass} resize-none`} rows={2} placeholder="Dirección de entrega o notas (opcional)" aria-label="Notas" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
               </form>

@@ -100,7 +100,8 @@ service cloud.firestore {
     match /leads/{id} {
       allow create: if request.resource.data.keys().hasOnly([
             'name', 'email', 'property', 'message', 'status', 'createdAt',
-            'propertyId', 'clientName', 'phone', 'channel'
+            'propertyId', 'clientName', 'phone', 'channel',
+            'unitPrice', 'quantity', 'clientId', 'priceLevelId'
           ])
         && request.resource.data.status == 'new'
         && request.resource.data.createdAt == request.time
@@ -114,6 +115,16 @@ service cloud.firestore {
         )
         && (!('phone' in request.resource.data)
             || (request.resource.data.phone is string && request.resource.data.phone.size() <= 50))
+        && (!('unitPrice' in request.resource.data)
+            || (request.resource.data.unitPrice is number
+                && request.resource.data.unitPrice >= 0 && request.resource.data.unitPrice < 1000000))
+        && (!('quantity' in request.resource.data)
+            || (request.resource.data.quantity is int
+                && request.resource.data.quantity >= 1 && request.resource.data.quantity <= 99999))
+        && (!('clientId' in request.resource.data)
+            || (request.resource.data.clientId is string && request.resource.data.clientId.size() <= 64))
+        && (!('priceLevelId' in request.resource.data)
+            || (request.resource.data.priceLevelId is string && request.resource.data.priceLevelId.size() <= 40))
         && (!('channel' in request.resource.data)
             || request.resource.data.channel in ['WhatsApp', 'Portal', 'Direct']);
 
@@ -123,6 +134,41 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys()
              .hasOnly(['status', 'notes', 'assignedAgentId'])
         && request.resource.data.status in ['new', 'contacted', 'closed'];
+    }
+
+    // --------------------------------------------------------- price levels
+    // Five percentage-per-category levels. Staff read them; only admins write.
+
+    match /price_levels/{id} {
+      allow read: if isAgent();
+      allow create, update: if isAdmin()
+        && id in ['level_1', 'level_2', 'level_3', 'level_4', 'level_5']
+        && request.resource.data.keys().hasOnly(['name', 'description', 'categoryAdjustments', 'updatedAt'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 100
+        && request.resource.data.description is string && request.resource.data.description.size() <= 1000
+        && request.resource.data.categoryAdjustments is map
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if false;
+    }
+
+    // -------------------------------------------------------------- clients
+    // Wholesale customers are created by admins only (there is no public sign-up).
+
+    match /clients/{id} {
+      allow read: if isAgent();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // -------------------------------------------------------- client_access
+    // client_access/{token}: what a customer's browser reads with the secret token from its link
+    // (or phone + access code). `get` is public but the token is unguessable; listing is staff only.
+    // It mirrors the customer's price level so prices update live. Only admins write.
+
+    match /client_access/{token} {
+      allow get: if true;
+      allow list: if isAgent();
+      allow create, update, delete: if isAdmin();
     }
 
     // ---------------------------------------------------------------- users

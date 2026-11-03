@@ -130,5 +130,69 @@ export interface Lead {
   /** Agent working the lead, if assigned. */
   assignedAgentId?: string;
   notes?: string;
+  /** Price of one unit when the order was placed (already includes the client's price level). */
+  unitPrice?: number;
+  quantity?: number;
+  /** Price level applied to the order ('list_price' = no level). */
+  priceLevelId?: string;
+  /** Firebase Auth uid of the client who placed the order, when signed in. */
+  clientId?: string;
   createdAt: number;
+}
+
+// ---------------------------------------------------------- Price levels
+
+/** The levels an admin can configure; clients without one pay the list (minorista) price. */
+export const PRICE_LEVEL_IDS = ['level_1', 'level_2', 'level_3', 'level_4', 'level_5'] as const;
+export const LIST_PRICE_ID = 'list_price';
+
+/** price_levels/{level_1..level_5}: a percentage adjustment per category, applied to the list price. */
+export interface PriceLevel {
+  id: string;
+  name: string;
+  /** Notes about the level. */
+  description: string;
+  /** categoryId -> percentage: -15 = 15% discount, +5 = 5% markup. Missing = no change. */
+  categoryAdjustments: Record<string, number>;
+  updatedAt?: number;
+}
+
+// --------------------------------------------------------------- Clients
+
+export type ClientStatus = 'active' | 'suspended';
+
+/**
+ * clients/{id}: a wholesale customer, created by an admin in the dashboard (there is no public sign-up).
+ * Staff only. The customer's portal link carries `accessToken`.
+ */
+export interface Client {
+  id: string;
+  businessName: string;
+  contactName: string;
+  /** WhatsApp number. */
+  phone: string;
+  /** Delivery address / notes. */
+  address: string;
+  /** 'level_1'..'level_5' (price_levels/{id}). */
+  priceLevelId: string;
+  status: ClientStatus;
+  /** Random secret in the customer's link: /client?token=<accessToken>. Also the id of client_access/{token}. */
+  accessToken: string;
+  createdAt?: number;
+}
+
+/**
+ * client_access/{token}: what the customer's browser reads with its token (a single get; listing is staff only).
+ * It mirrors the client's price level so prices update live without exposing other customers or levels.
+ */
+export interface ClientAccess {
+  token: string;
+  clientId: string;
+  businessName: string;
+  contactName: string;
+  phone: string;
+  priceLevelId: string;
+  levelName: string;
+  categoryAdjustments: Record<string, number>;
+  status: ClientStatus;
 }

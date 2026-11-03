@@ -33,6 +33,8 @@ export type HomeProperty = {
   featured?: boolean;
   /** False = shown as out of stock. Absent counts as in stock. */
   inStock?: boolean;
+  /** Regular (list / minorista) price as a number; price levels are calculated from it. */
+  listPrice?: number;
   /** Price of one unit as a number: the sale price while on sale, else the regular price. */
   unitPrice?: number;
   /** Formatted sale price; when set, `price` is the regular (crossed-out) price. */
@@ -73,6 +75,7 @@ function toHomeProperty(p: Property, label: (t: string) => string): HomeProperty
     typeLabel: label(p.type),
     featured: p.featured === true,
     inStock: p.inStock !== false,
+    listPrice: p.price,
     unitPrice: p.salePrice ?? p.price,
     salePrice: p.salePrice === undefined ? undefined : formatMoney(p.salePrice, p.currency),
   };

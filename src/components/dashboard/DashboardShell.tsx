@@ -9,10 +9,12 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  Percent,
   Plus,
   PlusSquare,
   Settings,
   Tags,
+  Users,
   X,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -25,6 +27,8 @@ const nav = [
   { href: '/dashboard/properties', label: 'Artículos', icon: Building2 },
   { href: '/dashboard/properties/new', label: 'Agregar artículo', icon: PlusSquare },
   { href: '/dashboard/categories', label: 'Categorías', icon: Tags },
+  { href: '/dashboard/price-levels', label: 'Niveles de precio', icon: Percent },
+  { href: '/dashboard/customers', label: 'Clientes', icon: Users },
   { href: '/dashboard/leads', label: 'Pedidos', icon: Inbox },
   { href: '/dashboard/settings', label: 'Ajustes', icon: Settings },
 ];

@@ -8,6 +8,9 @@ import { typeLabels } from '@/src/utils/format';
 import PropertyImage from '@/src/components/PropertyImage';
 import CartDrawer, { unitPriceOf, type CartLine } from '@/src/components/CartDrawer';
 import SiteFooter from '@/src/components/SiteFooter';
+import WholesaleAccess from '@/src/components/WholesaleAccess';
+import { useClient } from '@/src/context/ClientContext';
+import { applyLevel } from '@/src/utils/pricing';
 import SimilarItems, { type SimilarItem } from '@/src/components/SimilarItems';
 
 const PAGE_SIZE = 12;
@@ -32,7 +35,10 @@ const fieldClass =
   'w-full bg-[#FBFBFD] border border-[#000000]/10 rounded-xl px-3 py-2.5 text-sm text-[#1D1D1F] focus:outline-none focus:border-[#1D1D1F] transition-colors';
 const labelClass = 'block text-[10px] uppercase tracking-wider font-semibold text-[#515154] mb-1.5';
 
-export default function CatalogPage({ items }: { items: HomeProperty[] }) {
+export default function CatalogPage({ items: baseItems }: { items: HomeProperty[] }) {
+  // A customer who opened their access link sees their price level; everyone else sees list prices.
+  const { level } = useClient();
+  const items = useMemo(() => applyLevel(baseItems, level), [baseItems, level]);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('all');
   const [availability, setAvailability] = useState<Availability>('all');
@@ -45,7 +51,6 @@ export default function CatalogPage({ items }: { items: HomeProperty[] }) {
   // Cart (same behaviour as the homepage).
   const [cart, setCart] = useState<Record<string, number>>({});
   const [cartOpen, setCartOpen] = useState(false);
-  const [buyerType, setBuyerType] = useState<'retail' | 'wholesale'>('retail');
   const cartLines: CartLine[] = items.filter((p) => cart[String(p.id)]).map((p) => ({ item: p, qty: cart[String(p.id)] }));
   const cartCount = cartLines.reduce((n, l) => n + l.qty, 0);
   const addToCart = (id: string) => setCart((c) => ({ ...c, [id]: (c[id] ?? 0) + 1 }));
@@ -152,26 +157,7 @@ export default function CatalogPage({ items }: { items: HomeProperty[] }) {
         </div>
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="font-semibold text-lg tracking-tight">Merkado.</Link>
-          <div
-            role="radiogroup"
-            aria-label="Tipo de cliente"
-            className="inline-flex rounded-full bg-[#F5F5F7] border border-[#000000]/5 p-0.5 text-xs font-medium"
-          >
-            {([['retail', 'Minorista'], ['wholesale', 'Mayorista']] as const).map(([value, label]) => (
-              <button
-                key={value}
-                type="button"
-                role="radio"
-                aria-checked={buyerType === value}
-                onClick={() => setBuyerType(value)}
-                className={`px-3 md:px-4 py-1.5 rounded-full transition-colors ${
-                  buyerType === value ? 'bg-[#1D1D1F] text-white' : 'text-[#515154] hover:text-[#1D1D1F]'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+          <WholesaleAccess />
           <button
             type="button"
             onClick={() => setCartOpen(true)}
@@ -476,7 +462,7 @@ export default function CatalogPage({ items }: { items: HomeProperty[] }) {
         onChangeQty={changeQty}
         onRemove={removeFromCart}
         onPlaced={() => setCart({})}
-        buyerType={buyerType}
+        buyerType={level ? 'wholesale' : 'retail'}
       />
 
       <SiteFooter />

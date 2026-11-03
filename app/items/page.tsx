@@ -19,6 +19,7 @@ const samples: HomeProperty[] = sampleProperties.map((p, i) => ({
   location: '',
   price: formatMoney(p.price, p.currency),
   salePrice: p.salePrice === undefined ? undefined : formatMoney(p.salePrice, p.currency),
+  listPrice: p.price,
   unitPrice: p.salePrice ?? p.price,
   beds: 0,
   baths: 0,

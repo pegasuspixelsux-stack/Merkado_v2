@@ -31,7 +31,8 @@ export default function OverviewPage() {
     for (const lead of leads) {
       const item = byId.get(lead.propertyId);
       if (!item) continue;
-      const amount = item.salePrice ?? item.price;
+      // Orders store the price the customer saw (their price level included); older ones fall back to the item's current price.
+      const amount = lead.unitPrice !== undefined ? lead.unitPrice * (lead.quantity ?? 1) : (item.salePrice ?? item.price);
       orders.set(item.type, (orders.get(item.type) ?? 0) + 1);
       sales.set(item.type, (sales.get(item.type) ?? 0) + amount);
       matched += 1;

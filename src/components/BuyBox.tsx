@@ -5,6 +5,8 @@ import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { Minus, Plus } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { formatMoney } from '@/src/utils/format';
+import { useClient } from '@/src/context/ClientContext';
+import { levelUnitPrice } from '@/src/utils/pricing';
 
 const fieldClass =
   'w-full bg-[#FBFBFD] border border-[#000000]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1D1D1F] transition-colors';
@@ -14,25 +16,30 @@ const labelClass = 'block text-xs uppercase tracking-wider font-semibold text-[#
 export default function BuyBox({
   itemId,
   title,
-  retailPrice,
-  wholesalePrice,
+  listPrice,
+  salePrice,
+  categoryId,
   unitLabel,
   inStock,
 }: {
   /** Firestore id; empty for the built-in sample items (their orders have no linked item). */
   itemId: string;
   title: string;
-  /** Minorista price of one unit (the sale price while on sale). */
-  retailPrice: number;
-  /** Mayorista price of one unit, when the item has one. */
-  wholesalePrice?: number;
+  /** List (minorista) price of one unit. */
+  listPrice: number;
+  /** Sale price, when the item is on sale. */
+  salePrice?: number;
+  /** Category id; a wholesale customer's price level adjusts the list price by category. */
+  categoryId?: string;
   /** What one unit is, e.g. "12 lb". */
   unitLabel: string;
   inStock: boolean;
 }) {
   const [qty, setQty] = useState(1);
-  const [buyer, setBuyer] = useState<'retail' | 'wholesale'>('retail');
-  const unitPrice = buyer === 'wholesale' && wholesalePrice !== undefined ? wholesalePrice : retailPrice;
+  const { client, level } = useClient();
+  // Logged-out visitors pay the list (or sale) price; a wholesale customer pays their level's price.
+  const unitPrice =
+    client && level ? levelUnitPrice({ listPrice, salePrice, categoryId }, level).unit : (salePrice ?? listPrice);
   const [form, setForm] = useState({ instructions: '', name: '', phone: '', email: '' });
   const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [formError, setFormError] = useState<string | null>(null);
@@ -40,8 +47,11 @@ export default function BuyBox({
   const buy = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inStock) return;
-    if (!form.name.trim()) return setFormError('Ingresá tu nombre.');
-    if (!form.phone.trim() && !form.email.trim()) return setFormError('Ingresá un teléfono o un correo electrónico.');
+    // A logged-in wholesale customer's business name and WhatsApp number fill in what they leave empty.
+    const name = form.name.trim() || client?.businessName || '';
+    const phone = form.phone.trim() || client?.phone || '';
+    if (!name) return setFormError('Ingresá tu nombre.');
+    if (!phone && !form.email.trim()) return setFormError('Ingresá un teléfono o un correo electrónico.');
     if (!db) {
       setState('error');
       return;
@@ -50,14 +60,18 @@ export default function BuyBox({
     setState('sending');
     try {
       await addDoc(collection(db, 'leads'), {
-        name: form.name.trim(),
-        phone: form.phone.trim(),
+        name: client ? `${client.businessName}${name !== client.businessName ? ` (${name})` : ''}` : name,
+        phone,
         email: form.email.trim(),
         property: title,
         ...(itemId ? { propertyId: itemId } : {}),
+        // The price the customer saw (their price level included), and who they are.
+        unitPrice,
+        quantity: qty,
+        ...(client && level ? { clientId: client.clientId, priceLevelId: level.id } : {}),
         channel: 'Portal',
         message: [
-          `[${buyer === 'wholesale' ? 'Mayorista' : 'Minorista'}] Cantidad: ${qty}${unitLabel ? ` × ${unitLabel}` : ''}`,
+          `[${client && level ? `Mayorista · ${level.name}` : 'Minorista'}] Cantidad: ${qty}${unitLabel ? ` × ${unitLabel}` : ''} · Precio unitario: ${formatMoney(unitPrice, 'USD')} · Total: ${formatMoney(unitPrice * qty, 'USD')}`,
           form.instructions.trim() && `Indicaciones: ${form.instructions.trim()}`,
         ]
           .filter(Boolean)
@@ -81,30 +95,6 @@ export default function BuyBox({
 
   return (
     <form onSubmit={buy} className="space-y-5">
-      <div>
-        <span className={labelClass}>Comprás como</span>
-        <div role="radiogroup" aria-label="Comprás como" className="inline-flex rounded-full bg-[#F5F5F7] border border-[#000000]/5 p-0.5 text-sm font-medium">
-          {([['retail', 'Minorista'], ['wholesale', 'Mayorista']] as const).map(([value, label]) => {
-            const unavailable = value === 'wholesale' && wholesalePrice === undefined;
-            return (
-              <button
-                key={value}
-                type="button"
-                role="radio"
-                aria-checked={buyer === value}
-                disabled={unavailable}
-                onClick={() => setBuyer(value)}
-                className={`px-5 py-2 rounded-full transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
-                  buyer === value ? 'bg-[#1D1D1F] text-white' : 'text-[#515154] hover:text-[#1D1D1F]'
-                }`}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
       <div>
         <span className={labelClass}>Cantidad</span>
         <div className="inline-flex items-center gap-3">
