@@ -6,7 +6,7 @@ const linkClass = 'hover:text-white transition-colors';
 /** The four-column site footer, shared by the homepage and the item pages. */
 export default function SiteFooter() {
   return (
-    <footer className="bg-[#1D1D1F] text-[#FBFBFD] py-32 px-6">
+    <footer className="bg-[#000000] text-[#FBFBFD] py-32 px-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
         {/* Column 1: Brand */}
         <div className="space-y-4">
