@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Merkado",
+  title: "Merkado para Mayoristas",
   description:
     "Frutas y verduras frescas directo del productor, para minoristas y mayoristas.",
 };

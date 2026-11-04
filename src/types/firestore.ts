@@ -13,6 +13,10 @@
 
 export type Currency = 'USD' | 'UYU';
 
+/** Departments we deliver to. Every item lists the ones it is delivered to. */
+export const DELIVERY_AREAS = ['Maldonado', 'Montevideo', 'Canelones'] as const;
+export type DeliveryArea = (typeof DELIVERY_AREAS)[number];
+
 // ---------------------------------------------------------------- Agents
 
 export type AgentRole = 'admin' | 'agent';
@@ -95,6 +99,12 @@ export interface Property {
   salePrice?: number;
   /** Mayorista (wholesale) price per unit; `price` is the minorista (retail) price. */
   wholesalePrice?: number;
+  /** Prices are per kilo. Weight of one box in kg; when set, the item can also be bought by the box. */
+  boxWeight?: number;
+  /** Price of one whole box. When absent it is the per-kilo price × `boxWeight`. */
+  boxPrice?: number;
+  /** Departments this item is delivered to (at least one). Items saved without it count as Maldonado. */
+  deliveryAreas?: DeliveryArea[];
   status: PropertyStatus;
   /** Shown in the homepage hero slideshow (up to 5 are displayed). */
   featured?: boolean;

@@ -11,6 +11,7 @@ import SiteFooter from '@/src/components/SiteFooter';
 import PropertyImage from '@/src/components/PropertyImage';
 import CartDrawer, { type CartLine } from '@/src/components/CartDrawer';
 import WholesaleAccess from '@/src/components/WholesaleAccess';
+import SiteNavLinks from '@/src/components/SiteNavLinks';
 import { useClient } from '@/src/context/ClientContext';
 import { applyLevel } from '@/src/utils/pricing';
 import {
@@ -319,7 +320,9 @@ export default function CoastalWebHome({
           Envío gratis en pedidos de más de US$ 50
         </div>
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <span className="font-semibold text-lg tracking-tight">Merkado.</span>
+          <span className="font-semibold text-lg tracking-tight">Merkado<span className="hidden sm:inline"> para Mayoristas</span>.</span>
+          <SiteNavLinks />
+          <div className="flex items-center gap-1">
           <WholesaleAccess />
           <button
             type="button"
@@ -334,6 +337,7 @@ export default function CoastalWebHome({
               </span>
             )}
           </button>
+          </div>
         </div>
       </header>
 

@@ -41,7 +41,8 @@ export type HomeProperty = {
   salePrice?: string;
 };
 
-const place = (p: Property) => [p.location.city, p.location.state].filter(Boolean).join(', ');
+/** Where the item is delivered, e.g. "Maldonado · Montevideo". */
+const place = (p: Property) => (p.deliveryAreas?.length ? p.deliveryAreas : ['Maldonado']).join(' · ');
 
 function toSlide(p: Property, label: (t: string) => string): HeroSlide {
   const sentence = p.description.split(/(?<=[.!?])\s/)[0].trim();

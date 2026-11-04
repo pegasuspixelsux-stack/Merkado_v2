@@ -2,7 +2,6 @@ import { cache } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
 import { getActiveProperties, getCategories, getProperty } from '@/src/services/dbService';
 import { sampleProperties } from '@/src/data/sampleProperties';
 import type { Property } from '@/src/types/firestore';
@@ -10,6 +9,7 @@ import { formatMoney, formatQuantity, mergeCategories } from '@/src/utils/format
 import BuyBox from '@/src/components/BuyBox';
 import ItemPriceView from '@/src/components/ItemPriceView';
 import WholesaleAccess from '@/src/components/WholesaleAccess';
+import SiteNavLinks from '@/src/components/SiteNavLinks';
 import SimilarItems, { type SimilarItem } from '@/src/components/SimilarItems';
 import PropertyImage from '@/src/components/PropertyImage';
 import SiteFooter from '@/src/components/SiteFooter';
@@ -77,12 +77,10 @@ export default async function ItemPage({ params }: Props) {
     <div className="min-h-screen bg-[#FBFBFD] text-[#1D1D1F] font-sans antialiased">
       <header className="border-b border-[#000000]/5 bg-[#FBFBFD]">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="font-semibold text-lg tracking-tight">Merkado.</Link>
+          <Link href="/" className="font-semibold text-lg tracking-tight">Merkado<span className="hidden sm:inline"> para Mayoristas</span>.</Link>
+          <SiteNavLinks />
           <div className="flex items-center gap-3">
             <WholesaleAccess />
-          <Link href="/#properties" className="inline-flex items-center gap-2 text-sm text-[#515154] hover:text-[#1D1D1F] transition-colors">
-            <ArrowLeft className="w-4 h-4" /> Todos los artículos
-          </Link>
           </div>
         </div>
       </header>
@@ -110,12 +108,16 @@ export default async function ItemPage({ params }: Props) {
           <div className="space-y-4">
             <p className="text-xs uppercase tracking-widest text-[#515154] font-semibold">{category}</p>
             <h1 className="text-3xl md:text-5xl font-semibold tracking-tight">{item.title}</h1>
-            <ItemPriceView listPrice={item.price} salePrice={item.salePrice} categoryId={item.type} currency={item.currency} />
+            <ItemPriceView listPrice={item.price} salePrice={item.salePrice} categoryId={item.type} currency={item.currency} boxWeight={item.boxWeight} boxPrice={item.boxPrice} />
             {quantity && (
               <p className="text-sm text-[#515154]">
                 <span className="font-medium text-[#1D1D1F]">Cantidad:</span> {quantity} por unidad
               </p>
             )}
+            <p className="text-sm text-[#515154]">
+              <span className="font-medium text-[#1D1D1F]">Entrega en:</span>{' '}
+              {(item.deliveryAreas?.length ? item.deliveryAreas : ['Maldonado']).join(', ')}
+            </p>
             {item.description && (
               <p className="text-[#515154] font-light leading-relaxed whitespace-pre-line">{item.description}</p>
             )}
@@ -127,7 +129,8 @@ export default async function ItemPage({ params }: Props) {
             listPrice={item.price}
             salePrice={item.salePrice}
             categoryId={item.type}
-            unitLabel={quantity}
+            boxWeight={item.boxWeight}
+            boxPrice={item.boxPrice}
             inStock={inStock}
           />
         </div>

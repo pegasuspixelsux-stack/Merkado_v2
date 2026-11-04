@@ -6,7 +6,7 @@ import { Minus, Plus } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { formatMoney } from '@/src/utils/format';
 import { useClient } from '@/src/context/ClientContext';
-import { levelUnitPrice } from '@/src/utils/pricing';
+import { boxPrices, levelUnitPrice } from '@/src/utils/pricing';
 
 const fieldClass =
   'w-full bg-[#FBFBFD] border border-[#000000]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1D1D1F] transition-colors';
@@ -19,7 +19,8 @@ export default function BuyBox({
   listPrice,
   salePrice,
   categoryId,
-  unitLabel,
+  boxWeight,
+  boxPrice,
   inStock,
 }: {
   /** Firestore id; empty for the built-in sample items (their orders have no linked item). */
@@ -31,15 +32,27 @@ export default function BuyBox({
   salePrice?: number;
   /** Category id; a wholesale customer's price level adjusts the list price by category. */
   categoryId?: string;
-  /** What one unit is, e.g. "12 lb". */
-  unitLabel: string;
+  /** Prices are per kilo. Weight of one box in kg; when set, the item can be bought by the box too. */
+  boxWeight?: number;
+  /** Price of one box; defaults to the per-kilo price × `boxWeight`. */
+  boxPrice?: number;
   inStock: boolean;
 }) {
   const [qty, setQty] = useState(1);
   const { client, level } = useClient();
   // Logged-out visitors pay the list (or sale) price; a wholesale customer pays their level's price.
-  const unitPrice =
-    client && level ? levelUnitPrice({ listPrice, salePrice, categoryId }, level).unit : (salePrice ?? listPrice);
+  const wholesale = !!(client && level);
+  const kgPrice = wholesale ? levelUnitPrice({ listPrice, salePrice, categoryId }, level!).unit : (salePrice ?? listPrice);
+  const box = boxPrices({ price: listPrice, salePrice, boxWeight, boxPrice });
+  const boxUnitPrice = box
+    ? wholesale
+      ? levelUnitPrice({ listPrice: box.list, salePrice: box.sale, categoryId }, level!).unit
+      : (box.sale ?? box.list)
+    : 0;
+  const [mode, setMode] = useState<'kg' | 'box'>('kg');
+  const byBox = mode === 'box' && !!box;
+  const unitPrice = byBox ? boxUnitPrice : kgPrice;
+  const unitLabel = byBox ? `caja de ${boxWeight} kg` : 'kg';
   const [form, setForm] = useState({ instructions: '', name: '', phone: '', email: '' });
   const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [formError, setFormError] = useState<string | null>(null);
@@ -71,7 +84,7 @@ export default function BuyBox({
         ...(client && level ? { clientId: client.clientId, priceLevelId: level.id } : {}),
         channel: 'Portal',
         message: [
-          `[${client && level ? `Mayorista · ${level.name}` : 'Minorista'}] Cantidad: ${qty}${unitLabel ? ` × ${unitLabel}` : ''} · Precio unitario: ${formatMoney(unitPrice)} · Total: ${formatMoney(unitPrice * qty)}`,
+          `[${client && level ? `Mayorista · ${level.name}` : 'Minorista'}] Cantidad: ${qty} × ${unitLabel} · Precio unitario: ${formatMoney(unitPrice)} · Total: ${formatMoney(unitPrice * qty)}`,
           form.instructions.trim() && `Indicaciones: ${form.instructions.trim()}`,
         ]
           .filter(Boolean)
@@ -88,15 +101,39 @@ export default function BuyBox({
   if (state === 'sent') {
     return (
       <p role="status" className="rounded-2xl bg-green-50 text-green-800 text-sm px-5 py-4">
-        ¡Gracias! Tu pedido de {qty} × {title} fue enviado. Nos vamos a comunicar con vos en breve para confirmarlo.
+        ¡Gracias! Tu pedido de {qty} × {title} ({unitLabel}) fue enviado. Nos vamos a comunicar con vos en breve para confirmarlo.
       </p>
     );
   }
 
   return (
     <form onSubmit={buy} className="space-y-5">
+      {box && (
+        <div>
+          <span className={labelClass}>Comprar por</span>
+          <div className="inline-flex flex-wrap rounded-3xl bg-[#F5F5F7] p-1" role="group" aria-label="Comprar por">
+            {([
+              ['kg', `Kilo · ${formatMoney(kgPrice)}`],
+              ['box', `Caja de ${boxWeight} kg · ${formatMoney(boxUnitPrice)}`],
+            ] as const).map(([key, text]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setMode(key)}
+                aria-pressed={mode === key}
+                className={`px-4 py-2 rounded-full text-xs font-medium transition-colors ${
+                  mode === key ? 'bg-[#1D1D1F] text-white' : 'text-[#515154] hover:text-[#1D1D1F]'
+                }`}
+              >
+                {text}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div>
-        <span className={labelClass}>Cantidad</span>
+        <span className={labelClass}>{byBox ? 'Cantidad de cajas' : 'Cantidad (kg)'}</span>
         <div className="inline-flex items-center gap-3">
           <button
             type="button"

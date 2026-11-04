@@ -25,8 +25,10 @@ import {
 import { db } from '../lib/firebase';
 import { sampleProperties } from '../data/sampleProperties';
 import { USD_TO_UYU } from '../utils/format';
+import { DELIVERY_AREAS } from '../types/firestore';
 import type {
   Category,
+  DeliveryArea,
   Lead,
   LeadChannel,
   LeadStatus,
@@ -70,6 +72,12 @@ function clean<T>(value: T): T {
 
 // ------------------------------------------------------------ Properties
 
+/** Items saved before delivery areas existed are delivered to Maldonado. */
+function toDeliveryAreas(value: unknown): DeliveryArea[] {
+  const areas = Array.isArray(value) ? DELIVERY_AREAS.filter((a) => value.includes(a)) : [];
+  return areas.length > 0 ? areas : ['Maldonado'];
+}
+
 function toProperty(id: string, d: DocumentData): Property {
   // Items saved in US$ are shown in pesos (US$ 1 = $ 40); they are stored as UYU the next time they are edited.
   const rate = d.currency === 'USD' ? USD_TO_UYU : 1;
@@ -84,6 +92,9 @@ function toProperty(id: string, d: DocumentData): Property {
     inStock: d.inStock !== false,
     salePrice: money(d.salePrice),
     wholesalePrice: money(d.wholesalePrice),
+    deliveryAreas: toDeliveryAreas(d.deliveryAreas),
+    boxWeight: typeof d.boxWeight === 'number' && d.boxWeight > 0 ? d.boxWeight : undefined,
+    boxPrice: money(d.boxPrice),
     operation: d.operation ?? 'sale',
     price: money(Number(d.price) || 0) ?? 0,
     currency: 'UYU',
@@ -122,6 +133,8 @@ export async function updateProperty(id: string, data: PropertyUpdate): Promise<
   // clean() drops undefined keys, so clearing a sale has to be an explicit field delete.
   if ('salePrice' in data && data.salePrice === undefined) payload.salePrice = deleteField();
   if ('wholesalePrice' in data && data.wholesalePrice === undefined) payload.wholesalePrice = deleteField();
+  if ('boxWeight' in data && data.boxWeight === undefined) payload.boxWeight = deleteField();
+  if ('boxPrice' in data && data.boxPrice === undefined) payload.boxPrice = deleteField();
   await updateDoc(doc(requireDb(), PROPERTIES, id), payload);
 }
 

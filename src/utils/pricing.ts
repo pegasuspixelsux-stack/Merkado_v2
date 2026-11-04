@@ -32,6 +32,25 @@ export function levelUnitPrice(
   return { tier, unit: tier, onSale: false };
 }
 
+/**
+ * Price of one whole box. Prices are per kilo, so a box costs `boxPrice` when the item sets one, else
+ * the per-kilo price × the box weight (and the per-kilo sale price × the box weight while on sale).
+ * Null when the item has no box weight (it is sold per kilo only).
+ */
+export function boxPrices(item: {
+  price: number;
+  salePrice?: number;
+  boxWeight?: number;
+  boxPrice?: number;
+}): { list: number; sale?: number } | null {
+  if (!item.boxWeight || item.boxWeight <= 0) return null;
+  if (item.boxPrice !== undefined) return { list: item.boxPrice };
+  return {
+    list: round2(item.price * item.boxWeight),
+    sale: item.salePrice !== undefined ? round2(item.salePrice * item.boxWeight) : undefined,
+  };
+}
+
 /** Catalog items with the client's level prices; with no level (or no list price known) they are unchanged. */
 export function applyLevel(items: HomeProperty[], level: LevelAdjustments | null): HomeProperty[] {
   if (!level) return items;

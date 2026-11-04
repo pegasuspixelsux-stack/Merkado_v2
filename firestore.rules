@@ -42,6 +42,10 @@ service cloud.firestore {
         && (!('inStock' in p) || p.inStock is bool)
         && (!('salePrice' in p) || (p.salePrice is number && p.salePrice >= 0))
         && (!('wholesalePrice' in p) || (p.wholesalePrice is number && p.wholesalePrice >= 0))
+        && (!('deliveryAreas' in p) || (p.deliveryAreas is list && p.deliveryAreas.size() >= 1 && p.deliveryAreas.size() <= 3
+             && p.deliveryAreas.hasOnly(['Maldonado', 'Montevideo', 'Canelones'])))
+        && (!('boxWeight' in p) || (p.boxWeight is number && p.boxWeight > 0))
+        && (!('boxPrice' in p) || (p.boxPrice is number && p.boxPrice >= 0))
         && p.agentId is string;
     }
 

@@ -9,6 +9,7 @@ import PropertyImage from '@/src/components/PropertyImage';
 import CartDrawer, { unitPriceOf, type CartLine } from '@/src/components/CartDrawer';
 import SiteFooter from '@/src/components/SiteFooter';
 import WholesaleAccess from '@/src/components/WholesaleAccess';
+import SiteNavLinks from '@/src/components/SiteNavLinks';
 import { useClient } from '@/src/context/ClientContext';
 import { applyLevel } from '@/src/utils/pricing';
 import SimilarItems, { type SimilarItem } from '@/src/components/SimilarItems';
@@ -156,7 +157,9 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
           Envío gratis en pedidos de más de US$ 50
         </div>
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="font-semibold text-lg tracking-tight">Merkado.</Link>
+          <Link href="/" className="font-semibold text-lg tracking-tight">Merkado<span className="hidden sm:inline"> para Mayoristas</span>.</Link>
+          <SiteNavLinks />
+          <div className="flex items-center gap-1">
           <WholesaleAccess />
           <button
             type="button"
@@ -171,6 +174,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
               </span>
             )}
           </button>
+          </div>
         </div>
       </header>
 

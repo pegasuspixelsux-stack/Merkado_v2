@@ -193,6 +193,7 @@ export function parseItemRows(data: unknown[][], existing: Category[]): ParsedIm
       currency: 'UYU',
       status: 'active',
       featured: false,
+      deliveryAreas: ['Maldonado'],
       location: { city: '', country: '' },
       specs: { bedrooms: 0, bathrooms: 0, areaM2: 0 },
     });

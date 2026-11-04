@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useClient } from '@/src/context/ClientContext';
-import { levelUnitPrice } from '@/src/utils/pricing';
+import { boxPrices, levelUnitPrice } from '@/src/utils/pricing';
 import { formatMoney } from '@/src/utils/format';
 
 /**
@@ -15,20 +15,44 @@ export default function ItemPriceView({
   salePrice,
   categoryId,
   currency,
+  boxWeight,
+  boxPrice,
 }: {
   listPrice: number;
   salePrice?: number;
   categoryId?: string;
   currency: string;
+  boxWeight?: number;
+  boxPrice?: number;
 }) {
   const { client, level } = useClient();
+  const box = boxPrices({ price: listPrice, salePrice, boxWeight, boxPrice });
+  const boxCard = (() => {
+    if (!box || !boxWeight) return null;
+    let unit = box.sale ?? box.list;
+    let was: number | null = box.sale !== undefined ? box.list : null;
+    if (client && level) {
+      const r = levelUnitPrice({ listPrice: box.list, salePrice: box.sale, categoryId }, level);
+      unit = r.unit;
+      was = r.onSale ? r.tier : r.unit !== box.list ? box.list : null;
+    }
+    return (
+      <div className="rounded-2xl bg-white border border-[#000000]/5 p-4 col-span-2">
+        <dt className="text-xs uppercase tracking-wider text-[#515154] font-semibold">Caja de {boxWeight} kg</dt>
+        <dd className="mt-1 flex flex-wrap items-baseline gap-x-2">
+          <span className="text-2xl font-semibold">{formatMoney(unit, currency)}</span>
+          {was !== null && <s className="text-sm text-[#86868B]">{formatMoney(was, currency)}</s>}
+        </dd>
+      </div>
+    );
+  })();
 
   if (client && level) {
     const { tier, unit, onSale } = levelUnitPrice({ listPrice, salePrice, categoryId }, level);
     return (
-      <dl className="max-w-md">
-        <div className="rounded-2xl bg-white border border-[#000000]/5 p-4">
-          <dt className="text-xs uppercase tracking-wider text-[#515154] font-semibold">Tu precio</dt>
+      <dl className="grid grid-cols-2 gap-3 max-w-md">
+        <div className="rounded-2xl bg-white border border-[#000000]/5 p-4 col-span-2">
+          <dt className="text-xs uppercase tracking-wider text-[#515154] font-semibold">Tu precio por kilo</dt>
           <dd className="mt-1 flex flex-wrap items-baseline gap-x-2">
             <span className="text-2xl font-semibold">{formatMoney(unit, currency)}</span>
             {(onSale || unit !== listPrice) && <s className="text-sm text-[#86868B]">{formatMoney(onSale ? tier : listPrice, currency)}</s>}
@@ -37,6 +61,7 @@ export default function ItemPriceView({
             Precio {level.name}
           </span>
         </div>
+        {boxCard}
       </dl>
     );
   }
@@ -45,7 +70,7 @@ export default function ItemPriceView({
   return (
     <dl className="grid grid-cols-2 gap-3 max-w-md">
       <div className="rounded-2xl bg-white border border-[#000000]/5 p-4">
-        <dt className="text-xs uppercase tracking-wider text-[#515154] font-semibold">Minorista</dt>
+        <dt className="text-xs uppercase tracking-wider text-[#515154] font-semibold">Minorista · por kilo</dt>
         <dd className="mt-1 flex flex-wrap items-baseline gap-x-2">
           <span className="text-2xl font-semibold">{formatMoney(salePrice ?? listPrice, currency)}</span>
           {onSale && <s className="text-sm text-[#86868B]">{formatMoney(listPrice, currency)}</s>}
@@ -59,6 +84,7 @@ export default function ItemPriceView({
           Conseguí precios mayoristas
         </Link>
       </div>
+      {boxCard}
     </dl>
   );
 }

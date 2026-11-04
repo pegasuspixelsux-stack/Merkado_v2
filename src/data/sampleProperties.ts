@@ -31,6 +31,7 @@ function sample(
     location: { city: '', country: '' },
     specs: { bedrooms: 0, bathrooms: 0, areaM2: 0 },
     photos: [{ url: `https://images.unsplash.com/photo-${imageId}?q=80&w=1200&auto=format&fit=crop` }],
+    deliveryAreas: ['Maldonado'],
     status: 'active',
   };
 }

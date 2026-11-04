@@ -15,8 +15,7 @@ interface ViewProps {
   categoryLabel?: (type: string) => string;
 }
 
-const locationText = (p: Property) =>
-  [p.location.neighborhood, p.location.city].filter(Boolean).join(', ');
+const locationText = (p: Property) => (p.deliveryAreas?.length ? p.deliveryAreas : ['Maldonado']).join(' · ');
 
 function Specs({ p }: { p: Property }) {
   return (
