@@ -71,7 +71,7 @@ export default function BuyBox({
         ...(client && level ? { clientId: client.clientId, priceLevelId: level.id } : {}),
         channel: 'Portal',
         message: [
-          `[${client && level ? `Mayorista · ${level.name}` : 'Minorista'}] Cantidad: ${qty}${unitLabel ? ` × ${unitLabel}` : ''} · Precio unitario: ${formatMoney(unitPrice, 'USD')} · Total: ${formatMoney(unitPrice * qty, 'USD')}`,
+          `[${client && level ? `Mayorista · ${level.name}` : 'Minorista'}] Cantidad: ${qty}${unitLabel ? ` × ${unitLabel}` : ''} · Precio unitario: ${formatMoney(unitPrice)} · Total: ${formatMoney(unitPrice * qty)}`,
           form.instructions.trim() && `Indicaciones: ${form.instructions.trim()}`,
         ]
           .filter(Boolean)
@@ -157,7 +157,7 @@ export default function BuyBox({
         disabled={!inStock || state === 'sending'}
         className="w-full bg-[#1D1D1F] text-white py-4 rounded-full text-sm font-medium hover:bg-[#333336] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        {!inStock ? 'Sin stock' : state === 'sending' ? 'Enviando…' : `Comprar ahora · ${formatMoney(unitPrice * qty, 'USD')}`}
+        {!inStock ? 'Sin stock' : state === 'sending' ? 'Enviando…' : `Comprar ahora · ${formatMoney(unitPrice * qty)}`}
       </button>
     </form>
   );

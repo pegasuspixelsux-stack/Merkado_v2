@@ -2,18 +2,18 @@ import type { Category, PropertyOperation, PropertyStatus } from '../types/fires
 
 const LOCALE = 'es-UY';
 
-export function formatMoney(price: number, currency: string): string {
-  try {
-    return new Intl.NumberFormat(LOCALE, {
-      style: 'currency',
-      currency,
-      // whole amounts stay compact (US$ 14), fractional ones keep cents (US$ 4,50)
-      minimumFractionDigits: Number.isInteger(price) ? 0 : 2,
-      maximumFractionDigits: 2,
-    }).format(price);
-  } catch {
-    return `${currency} ${price.toLocaleString(LOCALE)}`;
-  }
+/** Exchange rate used to convert legacy US$ prices to pesos uruguayos: US$ 1 = $ 40. */
+export const USD_TO_UYU = 40;
+
+/** All prices are shown in pesos uruguayos ($); the stored `currency` field is ignored. */
+export function formatMoney(price: number, _currency?: string): string {
+  return new Intl.NumberFormat(LOCALE, {
+    style: 'currency',
+    currency: 'UYU',
+    // whole amounts stay compact ($ 140), fractional ones keep cents ($ 4,50)
+    minimumFractionDigits: Number.isInteger(price) ? 0 : 2,
+    maximumFractionDigits: 2,
+  }).format(price);
 }
 
 /** "USD $250.000" / "UYU $10.200.000": currency code plus a $-prefixed amount. */

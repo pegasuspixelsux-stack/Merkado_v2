@@ -86,7 +86,7 @@ export default function CartDrawer({
           ...(typeof item.id === 'string' ? { propertyId: item.id } : {}),
           channel: 'Portal',
           message: [
-            `[${tag}] Cantidad: ${qty}${item.area ? ` × ${item.area}` : ''} · Precio unitario: ${formatMoney(unit, 'USD')} · Subtotal: ${formatMoney(unit * qty, 'USD')}`,
+            `[${tag}] Cantidad: ${qty}${item.area ? ` × ${item.area}` : ''} · Precio unitario: ${formatMoney(unit)} · Subtotal: ${formatMoney(unit * qty)}`,
             form.notes.trim(),
           ]
             .filter(Boolean)
@@ -145,7 +145,7 @@ export default function CartDrawer({
                         <p className="text-sm font-medium truncate">{item.title}</p>
                         <p className="text-xs text-[#515154]">
                           {item.area ? `${item.area} · ` : ''}
-                          {formatMoney(unitPriceOf(item), 'USD')}
+                          {formatMoney(unitPriceOf(item))}
                         </p>
                         <div className="mt-2 flex items-center gap-2">
                           <button type="button" onClick={() => onChangeQty(id, -1)} disabled={qty <= 1} aria-label={`Disminuir ${item.title}`} className="w-7 h-7 rounded-full bg-[#F5F5F7] flex items-center justify-center disabled:opacity-30">
@@ -160,7 +160,7 @@ export default function CartDrawer({
                           </button>
                         </div>
                       </div>
-                      <p className="text-sm font-semibold shrink-0">{formatMoney(unitPriceOf(item) * qty, 'USD')}</p>
+                      <p className="text-sm font-semibold shrink-0">{formatMoney(unitPriceOf(item) * qty)}</p>
                     </li>
                   );
                 })}
@@ -180,7 +180,7 @@ export default function CartDrawer({
           <div className="border-t border-[#000000]/5 px-6 py-5 space-y-3 shrink-0">
             <div className="flex items-center justify-between text-sm">
               <span className="text-[#515154]">Total</span>
-              <span className="text-lg font-semibold">{formatMoney(total, 'USD')}</span>
+              <span className="text-lg font-semibold">{formatMoney(total)}</span>
             </div>
             {(formError || state === 'error') && (
               <p role="alert" className="text-xs text-red-600">

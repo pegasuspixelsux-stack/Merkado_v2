@@ -43,8 +43,8 @@ export function applyLevel(items: HomeProperty[], level: LevelAdjustments | null
     );
     return {
       ...p,
-      price: formatMoney(tier, 'USD'),
-      salePrice: onSale ? formatMoney(unit, 'USD') : undefined,
+      price: formatMoney(tier),
+      salePrice: onSale ? formatMoney(unit) : undefined,
       unitPrice: unit,
     };
   });

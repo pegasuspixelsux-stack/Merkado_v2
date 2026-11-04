@@ -123,7 +123,7 @@ export default function PropertyForm({ initial, submitLabel, onSubmit }: Propert
         photos: [form.photo],
         // Not asked for in the simple form: keep what an existing item has, use defaults for new ones.
         operation: initial?.operation ?? 'sale',
-        currency: initial?.currency ?? 'USD',
+        currency: initial?.currency ?? 'UYU',
         status: initial?.status ?? 'active',
         featured: form.featured,
         location: initial?.location ?? { city: '', country: '' },

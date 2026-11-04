@@ -1,4 +1,5 @@
 import type { PropertyInput } from '../types/firestore';
+import { USD_TO_UYU } from '../utils/format';
 
 type Sample = Omit<PropertyInput, 'agentId'>;
 
@@ -18,14 +19,15 @@ function sample(
     type: category,
     weight,
     unit,
-    price,
+    // los precios de abajo están escritos en US$ y se convierten a pesos (US$ 1 = $ 40)
+    price: price * USD_TO_UYU,
     // precio mayorista de muestra: 20% menos que el minorista
-    wholesalePrice: Math.round(price * 0.8 * 100) / 100,
+    wholesalePrice: Math.round(price * 0.8 * USD_TO_UYU),
     inStock: extra.inStock ?? true,
-    ...(extra.salePrice !== undefined ? { salePrice: extra.salePrice } : {}),
+    ...(extra.salePrice !== undefined ? { salePrice: extra.salePrice * USD_TO_UYU } : {}),
     // Los campos de abajo no se usan para productos frescos; solo mantienen los datos válidos para las reglas de seguridad.
     operation: 'sale',
-    currency: 'USD',
+    currency: 'UYU',
     location: { city: '', country: '' },
     specs: { bedrooms: 0, bathrooms: 0, areaM2: 0 },
     photos: [{ url: `https://images.unsplash.com/photo-${imageId}?q=80&w=1200&auto=format&fit=crop` }],

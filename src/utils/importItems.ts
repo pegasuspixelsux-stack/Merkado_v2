@@ -190,7 +190,7 @@ export function parseItemRows(data: unknown[][], existing: Category[]): ParsedIm
       salePrice,
       photos: image ? [{ url: image }] : [],
       operation: 'sale',
-      currency: 'USD',
+      currency: 'UYU',
       status: 'active',
       featured: false,
       location: { city: '', country: '' },

@@ -45,7 +45,7 @@ export default function OverviewPage() {
     return { bestSellers: toSlices(orders), salesByCategory: toSlices(sales), salesTotal: total, matchedOrders: matched };
   }, [items, leads, labelFor]);
 
-  const money = (n: number) => formatMoney(n, 'USD');
+  const money = (n: number) => formatMoney(n);
   const orderKpis = ['Pedidos totales', 'Pedidos nuevos', 'Ventas'];
   const stats = [
     { label: 'Artículos', value: `${items.length}${hasMore ? '+' : ''}`, icon: Building2 },

@@ -231,7 +231,7 @@ export default function PriceLevelsPage() {
                           ) : (
                             <>
                               {sampleItem ? `${sampleItem.title}: ` : ''}
-                              {formatMoney(base, 'USD')} → <span className="font-semibold text-[#1D1D1F]">{formatMoney(adjusted, 'USD')}</span>
+                              {formatMoney(base)} → <span className="font-semibold text-[#1D1D1F]">{formatMoney(adjusted)}</span>
                             </>
                           )}
                         </td>

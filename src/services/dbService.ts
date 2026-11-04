@@ -24,6 +24,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { sampleProperties } from '../data/sampleProperties';
+import { USD_TO_UYU } from '../utils/format';
 import type {
   Category,
   Lead,
@@ -70,6 +71,9 @@ function clean<T>(value: T): T {
 // ------------------------------------------------------------ Properties
 
 function toProperty(id: string, d: DocumentData): Property {
+  // Items saved in US$ are shown in pesos (US$ 1 = $ 40); they are stored as UYU the next time they are edited.
+  const rate = d.currency === 'USD' ? USD_TO_UYU : 1;
+  const money = (n: unknown) => (typeof n === 'number' ? Math.round(n * rate * 100) / 100 : undefined);
   return {
     id,
     title: d.title ?? '',
@@ -78,11 +82,11 @@ function toProperty(id: string, d: DocumentData): Property {
     weight: typeof d.weight === 'number' ? d.weight : undefined,
     unit: typeof d.unit === 'string' ? d.unit : undefined,
     inStock: d.inStock !== false,
-    salePrice: typeof d.salePrice === 'number' ? d.salePrice : undefined,
-    wholesalePrice: typeof d.wholesalePrice === 'number' ? d.wholesalePrice : undefined,
+    salePrice: money(d.salePrice),
+    wholesalePrice: money(d.wholesalePrice),
     operation: d.operation ?? 'sale',
-    price: Number(d.price) || 0,
-    currency: d.currency ?? 'USD',
+    price: money(Number(d.price) || 0) ?? 0,
+    currency: 'UYU',
     location: { city: '', country: '', ...(d.location ?? {}) },
     specs: { bedrooms: 0, bathrooms: 0, areaM2: 0, ...(d.specs ?? {}) },
     photos: Array.isArray(d.photos) ? d.photos : [],
