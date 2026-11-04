@@ -10,7 +10,7 @@ export default function SiteFooter() {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
         {/* Column 1: Brand */}
         <div className="space-y-4">
-          <span className="text-lg font-semibold tracking-tight text-white">Merkado<span className="hidden sm:inline"> para Mayoristas</span>.</span>
+          <span className="text-lg font-semibold tracking-tight text-white">Merkado<span className="sm:hidden"> M</span><span className="hidden sm:inline"> para Mayoristas</span>.</span>
           <p className="text-xs text-white/60 leading-relaxed font-light">
             Frutas y verduras frescas, directo del productor a tu negocio o a tu mesa.
           </p>

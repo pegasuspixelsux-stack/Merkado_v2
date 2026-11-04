@@ -87,7 +87,7 @@ export default async function ItemPage({ params }: Props) {
     <div className="min-h-screen bg-[#FBFBFD] text-[#1D1D1F] font-sans antialiased">
       <header className="border-b border-[#000000]/5 bg-[#FBFBFD]">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="font-semibold text-lg tracking-tight">Merkado<span className="hidden sm:inline"> para Mayoristas</span>.</Link>
+          <Link href="/" className="font-semibold text-lg tracking-tight">Merkado<span className="sm:hidden"> M</span><span className="hidden sm:inline"> para Mayoristas</span>.</Link>
           <SiteNavLinks />
           <div className="flex items-center gap-3">
             <WholesaleAccess />
