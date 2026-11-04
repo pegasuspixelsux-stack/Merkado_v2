@@ -1,6 +1,6 @@
 import { getActiveProperties, getCategories } from '../services/dbService';
-import type { Property, PropertyType } from '../types/firestore';
-import { formatMoney, formatQuantity, mergeCategories, operationLabels } from '../utils/format';
+import type { PricingMode, Property, PropertyType } from '../types/firestore';
+import { formatMoney, formatQuantity, mergeCategories, operationLabels, withUnitSuffix } from '../utils/format';
 import { ikUrl } from '../utils/imagekit';
 
 export type HeroSlide = {
@@ -31,6 +31,8 @@ export type HomeProperty = {
   href?: string;
   /** Marked "destacado" in the dashboard; the catalog's "Más vendidos" slider shows these. */
   featured?: boolean;
+  /** What the price is per (kilo, caja, atado…). Absent counts as por kilo. */
+  pricingMode?: PricingMode;
   /** False = shown as out of stock. Absent counts as in stock. */
   inStock?: boolean;
   /** Regular (list / minorista) price as a number; price levels are calculated from it. */
@@ -55,7 +57,7 @@ function toSlide(p: Property, label: (t: string) => string): HeroSlide {
     id: p.id,
     title: p.title,
     location: place(p),
-    price: formatMoney(p.price, p.currency),
+    price: withUnitSuffix(formatMoney(p.price, p.currency), p.pricingMode),
     tagline,
     image: ikUrl(p.photos[0]?.url ?? '', 'w-2000,q-80,f-auto'),
   };
@@ -66,7 +68,8 @@ function toHomeProperty(p: Property, label: (t: string) => string): HomeProperty
     id: p.id,
     title: p.title,
     location: place(p),
-    price: formatMoney(p.price, p.currency),
+    price: withUnitSuffix(formatMoney(p.price, p.currency), p.pricingMode),
+    pricingMode: p.pricingMode,
     beds: p.specs.bedrooms,
     baths: p.specs.bathrooms,
     area: formatQuantity(p.weight, p.unit),
@@ -78,7 +81,7 @@ function toHomeProperty(p: Property, label: (t: string) => string): HomeProperty
     inStock: p.inStock !== false,
     listPrice: p.price,
     unitPrice: p.salePrice ?? p.price,
-    salePrice: p.salePrice === undefined ? undefined : formatMoney(p.salePrice, p.currency),
+    salePrice: p.salePrice === undefined ? undefined : withUnitSuffix(formatMoney(p.salePrice, p.currency), p.pricingMode),
   };
 }
 

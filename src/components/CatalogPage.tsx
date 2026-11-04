@@ -10,6 +10,7 @@ import CartDrawer, { unitPriceOf, type CartLine } from '@/src/components/CartDra
 import SiteFooter from '@/src/components/SiteFooter';
 import WholesaleAccess from '@/src/components/WholesaleAccess';
 import SiteNavLinks from '@/src/components/SiteNavLinks';
+import MobileNavMenu from '@/src/components/MobileNavMenu';
 import { useClient } from '@/src/context/ClientContext';
 import { applyLevel } from '@/src/utils/pricing';
 import SimilarItems, { type SimilarItem } from '@/src/components/SimilarItems';
@@ -174,6 +175,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
               </span>
             )}
           </button>
+          <MobileNavMenu />
           </div>
         </div>
       </header>

@@ -5,11 +5,12 @@ import { notFound } from 'next/navigation';
 import { getActiveProperties, getCategories, getProperty } from '@/src/services/dbService';
 import { sampleProperties } from '@/src/data/sampleProperties';
 import type { Property } from '@/src/types/firestore';
-import { formatMoney, formatQuantity, mergeCategories } from '@/src/utils/format';
+import { formatMoney, formatQuantity, mergeCategories, withUnitSuffix } from '@/src/utils/format';
 import BuyBox from '@/src/components/BuyBox';
 import ItemPriceView from '@/src/components/ItemPriceView';
 import WholesaleAccess from '@/src/components/WholesaleAccess';
 import SiteNavLinks from '@/src/components/SiteNavLinks';
+import MobileNavMenu from '@/src/components/MobileNavMenu';
 import SimilarItems, { type SimilarItem } from '@/src/components/SimilarItems';
 import PropertyImage from '@/src/components/PropertyImage';
 import SiteFooter from '@/src/components/SiteFooter';
@@ -54,6 +55,15 @@ export default async function ItemPage({ params }: Props) {
   const inStock = item.inStock !== false;
   const quantity = formatQuantity(item.weight, item.unit);
   const photo = item.photos[0]?.url;
+  const pricing = {
+    price: item.price,
+    salePrice: item.salePrice,
+    pricingMode: item.pricingMode,
+    boxWeight: item.boxWeight,
+    unitWeight: item.unitWeight,
+    boxPrice: item.boxPrice,
+    unitPrice: item.unitPrice,
+  };
 
   // Other items to browse: same category first, then the rest (at most 10).
   // Which items customers order together can't be shown here: orders are private to staff.
@@ -67,8 +77,8 @@ export default async function ItemPage({ params }: Props) {
       id: p.id,
       title: p.title,
       image: p.photos[0]?.url ?? '',
-      price: formatMoney(p.price, p.currency),
-      salePrice: p.salePrice === undefined ? undefined : formatMoney(p.salePrice, p.currency),
+      price: withUnitSuffix(formatMoney(p.price, p.currency), p.pricingMode),
+      salePrice: p.salePrice === undefined ? undefined : withUnitSuffix(formatMoney(p.salePrice, p.currency), p.pricingMode),
       quantity: formatQuantity(p.weight, p.unit),
       inStock: p.inStock !== false,
     }));
@@ -81,6 +91,7 @@ export default async function ItemPage({ params }: Props) {
           <SiteNavLinks />
           <div className="flex items-center gap-3">
             <WholesaleAccess />
+            <MobileNavMenu />
           </div>
         </div>
       </header>
@@ -108,10 +119,10 @@ export default async function ItemPage({ params }: Props) {
           <div className="space-y-4">
             <p className="text-xs uppercase tracking-widest text-[#515154] font-semibold">{category}</p>
             <h1 className="text-3xl md:text-5xl font-semibold tracking-tight">{item.title}</h1>
-            <ItemPriceView listPrice={item.price} salePrice={item.salePrice} categoryId={item.type} currency={item.currency} boxWeight={item.boxWeight} boxPrice={item.boxPrice} />
+            <ItemPriceView categoryId={item.type} pricing={pricing} />
             {quantity && (
               <p className="text-sm text-[#515154]">
-                <span className="font-medium text-[#1D1D1F]">Cantidad:</span> {quantity} por unidad
+                <span className="font-medium text-[#1D1D1F]">Peso:</span> {quantity}
               </p>
             )}
             <p className="text-sm text-[#515154]">
@@ -126,11 +137,8 @@ export default async function ItemPage({ params }: Props) {
           <BuyBox
             itemId={isSample ? '' : item.id}
             title={item.title}
-            listPrice={item.price}
-            salePrice={item.salePrice}
+            pricing={pricing}
             categoryId={item.type}
-            boxWeight={item.boxWeight}
-            boxPrice={item.boxPrice}
             inStock={inStock}
           />
         </div>

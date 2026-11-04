@@ -12,6 +12,7 @@ import PropertyImage from '@/src/components/PropertyImage';
 import CartDrawer, { type CartLine } from '@/src/components/CartDrawer';
 import WholesaleAccess from '@/src/components/WholesaleAccess';
 import SiteNavLinks from '@/src/components/SiteNavLinks';
+import MobileNavMenu from '@/src/components/MobileNavMenu';
 import { useClient } from '@/src/context/ClientContext';
 import { applyLevel } from '@/src/utils/pricing';
 import {
@@ -337,6 +338,7 @@ export default function CoastalWebHome({
               </span>
             )}
           </button>
+          <MobileNavMenu />
           </div>
         </div>
       </header>

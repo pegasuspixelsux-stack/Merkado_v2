@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { MapPin, Pencil, Star, Trash2 } from 'lucide-react';
 import PropertyImage from '../PropertyImage';
 import type { Property } from '../../types/firestore';
-import { formatMoney, formatQuantity, operationLabels, typeLabels } from '../../utils/format';
+import { formatMoney, formatQuantity, operationLabels, typeLabels, withUnitSuffix } from '../../utils/format';
 import { StatusPill } from './ui';
 
 interface ViewProps {
@@ -95,7 +95,7 @@ export function PropertyGrid({ properties, onDelete, onToggleFeatured, categoryL
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
             <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-black text-xs font-semibold px-3.5 py-1.5 rounded-full shadow-sm">
-              {formatMoney(p.price, p.currency)}
+              {withUnitSuffix(formatMoney(p.price, p.currency), p.pricingMode)}
               {p.operation === 'rent' ? ' / mes' : ''}
             </span>
             <span className="absolute top-4 right-4">
@@ -166,7 +166,7 @@ export function PropertyTable({ properties, onDelete, onToggleFeatured, category
                 <Specs p={p} />
               </td>
               <td className="px-3 py-3 font-medium whitespace-nowrap">
-                {formatMoney(p.price, p.currency)}
+                {withUnitSuffix(formatMoney(p.price, p.currency), p.pricingMode)}
                 {p.operation === 'rent' ? ' / mes' : ''}
               </td>
               <td className="px-3 py-3">

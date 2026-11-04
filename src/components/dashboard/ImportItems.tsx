@@ -81,7 +81,7 @@ export default function ImportItems({ onImported }: { onImported: () => void }) 
             <div>
               <h2 className="font-semibold tracking-tight">Importar artículos desde Excel</h2>
               <p className="text-xs text-[#515154] mt-1">
-                Columnas: Título, Descripción, Peso, Unidad, Precio minorista, Categoría, En stock, Precio de oferta, Precio mayorista, URL de imagen.
+                Columnas: Título, Descripción, Peso, Unidad, Precio minorista, Categoría, En stock, Precio de oferta, Precio mayorista, URL de imagen, Modalidad de precio (por kilo, por caja, por atado, por unidad o por bolsón; vacío = por kilo).
               </p>
             </div>
             <a

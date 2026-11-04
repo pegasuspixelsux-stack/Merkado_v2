@@ -13,6 +13,10 @@
 
 export type Currency = 'USD' | 'UYU';
 
+/** What a price is "per": kilo, caja, atado, unidad or bolsón. */
+export const PRICING_MODES = ['por_kilo', 'por_caja', 'por_atado', 'por_unidad', 'por_bolson'] as const;
+export type PricingMode = (typeof PRICING_MODES)[number];
+
 /** Departments we deliver to. Every item lists the ones it is delivered to. */
 export const DELIVERY_AREAS = ['Maldonado', 'Montevideo', 'Canelones'] as const;
 export type DeliveryArea = (typeof DELIVERY_AREAS)[number];
@@ -99,10 +103,14 @@ export interface Property {
   salePrice?: number;
   /** Mayorista (wholesale) price per unit; `price` is the minorista (retail) price. */
   wholesalePrice?: number;
-  /** Prices are per kilo. Weight of one box in kg; when set, the item can also be bought by the box. */
+  /** The unit the price is for. Items saved without it are sold por kilo. */
+  pricingMode?: PricingMode;
+  /** Weight in kg of one box / one unit. With them the other selling units are worked out from the price. */
   boxWeight?: number;
-  /** Price of one whole box. When absent it is the per-kilo price × `boxWeight`. */
+  unitWeight?: number;
+  /** Optional manual prices for a whole box / one unit; otherwise they are derived from the price and weights. */
   boxPrice?: number;
+  unitPrice?: number;
   /** Departments this item is delivered to (at least one). Items saved without it count as Maldonado. */
   deliveryAreas?: DeliveryArea[];
   status: PropertyStatus;

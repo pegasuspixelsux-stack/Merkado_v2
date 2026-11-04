@@ -11,7 +11,7 @@ import PropertyImage from '@/src/components/PropertyImage';
 import DonutChart, { donutColors } from '@/src/components/dashboard/DonutChart';
 import { useCategories } from '@/src/hooks/useCategories';
 import { PageHeader, StatusPill, cardClass } from '@/src/components/dashboard/ui';
-import { formatMoney, formatQuantity } from '@/src/utils/format';
+import { formatMoney, formatQuantity, withUnitSuffix } from '@/src/utils/format';
 
 export default function OverviewPage() {
   const { agent } = useAuth();
@@ -123,7 +123,7 @@ export default function OverviewPage() {
                     <div className="min-w-0 flex-1">
                       <p className="font-medium truncate">{p.title}</p>
                       <p className="text-xs text-[#515154] truncate">
-                        {formatMoney(p.price, p.currency)}{p.weight ? ` · ${formatQuantity(p.weight, p.unit)}` : ''}
+                        {withUnitSuffix(formatMoney(p.price, p.currency), p.pricingMode)}{p.weight ? ` · ${formatQuantity(p.weight, p.unit)}` : ''}
                       </p>
                     </div>
                     <StatusPill status={p.status} />

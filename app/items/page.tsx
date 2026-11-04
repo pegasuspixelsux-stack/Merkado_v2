@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import CatalogPage from '@/src/components/CatalogPage';
 import { loadHomeData, type HomeProperty } from '@/src/lib/homeData';
 import { sampleProperties } from '@/src/data/sampleProperties';
-import { formatMoney, formatQuantity, typeLabels } from '@/src/utils/format';
+import { formatMoney, formatQuantity, typeLabels, withUnitSuffix } from '@/src/utils/format';
 
 export const metadata: Metadata = {
   title: 'Todos los productos | Merkado',
@@ -17,8 +17,9 @@ const samples: HomeProperty[] = sampleProperties.map((p, i) => ({
   id: `sample-${i + 1}`,
   title: p.title,
   location: '',
-  price: formatMoney(p.price, p.currency),
-  salePrice: p.salePrice === undefined ? undefined : formatMoney(p.salePrice, p.currency),
+  price: withUnitSuffix(formatMoney(p.price, p.currency), p.pricingMode),
+  salePrice: p.salePrice === undefined ? undefined : withUnitSuffix(formatMoney(p.salePrice, p.currency), p.pricingMode),
+  pricingMode: p.pricingMode,
   listPrice: p.price,
   unitPrice: p.salePrice ?? p.price,
   beds: 0,

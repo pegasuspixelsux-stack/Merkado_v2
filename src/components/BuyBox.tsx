@@ -4,55 +4,46 @@ import { useState } from 'react';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { Minus, Plus } from 'lucide-react';
 import { db } from '@/lib/firebase';
-import { formatMoney } from '@/src/utils/format';
+import { formatMoney, priceWithShortUnit, pricingModeLabels, quantityLabel, quantityNounPlural } from '@/src/utils/format';
 import { useClient } from '@/src/context/ClientContext';
-import { boxPrices, levelUnitPrice } from '@/src/utils/pricing';
+import { optionPrice, saleOptions, type SaleSource } from '@/src/utils/pricing';
+import type { PricingMode } from '@/src/types/firestore';
 
 const fieldClass =
   'w-full bg-[#FBFBFD] border border-[#000000]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1D1D1F] transition-colors';
 const labelClass = 'block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2';
 
-/** Quantity, special instructions and a Buy button: placing the order creates an order in the dashboard. */
+/**
+ * Unit, quantity, special instructions and a Buy button: placing the order creates an order in the dashboard.
+ * Retail customers choose kilo or unidad; a logged-in wholesale customer chooses caja or unidad.
+ */
 export default function BuyBox({
   itemId,
   title,
-  listPrice,
-  salePrice,
+  pricing,
   categoryId,
-  boxWeight,
-  boxPrice,
   inStock,
 }: {
   /** Firestore id; empty for the built-in sample items (their orders have no linked item). */
   itemId: string;
   title: string;
-  /** List (minorista) price of one unit. */
-  listPrice: number;
-  /** Sale price, when the item is on sale. */
-  salePrice?: number;
+  /** Price, base unit, box / unit weights and manual prices of the item. */
+  pricing: SaleSource;
   /** Category id; a wholesale customer's price level adjusts the list price by category. */
   categoryId?: string;
-  /** Prices are per kilo. Weight of one box in kg; when set, the item can be bought by the box too. */
-  boxWeight?: number;
-  /** Price of one box; defaults to the per-kilo price × `boxWeight`. */
-  boxPrice?: number;
   inStock: boolean;
 }) {
   const [qty, setQty] = useState(1);
+  const [chosen, setChosen] = useState<PricingMode | null>(null);
   const { client, level } = useClient();
-  // Logged-out visitors pay the list (or sale) price; a wholesale customer pays their level's price.
   const wholesale = !!(client && level);
-  const kgPrice = wholesale ? levelUnitPrice({ listPrice, salePrice, categoryId }, level!).unit : (salePrice ?? listPrice);
-  const box = boxPrices({ price: listPrice, salePrice, boxWeight, boxPrice });
-  const boxUnitPrice = box
-    ? wholesale
-      ? levelUnitPrice({ listPrice: box.list, salePrice: box.sale, categoryId }, level!).unit
-      : (box.sale ?? box.list)
-    : 0;
-  const [mode, setMode] = useState<'kg' | 'box'>('kg');
-  const byBox = mode === 'box' && !!box;
-  const unitPrice = byBox ? boxUnitPrice : kgPrice;
-  const unitLabel = byBox ? `caja de ${boxWeight} kg` : 'kg';
+  const options = saleOptions(pricing, wholesale ? 'wholesale' : 'retail');
+  // Falls back to the first option when the chosen one is not offered (e.g. after logging in or out).
+  const active = options.find((o) => o.mode === chosen) ?? options[0];
+  const mode = active.mode;
+  // Logged-out visitors pay the list (or sale) price; a wholesale customer pays their level's price.
+  const unitPrice = optionPrice(active, categoryId, wholesale ? level : null).unit;
+
   const [form, setForm] = useState({ instructions: '', name: '', phone: '', email: '' });
   const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [formError, setFormError] = useState<string | null>(null);
@@ -84,7 +75,8 @@ export default function BuyBox({
         ...(client && level ? { clientId: client.clientId, priceLevelId: level.id } : {}),
         channel: 'Portal',
         message: [
-          `[${client && level ? `Mayorista · ${level.name}` : 'Minorista'}] Cantidad: ${qty} × ${unitLabel} · Precio unitario: ${formatMoney(unitPrice)} · Total: ${formatMoney(unitPrice * qty)}`,
+          // e.g. "Tomate perita - 2 Cajas @ $ 54/caja": the exact unit the order was priced in.
+          `[${wholesale && level ? `Mayorista · ${level.name}` : 'Minorista'}] ${title} - ${quantityLabel(qty, mode)} @ ${priceWithShortUnit(unitPrice, mode)} · Total: ${formatMoney(unitPrice * qty)}`,
           form.instructions.trim() && `Indicaciones: ${form.instructions.trim()}`,
         ]
           .filter(Boolean)
@@ -101,31 +93,28 @@ export default function BuyBox({
   if (state === 'sent') {
     return (
       <p role="status" className="rounded-2xl bg-green-50 text-green-800 text-sm px-5 py-4">
-        ¡Gracias! Tu pedido de {qty} × {title} ({unitLabel}) fue enviado. Nos vamos a comunicar con vos en breve para confirmarlo.
+        ¡Gracias! Tu pedido de {quantityLabel(qty, mode)} de {title} fue enviado. Nos vamos a comunicar con vos en breve para confirmarlo.
       </p>
     );
   }
 
   return (
     <form onSubmit={buy} className="space-y-5">
-      {box && (
+      {options.length > 1 && (
         <div>
           <span className={labelClass}>Comprar por</span>
           <div className="inline-flex flex-wrap rounded-3xl bg-[#F5F5F7] p-1" role="group" aria-label="Comprar por">
-            {([
-              ['kg', `Kilo · ${formatMoney(kgPrice)}`],
-              ['box', `Caja de ${boxWeight} kg · ${formatMoney(boxUnitPrice)}`],
-            ] as const).map(([key, text]) => (
+            {options.map((o) => (
               <button
-                key={key}
+                key={o.mode}
                 type="button"
-                onClick={() => setMode(key)}
-                aria-pressed={mode === key}
+                onClick={() => setChosen(o.mode)}
+                aria-pressed={o.mode === mode}
                 className={`px-4 py-2 rounded-full text-xs font-medium transition-colors ${
-                  mode === key ? 'bg-[#1D1D1F] text-white' : 'text-[#515154] hover:text-[#1D1D1F]'
+                  o.mode === mode ? 'bg-[#1D1D1F] text-white' : 'text-[#515154] hover:text-[#1D1D1F]'
                 }`}
               >
-                {text}
+                {pricingModeLabels[o.mode].replace('Por ', '')} · {formatMoney(optionPrice(o, categoryId, wholesale ? level : null).unit)}
               </button>
             ))}
           </div>
@@ -133,7 +122,7 @@ export default function BuyBox({
       )}
 
       <div>
-        <span className={labelClass}>{byBox ? 'Cantidad de cajas' : 'Cantidad (kg)'}</span>
+        <span className={labelClass}>{`Cantidad (${quantityNounPlural(mode)})`}</span>
         <div className="inline-flex items-center gap-3">
           <button
             type="button"

@@ -6,8 +6,8 @@ import { X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import ImageUpload from '../ImageUpload';
 import PropertyImage from '../PropertyImage';
-import { DELIVERY_AREAS, type DeliveryArea, type Property, type PropertyInput, type PropertyPhoto } from '../../types/firestore';
-import { unitLabels, weightUnits } from '../../utils/format';
+import { DELIVERY_AREAS, PRICING_MODES, type DeliveryArea, type PricingMode, type Property, type PropertyInput, type PropertyPhoto } from '../../types/firestore';
+import { unitLabels, weightUnits, pricingModeLabels, pricingSuffix } from '../../utils/format';
 import { useCategories } from '../../hooks/useCategories';
 import { cardClass, inputClass, labelClass } from './ui';
 
@@ -18,8 +18,11 @@ interface FormState {
   unit: string;
   price: string;
   wholesalePrice: string;
+  pricingMode: PricingMode;
   boxWeight: string;
+  unitWeight: string;
   boxPrice: string;
+  unitPrice: string;
   deliveryAreas: DeliveryArea[];
   category: string;
   inStock: boolean;
@@ -36,8 +39,11 @@ const emptyForm: FormState = {
   unit: 'kg',
   price: '',
   wholesalePrice: '',
+  pricingMode: 'por_kilo',
   boxWeight: '',
+  unitWeight: '',
   boxPrice: '',
+  unitPrice: '',
   deliveryAreas: ['Maldonado'],
   category: 'fruit',
   inStock: true,
@@ -55,8 +61,11 @@ function fromProperty(p: Property): FormState {
     unit: p.unit ?? 'kg',
     price: String(p.price),
     wholesalePrice: p.wholesalePrice === undefined ? '' : String(p.wholesalePrice),
+    pricingMode: p.pricingMode ?? 'por_kilo',
     boxWeight: p.boxWeight === undefined ? '' : String(p.boxWeight),
+    unitWeight: p.unitWeight === undefined ? '' : String(p.unitWeight),
     boxPrice: p.boxPrice === undefined ? '' : String(p.boxPrice),
+    unitPrice: p.unitPrice === undefined ? '' : String(p.unitPrice),
     deliveryAreas: p.deliveryAreas?.length ? p.deliveryAreas : ['Maldonado'],
     category: p.type,
     inStock: p.inStock !== false,
@@ -98,14 +107,17 @@ export default function PropertyForm({ initial, submitLabel, onSubmit }: Propert
       if (Number.isNaN(w) || w < 0) return 'Ingresá un precio mayorista válido.';
       if (w > price) return 'El precio mayorista no puede ser mayor al minorista.';
     }
-    if (form.boxWeight !== '') {
-      const bw = Number(form.boxWeight);
-      if (Number.isNaN(bw) || bw <= 0) return 'Ingresá un peso por caja mayor a 0.';
+    for (const [value, label] of [
+      [form.boxWeight, 'el peso por caja'],
+      [form.unitWeight, 'el peso por unidad'],
+    ] as const) {
+      if (value !== '' && !(Number(value) > 0)) return `Ingresá ${label} (mayor a 0).`;
     }
-    if (form.boxPrice !== '') {
-      const bp = Number(form.boxPrice);
-      if (Number.isNaN(bp) || bp < 0) return 'Ingresá un precio por caja válido.';
-      if (form.boxWeight === '') return 'Para fijar un precio por caja, ingresá también el peso por caja.';
+    for (const [value, label] of [
+      [form.boxPrice, 'el precio por caja'],
+      [form.unitPrice, 'el precio por unidad'],
+    ] as const) {
+      if (value !== '' && !(Number(value) >= 0)) return `Ingresá ${label} válido.`;
     }
     if (form.deliveryAreas.length === 0) return 'Elegí al menos una zona de entrega.';
     if (!form.category) return 'Elegí una categoría.';
@@ -136,8 +148,11 @@ export default function PropertyForm({ initial, submitLabel, onSubmit }: Propert
         unit: form.unit,
         price: Number(form.price),
         wholesalePrice: form.wholesalePrice === '' ? undefined : Number(form.wholesalePrice),
+        pricingMode: form.pricingMode,
         boxWeight: form.boxWeight === '' ? undefined : Number(form.boxWeight),
-        boxPrice: form.boxWeight === '' || form.boxPrice === '' ? undefined : Number(form.boxPrice),
+        unitWeight: form.unitWeight === '' ? undefined : Number(form.unitWeight),
+        boxPrice: form.boxPrice === '' ? undefined : Number(form.boxPrice),
+        unitPrice: form.unitPrice === '' ? undefined : Number(form.unitPrice),
         deliveryAreas: form.deliveryAreas,
         inStock: form.inStock,
         // null clears a sale when editing (undefined keys are dropped by the service)
@@ -207,7 +222,7 @@ export default function PropertyForm({ initial, submitLabel, onSubmit }: Propert
 
         <div className="grid grid-cols-3 gap-4 md:gap-6">
           <div className="col-span-2">
-            <label htmlFor="i-weight" className={labelClass}>Peso</label>
+            <label htmlFor="i-weight" className={labelClass}>Peso del paquete</label>
             <input id="i-weight" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.weight} onChange={(e) => set('weight', e.target.value)} placeholder="12" />
           </div>
           <div>
@@ -218,26 +233,49 @@ export default function PropertyForm({ initial, submitLabel, onSubmit }: Propert
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-          <div>
-            <label htmlFor="i-price" className={labelClass}>Precio minorista por kilo ($)</label>
-            <input id="i-price" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.price} onChange={(e) => set('price', e.target.value)} placeholder="180" />
-          </div>
-          <div>
-            <label htmlFor="i-wholesale" className={labelClass}>Precio mayorista por kilo ($, opcional)</label>
-            <input id="i-wholesale" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.wholesalePrice} onChange={(e) => set('wholesalePrice', e.target.value)} placeholder="150" />
-          </div>
+        <div>
+          <label htmlFor="i-mode" className={labelClass}>Modalidad de precio</label>
+          <select id="i-mode" className={inputClass} value={form.pricingMode} onChange={(e) => set('pricingMode', e.target.value as PricingMode)}>
+            {PRICING_MODES.map((m) => <option key={m} value={m}>{pricingModeLabels[m]}</option>)}
+          </select>
+          <p className="text-xs text-[#515154] mt-1.5">Los precios de abajo son por esta unidad. Si el peso del paquete está en kg, el sitio muestra también el equivalente (por kilo o por caja).</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
           <div>
-            <label htmlFor="i-boxw" className={labelClass}>Peso por caja (kg, opcional)</label>
-            <input id="i-boxw" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.boxWeight} onChange={(e) => set('boxWeight', e.target.value)} placeholder="10" />
+            <label htmlFor="i-price" className={labelClass}>Precio minorista ($ {pricingSuffix(form.pricingMode)})</label>
+            <input id="i-price" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.price} onChange={(e) => set('price', e.target.value)} placeholder="180" />
           </div>
           <div>
-            <label htmlFor="i-boxp" className={labelClass}>Precio por caja ($, opcional)</label>
-            <input id="i-boxp" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.boxPrice} onChange={(e) => set('boxPrice', e.target.value)} placeholder="1700" disabled={form.boxWeight === ''} />
-            <p className="text-xs text-[#515154] mt-1.5">Si lo dejás vacío, se calcula como precio por kilo × peso por caja.</p>
+            <label htmlFor="i-wholesale" className={labelClass}>Precio mayorista ($ {pricingSuffix(form.pricingMode)}, opcional)</label>
+            <input id="i-wholesale" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.wholesalePrice} onChange={(e) => set('wholesalePrice', e.target.value)} placeholder="150" />
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <div>
+            <span className={labelClass}>Otras formas de comprar (opcional)</span>
+            <p className="text-xs text-[#515154] -mt-1">
+              Minoristas compran por kilo o por unidad; mayoristas por caja o por unidad. Con los pesos, los precios se calculan solos a partir del precio de arriba; o fijá un precio propio.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-4 md:gap-6">
+            <div>
+              <label htmlFor="i-boxw" className={labelClass}>Peso por caja (kg)</label>
+              <input id="i-boxw" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.boxWeight} onChange={(e) => set('boxWeight', e.target.value)} placeholder="10" />
+            </div>
+            <div>
+              <label htmlFor="i-unitw" className={labelClass}>Peso por unidad (kg)</label>
+              <input id="i-unitw" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.unitWeight} onChange={(e) => set('unitWeight', e.target.value)} placeholder="0.25" />
+            </div>
+            <div>
+              <label htmlFor="i-boxp" className={labelClass}>Precio por caja ($)</label>
+              <input id="i-boxp" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.boxPrice} onChange={(e) => set('boxPrice', e.target.value)} placeholder="Automático" />
+            </div>
+            <div>
+              <label htmlFor="i-unitp" className={labelClass}>Precio por unidad ($)</label>
+              <input id="i-unitp" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.unitPrice} onChange={(e) => set('unitPrice', e.target.value)} placeholder="Automático" />
+            </div>
           </div>
         </div>
 
@@ -299,7 +337,7 @@ export default function PropertyForm({ initial, submitLabel, onSubmit }: Propert
           </label>
           {form.onSale && (
             <div>
-              <label htmlFor="i-sale" className={labelClass}>Precio de oferta por kilo ($)</label>
+              <label htmlFor="i-sale" className={labelClass}>Precio de oferta ($ {pricingSuffix(form.pricingMode)})</label>
               <input id="i-sale" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.salePrice} onChange={(e) => set('salePrice', e.target.value)} placeholder="140" />
             </div>
           )}

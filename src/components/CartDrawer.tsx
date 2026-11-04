@@ -5,7 +5,7 @@ import { collection, doc, serverTimestamp, writeBatch } from 'firebase/firestore
 import { Minus, Plus, ShoppingCart, Trash2, X } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import type { HomeProperty } from '@/src/lib/homeData';
-import { formatMoney } from '@/src/utils/format';
+import { formatMoney, priceWithShortUnit, quantityLabel } from '@/src/utils/format';
 import PropertyImage from '@/src/components/PropertyImage';
 import { useClient } from '@/src/context/ClientContext';
 
@@ -86,7 +86,7 @@ export default function CartDrawer({
           ...(typeof item.id === 'string' ? { propertyId: item.id } : {}),
           channel: 'Portal',
           message: [
-            `[${tag}] Cantidad: ${qty}${item.area ? ` × ${item.area}` : ''} · Precio unitario: ${formatMoney(unit)} · Subtotal: ${formatMoney(unit * qty)}`,
+            `[${tag}] ${item.title} - ${quantityLabel(qty, item.pricingMode)} @ ${priceWithShortUnit(unit, item.pricingMode)} · Subtotal: ${formatMoney(unit * qty)}`,
             form.notes.trim(),
           ]
             .filter(Boolean)
@@ -144,14 +144,13 @@ export default function CartDrawer({
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{item.title}</p>
                         <p className="text-xs text-[#515154]">
-                          {item.area ? `${item.area} · ` : ''}
-                          {formatMoney(unitPriceOf(item))}
+                          {priceWithShortUnit(unitPriceOf(item), item.pricingMode)}
                         </p>
                         <div className="mt-2 flex items-center gap-2">
                           <button type="button" onClick={() => onChangeQty(id, -1)} disabled={qty <= 1} aria-label={`Disminuir ${item.title}`} className="w-7 h-7 rounded-full bg-[#F5F5F7] flex items-center justify-center disabled:opacity-30">
                             <Minus className="w-3.5 h-3.5" />
                           </button>
-                          <span className="w-6 text-center text-sm" aria-live="polite">{qty}</span>
+                          <span className="min-w-16 text-center text-sm font-medium" aria-live="polite">{quantityLabel(qty, item.pricingMode)}</span>
                           <button type="button" onClick={() => onChangeQty(id, 1)} aria-label={`Aumentar ${item.title}`} className="w-7 h-7 rounded-full bg-[#F5F5F7] flex items-center justify-center">
                             <Plus className="w-3.5 h-3.5" />
                           </button>

@@ -1,4 +1,4 @@
-import type { Category, PropertyOperation, PropertyStatus } from '../types/firestore';
+import type { Category, PricingMode, PropertyOperation, PropertyStatus } from '../types/firestore';
 
 const LOCALE = 'es-UY';
 
@@ -19,6 +19,79 @@ export function formatMoney(price: number, _currency?: string): string {
 /** "USD $250.000" / "UYU $10.200.000": currency code plus a $-prefixed amount. */
 export function formatPriceWithCode(price: number, currency: string): string {
   return `${currency} $${Math.round(price).toLocaleString(LOCALE)}`;
+}
+
+/** Dropdown labels for the selling unit. */
+export const pricingModeLabels: Record<PricingMode, string> = {
+  por_kilo: 'Por kilo',
+  por_caja: 'Por caja',
+  por_atado: 'Por atado',
+  por_unidad: 'Por unidad',
+  por_bolson: 'Por bolsón',
+};
+
+/** What follows a price: "$ 180 / kg", "$ 540 por caja"… */
+const priceSuffix: Record<PricingMode, string> = {
+  por_kilo: '/ kg',
+  por_caja: 'por caja',
+  por_atado: 'por atado',
+  por_unidad: 'por unidad',
+  por_bolson: 'por bolsón',
+};
+
+/** Compact form for order lines: "$ 540/caja". */
+const priceSuffixShort: Record<PricingMode, string> = {
+  por_kilo: '/kg',
+  por_caja: '/caja',
+  por_atado: '/atado',
+  por_unidad: '/unidad',
+  por_bolson: '/bolsón',
+};
+
+const quantityNouns: Record<PricingMode, [string, string]> = {
+  por_kilo: ['Kilo', 'Kilos'],
+  por_caja: ['Caja', 'Cajas'],
+  por_atado: ['Atado', 'Atados'],
+  por_unidad: ['Unidad', 'Unidades'],
+  por_bolson: ['Bolsón', 'Bolsones'],
+};
+
+/** "2 Cajas", "5 Kilos", "10 Atados": the unit badge shown in the cart and on orders. */
+export function quantityLabel(qty: number, mode: PricingMode = 'por_kilo'): string {
+  const [one, many] = quantityNouns[mode];
+  return `${qty} ${qty === 1 ? one : many}`;
+}
+
+/** Plural noun in lower case, e.g. "cajas" (for "Cantidad (cajas)"). */
+export const quantityNounPlural = (mode: PricingMode = 'por_kilo') => quantityNouns[mode][1].toLowerCase();
+
+/** "$ 180" + mode -> "$ 180 / kg". */
+export const withUnitSuffix = (formatted: string, mode: PricingMode = 'por_kilo') => `${formatted} ${priceSuffix[mode]}`;
+
+/** A price with its unit in order text: "$ 54/caja". */
+export const priceWithShortUnit = (amount: number, mode: PricingMode = 'por_kilo') => `${formatMoney(amount)}${priceSuffixShort[mode]}`;
+
+/** Just the suffix, e.g. "/ kg" (form labels). */
+export const pricingSuffix = (mode: PricingMode = 'por_kilo') => priceSuffix[mode];
+
+/**
+ * How a price is shown for the item's selling unit.
+ * por caja: "$ 540 por caja" with the per-kilo equivalent when the box weight is known;
+ * por kilo: "$ 180 / kg" with the price of a whole box when the package weight is known.
+ * The weight only counts when it is in kg.
+ */
+export function formatItemPricing(
+  item: { pricingMode?: PricingMode; weight?: number; unit?: string },
+  price: number,
+): { primary: string; secondary?: string } {
+  const mode = item.pricingMode ?? 'por_kilo';
+  const primary = withUnitSuffix(formatMoney(price), mode);
+  const kg = item.weight && item.weight > 0 && (item.unit ?? 'kg') === 'kg' ? item.weight : undefined;
+  if (mode === 'por_caja' && kg) return { primary, secondary: `(${formatMoney(price / kg)} / kg)` };
+  if (mode === 'por_kilo' && kg) {
+    return { primary, secondary: `${formatMoney(price * kg)} por caja de ${kg.toLocaleString(LOCALE)} kg` };
+  }
+  return { primary };
 }
 
 export const operationLabels: Record<PropertyOperation, string> = {

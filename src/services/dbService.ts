@@ -25,10 +25,11 @@ import {
 import { db } from '../lib/firebase';
 import { sampleProperties } from '../data/sampleProperties';
 import { USD_TO_UYU } from '../utils/format';
-import { DELIVERY_AREAS } from '../types/firestore';
+import { DELIVERY_AREAS, PRICING_MODES } from '../types/firestore';
 import type {
   Category,
   DeliveryArea,
+  PricingMode,
   Lead,
   LeadChannel,
   LeadStatus,
@@ -72,6 +73,11 @@ function clean<T>(value: T): T {
 
 // ------------------------------------------------------------ Properties
 
+/** Items saved before pricing modes existed are sold por kilo. */
+function toPricingMode(value: unknown): PricingMode {
+  return (PRICING_MODES as readonly unknown[]).includes(value) ? (value as PricingMode) : 'por_kilo';
+}
+
 /** Items saved before delivery areas existed are delivered to Maldonado. */
 function toDeliveryAreas(value: unknown): DeliveryArea[] {
   const areas = Array.isArray(value) ? DELIVERY_AREAS.filter((a) => value.includes(a)) : [];
@@ -93,8 +99,11 @@ function toProperty(id: string, d: DocumentData): Property {
     salePrice: money(d.salePrice),
     wholesalePrice: money(d.wholesalePrice),
     deliveryAreas: toDeliveryAreas(d.deliveryAreas),
+    pricingMode: toPricingMode(d.pricingMode),
     boxWeight: typeof d.boxWeight === 'number' && d.boxWeight > 0 ? d.boxWeight : undefined,
+    unitWeight: typeof d.unitWeight === 'number' && d.unitWeight > 0 ? d.unitWeight : undefined,
     boxPrice: money(d.boxPrice),
+    unitPrice: money(d.unitPrice),
     operation: d.operation ?? 'sale',
     price: money(Number(d.price) || 0) ?? 0,
     currency: 'UYU',
@@ -133,8 +142,9 @@ export async function updateProperty(id: string, data: PropertyUpdate): Promise<
   // clean() drops undefined keys, so clearing a sale has to be an explicit field delete.
   if ('salePrice' in data && data.salePrice === undefined) payload.salePrice = deleteField();
   if ('wholesalePrice' in data && data.wholesalePrice === undefined) payload.wholesalePrice = deleteField();
-  if ('boxWeight' in data && data.boxWeight === undefined) payload.boxWeight = deleteField();
-  if ('boxPrice' in data && data.boxPrice === undefined) payload.boxPrice = deleteField();
+  for (const key of ['boxWeight', 'unitWeight', 'boxPrice', 'unitPrice'] as const) {
+    if (key in data && data[key] === undefined) payload[key] = deleteField();
+  }
   await updateDoc(doc(requireDb(), PROPERTIES, id), payload);
 }
 

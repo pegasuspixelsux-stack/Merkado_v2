@@ -1,4 +1,4 @@
-import type { Category, PropertyInput } from '../types/firestore';
+import type { Category, PricingMode, PropertyInput } from '../types/firestore';
 import { weightUnits } from './format';
 
 /** Column headers of the Excel sample, in order (Spanish). English headers are accepted too. */
@@ -13,6 +13,7 @@ export const IMPORT_COLUMNS = [
   'Precio de oferta',
   'Precio mayorista',
   'URL de imagen',
+  'Modalidad de precio',
 ] as const;
 
 type Field =
@@ -25,7 +26,8 @@ type Field =
   | 'inStock'
   | 'salePrice'
   | 'wholesalePrice'
-  | 'image';
+  | 'image'
+  | 'pricingMode';
 
 /** Header names (after normalising) that map to each field. */
 const HEADERS: Record<Field, string[]> = {
@@ -38,6 +40,7 @@ const HEADERS: Record<Field, string[]> = {
   inStock: ['En stock', 'Stock', 'In stock'],
   salePrice: ['Precio de oferta', 'Precio oferta', 'Oferta', 'Sale price'],
   wholesalePrice: ['Precio mayorista', 'Wholesale price'],
+  pricingMode: ['Modalidad de precio', 'Modalidad', 'Pricing mode'],
   image: ['URL de imagen', 'Imagen', 'Image URL', 'Image'],
 };
 
@@ -102,6 +105,20 @@ function toNumber(v: unknown): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+/** "por caja", "Por Kilo", "bolson"… -> mode; null when the text is not a known mode, blank = por kilo. */
+function toPricingMode(v: unknown): PricingMode | null {
+  const s = norm(v).replace(/^por/, '');
+  if (s === '') return 'por_kilo';
+  const modes: Record<string, PricingMode> = {
+    kilo: 'por_kilo', kilos: 'por_kilo', kg: 'por_kilo',
+    caja: 'por_caja', cajas: 'por_caja', cajon: 'por_caja',
+    atado: 'por_atado', atados: 'por_atado',
+    unidad: 'por_unidad', unidades: 'por_unidad', unitario: 'por_unidad',
+    bolson: 'por_bolson', bolsones: 'por_bolson',
+  };
+  return modes[s] ?? null;
+}
+
 function toStock(v: unknown): boolean | null {
   const s = norm(v);
   if (s === '' || ['si', 'yes', 'y', 's', 'true', '1', 'enstock', 'instock'].includes(s)) return true;
@@ -156,6 +173,7 @@ export function parseItemRows(data: unknown[][], existing: Category[]): ParsedIm
     const wholesaleRaw = cell(row, 'wholesalePrice');
     const wholesalePrice = text(wholesaleRaw) === '' ? undefined : toNumber(wholesaleRaw);
     const image = text(cell(row, 'image'));
+    const pricingMode = toPricingMode(cell(row, 'pricingMode'));
 
     if (!title) return fail('Falta el título.');
     if (!description) return fail('Falta la descripción.');
@@ -163,6 +181,7 @@ export function parseItemRows(data: unknown[][], existing: Category[]): ParsedIm
     if (!units.includes(unit)) return fail(`La unidad debe ser una de: ${units.join(', ')}, unidad, docena, atado, cajón.`);
     if (price === null || price < 0) return fail('El precio debe ser un número.');
     if (!categoryName) return fail('Falta la categoría.');
+    if (pricingMode === null) return fail('"Modalidad de precio" debe ser: por kilo, por caja, por atado, por unidad o por bolsón.');
     if (inStock === null) return fail('"En stock" debe ser sí o no.');
     if (salePrice === null) return fail('El precio de oferta debe ser un número.');
     if (salePrice !== undefined && salePrice >= price) return fail('El precio de oferta debe ser menor al precio minorista.');
@@ -193,6 +212,7 @@ export function parseItemRows(data: unknown[][], existing: Category[]): ParsedIm
       currency: 'UYU',
       status: 'active',
       featured: false,
+      pricingMode,
       deliveryAreas: ['Maldonado'],
       location: { city: '', country: '' },
       specs: { bedrooms: 0, bathrooms: 0, areaM2: 0 },
