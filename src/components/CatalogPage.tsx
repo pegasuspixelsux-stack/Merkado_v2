@@ -331,14 +331,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
       </section>
 
       {/* --- ALL PRODUCTS: 4-column grid --- */}
-      {/* --- MÁS VENDIDOS (hidden while filtering) --- */}
-      {activeFilters === 0 && bestSellers.length > 0 && (
-        <div className="pt-10 md:pt-14 -mb-12 md:-mb-16 [&>section]:px-3 md:[&>section]:px-6 [&>section>ul]:-mx-3 [&>section>ul]:px-3 md:[&>section>ul]:mx-0 md:[&>section>ul]:px-0">
-          <SimilarItems title="Más vendidos" items={bestSellers} />
-        </div>
-      )}
-
-      <section id="catalog" className="pt-8 md:pt-12 pb-32 px-3 md:px-6 max-w-7xl mx-auto scroll-mt-32">
+      <section id="catalog" className={`pt-8 md:pt-12 ${activeFilters === 0 && bestSellers.length > 0 ? 'pb-8 md:pb-12' : 'pb-32'} px-3 md:px-6 max-w-7xl mx-auto scroll-mt-32">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
           {filtered.length === 0 && (
             <div className="col-span-full text-center text-[#515154] text-sm py-16">
@@ -454,6 +447,13 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
           </div>
         )}
       </section>
+
+      {/* --- MÁS VENDIDOS: just above the footer (hidden while filtering) --- */}
+      {activeFilters === 0 && bestSellers.length > 0 && (
+        <div className="pb-20 md:pb-28 [&>section]:px-3 md:[&>section]:px-6 [&>section>ul]:-mx-3 [&>section>ul]:px-3 md:[&>section>ul]:mx-0 md:[&>section>ul]:px-0">
+          <SimilarItems title="Más vendidos" items={bestSellers} />
+        </div>
+      )}
 
       <CartDrawer
         open={cartOpen}
