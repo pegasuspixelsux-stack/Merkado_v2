@@ -12,7 +12,7 @@ export default function SignInNotice() {
       <div className="space-y-1">
         <p className="font-medium">Para hacer un pedido ingresá como cliente.</p>
         <p className="text-[#515154] font-light">
-          Los pedidos son solo para clientes con perfil. ¿Todavía no sos cliente? Solicitá el servicio desde “Mayoristas” en el inicio: tras la aprobación y la configuración del pago, Merkado te envía tu código.
+          Los pedidos son solo para clientes con perfil. ¿Todavía no sos cliente? Solicitá el servicio desde “Mayoristas” en el inicio: tras la aprobación y la configuración del pago, Merkado te envía tu contraseña.
         </p>
       </div>
       <button

@@ -11,7 +11,7 @@ const fieldClass =
   'w-full bg-[#FBFBFD] border border-[#000000]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1D1D1F] transition-colors';
 
 const errors: Record<Exclude<TokenResult, 'ok'>, string> = {
-  invalid: 'El teléfono o el PIN no coinciden. Revisalos o pedile tu PIN a Merkado.',
+  invalid: 'El teléfono o la contraseña/PIN no coinciden. Revisalos o pedile tu acceso a Merkado.',
   suspended: 'Tu cuenta está suspendida. Comunicate con Merkado para reactivarla.',
   error: 'No pudimos verificar tus datos. Revisá tu conexión y probá de nuevo.',
 };
@@ -75,7 +75,7 @@ export default function WholesaleAccess() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!phone.trim() || !code.trim()) return setError('Ingresá tu teléfono y tu PIN.');
+    if (!phone.trim() || !code.trim()) return setError('Ingresá tu teléfono y tu contraseña o PIN.');
     setBusy(true);
     setError(null);
     const result = await login(phone, code);
@@ -113,7 +113,7 @@ export default function WholesaleAccess() {
             </button>
             <h2 className="text-xl font-semibold tracking-tight">Acceso mayoristas</h2>
             <p className="text-sm text-[#515154] font-light mt-1 mb-6">
-              Ingresá con el teléfono registrado y el PIN de 4 números que te dio Merkado para ver tus precios.
+              Ingresá con el teléfono registrado y tu contraseña (o tu PIN de 4 números) para ver tus precios.
             </p>
             <form onSubmit={submit} className="space-y-4">
               <div>
@@ -121,8 +121,8 @@ export default function WholesaleAccess() {
                 <input id="wa-phone" type="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="099 123 456" className={fieldClass} />
               </div>
               <div>
-                <label htmlFor="wa-code" className="block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2">PIN de 4 números</label>
-                <input id="wa-code" value={code} onChange={(e) => setCode(e.target.value)} autoCapitalize="characters" autoComplete="off" spellCheck={false} placeholder="1234" className={`${fieldClass} uppercase tracking-widest`} />
+                <label htmlFor="wa-code" className="block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2">Contraseña o PIN</label>
+                <input id="wa-code" value={code} onChange={(e) => setCode(e.target.value)} autoCapitalize="characters" autoComplete="off" spellCheck={false} placeholder="Contraseña o PIN" className={`${fieldClass} uppercase tracking-widest`} />
               </div>
               {error && <p role="alert" className="text-xs text-red-600">{error}</p>}
               <button type="submit" disabled={busy} className="w-full bg-[#1D1D1F] text-white py-3.5 rounded-full text-sm font-medium hover:bg-[#333336] transition-all disabled:opacity-50">
@@ -130,7 +130,7 @@ export default function WholesaleAccess() {
               </button>
             </form>
             <p className="text-xs text-[#86868B] mt-4">
-              ¿No tenés acceso? Solicitalo desde “Mayoristas” en el inicio. Tras la aprobación y la configuración del pago, te enviamos tu PIN.
+              ¿No tenés acceso? Solicitalo desde “Mayoristas” en el inicio. Tras la aprobación y la configuración del pago, te enviamos tu contraseña.
             </p>
           </div>
         </div>,

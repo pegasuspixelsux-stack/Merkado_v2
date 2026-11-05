@@ -71,7 +71,7 @@ export default function CustomersPage() {
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.businessName.trim()) return setFormError('Ingresá el nombre del negocio.');
-    if (!/^\d{4}$/.test(form.pin)) return setFormError('El PIN tiene que ser de 4 números.');
+    if (form.pin && !/^\d{4}$/.test(form.pin)) return setFormError('El PIN tiene que ser de 4 números (o dejalo vacío).');
     if (!form.contactName.trim()) return setFormError('Ingresá el nombre de contacto.');
     if (!form.address.trim()) return setFormError('Ingresá la dirección de entrega.');
     if (!form.receivingTime) return setFormError('Ingresá la hora de recepción.');
@@ -118,7 +118,7 @@ export default function CustomersPage() {
   const reset = async (c: Client) => {
     const level = levelOf(c.priceLevelId);
     if (!level) return setMessage({ ok: false, text: 'El nivel de este cliente no existe.' });
-    if (!window.confirm(`¿Restablecer el acceso de “${c.businessName}”? El enlace y el código actuales dejan de funcionar.`)) return;
+    if (!window.confirm(`¿Restablecer el acceso de “${c.businessName}”? El enlace y la contraseña actuales dejan de funcionar.`)) return;
     setMessage(null);
     try {
       const token = await resetClientAccess(c, level);
@@ -144,7 +144,8 @@ export default function CustomersPage() {
   const code = access ? codeOfToken(access.token) : '';
   const copy = (text: string) => void navigator.clipboard?.writeText(text);
   const whatsappText = access
-    ? `Hola${access.contact ? ` ${access.contact}` : ''}, este es tu acceso a Merkado para ver tus precios mayoristas: ${link}\nTambién podés ingresar con “Acceso mayoristas” usando tu teléfono y este PIN: ${access.pin || code}`
+    ? `Hola${access.contact ? ` ${access.contact}` : ''}, este es tu acceso a Merkado para ver tus precios mayoristas: ${link}\nTambién podés ingresar con “Acceso mayoristas” usando tu teléfono y esta contraseña: ${code}${access.pin ? `
+O con tu PIN de 4 números: ${access.pin}` : ''}`
     : '';
 
   return (
@@ -152,7 +153,7 @@ export default function CustomersPage() {
       <PageHeader
         eyebrow="Mayoristas"
         title="Clientes"
-        description="Las cuentas las crea solo el administrador. Cada cliente recibe un enlace y un código para ver sus precios."
+        description="Las cuentas las crea solo el administrador. Cada cliente tiene una contraseña y, si querés, un PIN de 4 números para ver sus precios y pedir."
         action={
           <button type="button" onClick={() => open('new')} className="inline-flex items-center gap-2 bg-[#1D1D1F] text-white text-xs font-medium px-5 py-3 rounded-full hover:bg-[#333336]">
             <Plus className="w-4 h-4" /> Agregar cliente mayorista
@@ -173,12 +174,12 @@ export default function CustomersPage() {
             <p className="font-semibold tracking-tight">Acceso de {access.name}</p>
             <button type="button" onClick={() => setAccess(null)} aria-label="Cerrar" className="p-1 rounded-full hover:bg-[#F5F5F7]"><X className="w-4 h-4" /></button>
           </div>
-          <p className="text-xs text-[#515154]">Guardalo ahora: el código no se vuelve a mostrar completo en otro lado salvo con “Restablecer acceso”.</p>
+          <p className="text-xs text-[#515154]">La contraseña y el PIN también quedan en el perfil del cliente (botón de editar).</p>
           <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-2 items-center">
             <code className="text-xs bg-[#F5F5F7] rounded-xl px-3 py-2.5 break-all">{link}</code>
             <button type="button" onClick={() => copy(link)} className="inline-flex items-center justify-center gap-2 text-xs font-medium px-4 py-2.5 rounded-full bg-[#F5F5F7] hover:bg-[#E8E8ED]"><Copy className="w-3.5 h-3.5" /> Copiar enlace</button>
           </div>
-          <p className="text-sm">Teléfono: <strong>{access.phone}</strong> · PIN: <strong className="tracking-widest">{access.pin || code}</strong></p>
+          <p className="text-sm">Teléfono: <strong>{access.phone}</strong> · Contraseña: <strong className="tracking-widest">{code}</strong>{access.pin && <> · PIN: <strong className="tracking-widest">{access.pin}</strong></>}</p>
           <a href={`https://wa.me/${waNumber(access.phone)}?text=${encodeURIComponent(whatsappText)}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-xs font-medium px-4 py-2.5 rounded-full bg-[#1D1D1F] text-white hover:bg-[#333336]">
             <MessageCircle className="w-3.5 h-3.5" /> Enviar por WhatsApp
           </a>
@@ -273,19 +274,31 @@ export default function CustomersPage() {
             <div>
               <label htmlFor="c-phone" className={labelClass}>Teléfono (WhatsApp)</label>
               <input id="c-phone" type="tel" className={inputClass} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="099 123 456" />
-              <p className="text-xs text-[#86868B] mt-1">Es parte del acceso del cliente: si lo cambiás, se genera un código nuevo.</p>
+              <p className="text-xs text-[#86868B] mt-1">Es parte del acceso del cliente: si lo cambiás, se genera una contraseña nueva.</p>
             </div>
             <div>
               <label htmlFor="c-address" className={labelClass}>Dirección de entrega</label>
               <textarea id="c-address" rows={2} className={`${inputClass} resize-none`} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
             </div>
             <div>
-              <label htmlFor="c-pin" className={labelClass}>PIN de acceso (4 números)</label>
+              <span className={labelClass}>Contraseña</span>
+              {editing !== 'new' && editing ? (
+                <div className="flex gap-2">
+                  <code className="flex-1 rounded-xl bg-[#F5F5F7] px-4 py-3 text-sm tracking-widest break-all">{codeOfToken(editing.accessToken)}</code>
+                  <button type="button" onClick={() => copy(codeOfToken(editing.accessToken))} className="shrink-0 rounded-xl border border-[#000000]/10 px-4 text-xs font-medium hover:bg-[#F5F5F7]">Copiar</button>
+                </div>
+              ) : (
+                <p className="rounded-xl bg-[#F5F5F7] px-4 py-3 text-sm text-[#515154]">Se genera sola al guardar.</p>
+              )}
+              <p className="text-xs text-[#86868B] mt-1">Con el teléfono entra a su cuenta. Para cambiarla, usá “Restablecer acceso” (llave) en la lista.</p>
+            </div>
+            <div>
+              <label htmlFor="c-pin" className={labelClass}>PIN (opcional, 4 números)</label>
               <div className="flex gap-2">
                 <input id="c-pin" inputMode="numeric" maxLength={4} className={`${inputClass} tracking-[0.4em] font-semibold`} value={form.pin} onChange={(e) => setForm({ ...form, pin: e.target.value.replace(/\D/g, '').slice(0, 4) })} placeholder="0000" />
                 <button type="button" onClick={() => setForm({ ...form, pin: newPin() })} className="shrink-0 rounded-xl border border-[#000000]/10 px-4 text-xs font-medium hover:bg-[#F5F5F7]">Generar</button>
               </div>
-              <p className="text-xs text-[#86868B] mt-1">El cliente entra con su teléfono + este PIN. Pasáselo por WhatsApp.</p>
+              <p className="text-xs text-[#86868B] mt-1">Atajo opcional: el cliente puede entrar con su teléfono + PIN en vez de la contraseña.</p>
             </div>
             <div>
               <label htmlFor="c-email" className={labelClass}>Correo electrónico</label>
