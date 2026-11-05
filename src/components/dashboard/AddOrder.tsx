@@ -15,7 +15,7 @@ const empty = { name: '', phone: '', email: '', itemId: '', quantity: '1', chann
 
 /** Lets staff record an order that did not come through the website (phone, WhatsApp, in person). */
 export default function AddOrder() {
-  const { items } = useProperties(100);
+  const { items } = useProperties(100, true);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(empty);
   const [saving, setSaving] = useState(false);

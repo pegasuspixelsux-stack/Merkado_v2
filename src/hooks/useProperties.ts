@@ -14,8 +14,10 @@ import type { Property } from '../types/firestore';
 /**
  * Cursor-paginated properties for the signed-in agent
  * (admins see every agent's properties, agents see their own).
+ * With `loadAll`, the following pages are fetched automatically until every item is in `items`
+ * (for screens that count or list the whole catalogue).
  */
-export function useProperties(pageSize = 48) {
+export function useProperties(pageSize = 48, loadAll = false) {
   const { agent } = useAuth();
   const [items, setItems] = useState<Property[]>([]);
   const [cursor, setCursor] = useState<PropertyCursor | null>(null);
@@ -68,6 +70,12 @@ export function useProperties(pageSize = 48) {
       setLoadingMore(false);
     }
   };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetches the next page, one at a time
+    if (loadAll && cursor && !loading && !loadingMore) void loadMore();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadAll, cursor, loading, loadingMore]);
 
   /** Re-fetches the first page (e.g. after importing sample data). */
   const reload = async () => {

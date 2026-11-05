@@ -177,7 +177,8 @@ export async function deleteProperty(id: string): Promise<void> {
 }
 
 /** Active (publicly visible) properties, newest first. */
-export async function getActiveProperties(maxResults = 60): Promise<Property[]> {
+/** Every active item (up to 500), newest first. The catalogue and the homepage show all of them. */
+export async function getActiveProperties(maxResults = 500): Promise<Property[]> {
   const snap = await getDocs(
     query(collection(requireDb(), PROPERTIES), where('status', '==', 'active'), limitTo(maxResults))
   );

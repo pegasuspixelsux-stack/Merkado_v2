@@ -52,7 +52,7 @@ export default function PriceLevelsPage() {
   const { agent } = useAuth();
   const { levels, loading, error } = usePriceLevels();
   const { categories } = useCategories();
-  const { items } = useProperties(100);
+  const { items } = useProperties(100, true);
   const [tab, setTab] = useState('level_1');
   // Unsaved edits per level; a level without a draft shows what is stored (and follows live changes).
   const [drafts, setDrafts] = useState<Record<string, Draft>>({});

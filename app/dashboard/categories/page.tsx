@@ -8,7 +8,7 @@ import { useCategories } from '@/src/hooks/useCategories';
 import { PageHeader, cardClass, inputClass } from '@/src/components/dashboard/ui';
 
 export default function CategoriesPage() {
-  const { items, loading, error, hasMore } = useProperties(100);
+  const { items, loading, error, hasMore } = useProperties(100, true);
   const { categories, add, remove, error: categoriesError } = useCategories();
   const [name, setName] = useState('');
   const [saving, setSaving] = useState(false);

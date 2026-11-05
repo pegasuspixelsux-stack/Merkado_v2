@@ -17,7 +17,7 @@ import { formatMoney, formatQuantity, withUnitSuffix } from '@/src/utils/format'
 export default function OverviewPage() {
   const { agent } = useAuth();
   const { leads, loading: leadsLoading, error: leadsError } = useLeads(200);
-  const { items, loading: propsLoading, error: propsError, hasMore } = useProperties(100);
+  const { items, loading: propsLoading, error: propsError, hasMore } = useProperties(100, true);
 
   const { labelFor } = useCategories();
 

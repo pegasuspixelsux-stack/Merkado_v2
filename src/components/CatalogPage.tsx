@@ -164,7 +164,8 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
       {/* --- NAVIGATION --- */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-[#FBFBFD]/80 backdrop-blur-md border-b border-[#000000]/5">
         <div className="bg-[#8CC63F] text-black text-center text-[11px] sm:text-xs font-medium tracking-wide py-1.5 px-4 sm:px-6 leading-snug">
-          Precios de mercado válidos por el día. Si el pedido es para otro día, pueden cambiar: te lo confirmamos con precios ajustados antes del envío.
+          <span className="sm:hidden">Precios de mercado válidos por el día</span>
+          <span className="hidden sm:inline">Precios de mercado válidos por el día. Si el pedido es para otro día, pueden cambiar: te lo confirmamos con precios ajustados antes del envío.</span>
         </div>
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="font-semibold text-lg tracking-tight"><BrandName /></Link>
