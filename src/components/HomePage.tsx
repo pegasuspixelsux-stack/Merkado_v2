@@ -634,17 +634,18 @@ export default function MerkadoHome({
           <div className="space-y-6">
             <h2 className="text-xs uppercase tracking-widest text-[#515154] font-semibold">Quiénes somos</h2>
             <p className="text-3xl md:text-4xl font-semibold tracking-tight">
-              Productos frescos, directo del productor.
+              Insumos frescos para tu cocina, todos los días.
             </p>
             <p className="text-[#515154] font-light leading-relaxed">
-              Merkado es un distribuidor de alimentos que conecta chacras y productores con
-              restaurantes, almacenes y familias. Compramos frutas, verduras y hojas verdes
-              directamente, las cuidamos desde el campo hasta la cadena de frío y te las
-              llevamos frescas hasta la puerta.
+              En Merkado somos especialistas en la distribución hortifrutícola para el sector
+              gastronómico y comercial. Seleccionamos frutas, verduras y hojas verdes directamente
+              en el mercado y las llevamos a la puerta de tu establecimiento con entregas en el
+              día o en 24 horas.
             </p>
             <p className="text-[#515154] font-light leading-relaxed">
-              Cada pedido se arma a medida, se pesa y tiene el precio claro, para que siempre
-              sepas qué estás llevando. Contanos qué necesitás y nosotros nos encargamos del resto.
+              Trabajamos bajo un modelo 100% enfocado en venta mayorista y abastecimiento a escala
+              para restaurantes, hoteles, pizzerías y comercios. Garantizamos pesaje exacto,
+              precios transparentes actualizados al día y la frescura que tu operación exige.
             </p>
             <a
               href="#contact"
