@@ -319,8 +319,8 @@ export default function MerkadoHome({
 
       {/* --- NAVIGATION --- */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-[#FBFBFD]/80 backdrop-blur-md border-b border-[#000000]/5">
-        <div className="bg-black text-white text-center text-xs font-medium tracking-wide py-1.5 px-6">
-          Envío gratis en pedidos de más de US$ 50
+        <div className="bg-[#8CC63F] text-black text-center text-[11px] sm:text-xs font-medium tracking-wide py-1.5 px-4 sm:px-6 leading-snug">
+          Precios de mercado válidos por el día. Si el pedido es para otro día, pueden cambiar: te lo confirmamos con precios ajustados antes del envío.
         </div>
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <span className="font-semibold text-lg tracking-tight"><BrandName /></span>

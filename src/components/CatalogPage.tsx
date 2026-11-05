@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Plus, Search, ShoppingCart, SlidersHorizontal, X } from 'lucide-react';
 import type { HomeProperty } from '@/src/lib/homeData';
@@ -46,6 +46,12 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
   const items = useMemo(() => applyBoxFirst(applyLevel(baseItems, level), level, allowLoose), [baseItems, level, allowLoose]);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('all');
+  // Footer links open the catalog already filtered: /items?category=<id>.
+  useEffect(() => {
+    const c = new URLSearchParams(window.location.search).get('category');
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- initial filter from the URL
+    if (c) setCategory(c);
+  }, []);
   const [availability, setAvailability] = useState<Availability>('all');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
@@ -157,8 +163,8 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
     <div className="min-h-screen bg-[#FBFBFD] text-[#1D1D1F] selection:bg-[#000000] selection:text-[#FFFFFF] font-sans antialiased">
       {/* --- NAVIGATION --- */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-[#FBFBFD]/80 backdrop-blur-md border-b border-[#000000]/5">
-        <div className="bg-black text-white text-center text-xs font-medium tracking-wide py-1.5 px-6">
-          Envío gratis en pedidos de más de US$ 50
+        <div className="bg-[#8CC63F] text-black text-center text-[11px] sm:text-xs font-medium tracking-wide py-1.5 px-4 sm:px-6 leading-snug">
+          Precios de mercado válidos por el día. Si el pedido es para otro día, pueden cambiar: te lo confirmamos con precios ajustados antes del envío.
         </div>
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="font-semibold text-lg tracking-tight"><BrandName /></Link>
