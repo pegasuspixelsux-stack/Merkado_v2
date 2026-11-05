@@ -3,22 +3,11 @@
 import { useState } from 'react';
 import { ImageIcon } from 'lucide-react';
 import { getProperties, updateProperty } from '@/src/services/dbService';
-import { imageFor } from '@/src/data/itemImages';
+import { imageForId } from '@/src/data/itemImages';
 import { cardClass } from '@/src/components/dashboard/ui';
 import type { Property } from '@/src/types/firestore';
 
 const urlOf = (p: Property) => p.photos[0]?.url ?? '';
-
-/** Loads the picture to know whether the link still works. */
-const loads = (url: string) =>
-  new Promise<boolean>((resolve) => {
-    if (!url) return resolve(false);
-    const img = new Image();
-    const timer = setTimeout(() => resolve(false), 15000);
-    img.onload = () => (clearTimeout(timer), resolve(true));
-    img.onerror = () => (clearTimeout(timer), resolve(false));
-    img.src = url;
-  });
 
 /**
  * Admin tool: gives every product its own photo from src/data/itemImages.ts, replacing
@@ -40,21 +29,16 @@ export default function RepairImages({ onDone }: { onDone: () => void }) {
         cursor = page.nextCursor;
       } while (cursor);
 
-      // Photos used by more than one product with different names are repeats.
-      const usedBy = new Map<string, Set<string>>();
-      for (const p of all) usedBy.set(urlOf(p), (usedBy.get(urlOf(p)) ?? new Set()).add(p.title.trim().toLowerCase()));
-
+      // Every product listed in itemImages.ts gets its own photo (one per product id, no repeats).
       let changed = 0;
       let noPhotoFound = 0;
       for (const p of all) {
-        const current = urlOf(p);
-        const next = imageFor(p.title);
+        const next = imageForId(p.id);
         if (!next) {
-          if (!current || !(await loads(current))) noPhotoFound++;
+          if (!urlOf(p)) noPhotoFound++;
           continue;
         }
-        const repeated = (usedBy.get(current)?.size ?? 0) > 1;
-        if (current === next || (!repeated && current && (await loads(current)))) continue;
+        if (urlOf(p) === next) continue;
         await updateProperty(p.id, { photos: [{ url: next }] });
         changed++;
       }

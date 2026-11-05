@@ -1,5 +1,6 @@
 'use client';
 
+import { toggleFavorite as toggleFavoriteInDb } from '@/src/services/favoritesService';
 import { createContext, useContext, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -49,6 +50,10 @@ interface ClientState {
   /** Acceso mayoristas: the phone number registered by the admin plus the access code they were given. */
   login: (phone: string, code: string) => Promise<TokenResult>;
   signOutClient: () => void;
+  /** Product ids the signed-in customer marked as favorites (empty for visitors). */
+  favorites: string[];
+  /** Adds or removes a product from the customer's favorites. No-op for visitors. */
+  toggleFavorite: (productId: string) => Promise<void>;
 }
 
 /** Checks a token from a link and remembers it on this device. */
@@ -105,6 +110,11 @@ export function ClientProvider({ children }: { children: ReactNode }) {
       openWithToken,
       login: (phone: string, code: string) => openWithToken(buildToken(phone, code)),
       signOutClient: () => writeToken(null),
+      favorites: active?.favorites ?? [],
+      toggleFavorite: async (productId: string) => {
+        if (!active) return;
+        await toggleFavoriteInDb(active.token, productId, !active.favorites.includes(productId));
+      },
     }),
     [active, suspended],
   );

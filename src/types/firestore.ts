@@ -236,6 +236,8 @@ export interface ClientAccess {
   receivingTime: string;
   email: string;
   notes: string;
+  /** Product ids the customer marked as favorites (prices are never stored, always looked up). */
+  favorites: string[];
   priceLevelId: string;
   levelName: string;
   categoryAdjustments: Record<string, number>;

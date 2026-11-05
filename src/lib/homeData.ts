@@ -63,7 +63,7 @@ function toSlide(p: Property, label: (t: string) => string): HeroSlide {
   };
 }
 
-function toHomeProperty(p: Property, label: (t: string) => string): HomeProperty {
+export function toHomeProperty(p: Property, label: (t: string) => string): HomeProperty {
   return {
     id: p.id,
     title: p.title,

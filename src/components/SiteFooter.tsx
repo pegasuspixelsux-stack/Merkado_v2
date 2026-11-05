@@ -57,6 +57,7 @@ export default function SiteFooter() {
           <p className="text-xs uppercase tracking-widest text-white/40 font-semibold">Legal</p>
           <ul className="space-y-2.5 text-xs text-white/80 font-light">
             <li><a href="#" className={linkClass}>Política de privacidad</a></li>
+            <li><Link href="/creditos" className={linkClass}>Créditos de fotos</Link></li>
             <li><a href="#" className={linkClass}>Términos del servicio</a></li>
             <li><Link href="/admin/login" className={linkClass}>Administración</Link></li>
           </ul>

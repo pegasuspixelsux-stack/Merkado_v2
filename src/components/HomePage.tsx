@@ -11,6 +11,7 @@ import SiteFooter from '@/src/components/SiteFooter';
 import PropertyImage from '@/src/components/PropertyImage';
 import CartDrawer, { type CartLine } from '@/src/components/CartDrawer';
 import WholesaleAccess from '@/src/components/WholesaleAccess';
+import FavoriteButton from '@/src/components/FavoriteButton';
 import SiteNavLinks from '@/src/components/SiteNavLinks';
 import MobileNavMenu from '@/src/components/MobileNavMenu';
 import { useClient } from '@/src/context/ClientContext';
@@ -23,7 +24,6 @@ import {
   ChevronLeft,
   ChevronRight,
   ShoppingCart,
-  Plus,
 } from 'lucide-react';
 
 const PAGE_SIZE = 12;
@@ -522,19 +522,25 @@ export default function MerkadoHome({
                 )}
               </div>
 
-              {/* Add to cart */}
-              <button
-                type="button"
-                onClick={() => addToCart(String(prop.id))}
-                disabled={prop.inStock === false}
-                aria-label={prop.inStock === false ? `${prop.title} está sin stock` : `Agregar ${prop.title} al carrito`}
-                className="absolute top-3 right-3 md:top-5 md:right-5 z-10 w-8 h-8 rounded-full bg-white text-black flex items-center justify-center shadow-sm hover:bg-[#F5F5F7] active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <Plus className="w-4 h-4" />
-              </button>
+              {/* Quick order: adds the item and opens the cart to send it */}
+              <div className="absolute top-3 right-3 md:top-5 md:right-5 z-10 flex items-center gap-1.5">
+                {typeof prop.id === 'string' && <FavoriteButton productId={prop.id} title={prop.title} className="w-8 h-8" />}
+                <button
+                  type="button"
+                  onClick={() => {
+                    addToCart(String(prop.id));
+                    setCartOpen(true);
+                  }}
+                  disabled={prop.inStock === false}
+                  aria-label={prop.inStock === false ? `${prop.title} está sin stock` : `Pedido rápido: ${prop.title}`}
+                  className="h-8 px-3 rounded-full bg-white text-black text-[10px] md:text-xs font-semibold whitespace-nowrap flex items-center justify-center shadow-sm hover:bg-[#F5F5F7] active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Pedido rápido
+                </button>
+              </div>
 
               {/* Bottom Details: row 1 title, row 2 quantity + price */}
-              <div className="relative z-10 text-white">
+              <div className="relative z-10 text-white pointer-events-none">
                 <h3 className="text-sm md:text-lg font-semibold tracking-tight mb-2 md:mb-3 leading-tight">{prop.title}</h3>
                 <div className="flex items-center justify-between gap-2 text-[10px] md:text-sm font-medium">
                   <span className="text-white/80 truncate">{prop.stats ? prop.stats[1] : prop.area}</span>

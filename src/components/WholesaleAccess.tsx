@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { KeyRound, LogOut, X } from 'lucide-react';
+import Link from 'next/link';
+import { Heart, KeyRound, LogOut, X } from 'lucide-react';
 import { OPEN_CLIENT_LOGIN } from '@/src/components/SignInNotice';
 import { useClient, type TokenResult } from '@/src/context/ClientContext';
 
@@ -49,6 +50,15 @@ export default function WholesaleAccess() {
         <span className="truncate max-w-32 sm:max-w-60 font-medium" title={`${client.businessName} · ${level.name}`}>
           {client.businessName}
         </span>
+        <Link
+          href="/favoritos"
+          aria-label="Mis favoritos"
+          title="Mis favoritos"
+          className="shrink-0 inline-flex items-center gap-1 rounded-full px-2 h-7 hover:bg-[#E8E8ED]"
+        >
+          <Heart className="w-3.5 h-3.5" />
+          <span className="hidden md:inline">Favoritos</span>
+        </Link>
         <button
           type="button"
           onClick={signOutClient}

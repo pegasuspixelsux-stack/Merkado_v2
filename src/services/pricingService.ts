@@ -82,6 +82,7 @@ export function toClientAccess(token: string, d: DocumentData): ClientAccess {
     receivingTime: d.receivingTime ?? '',
     email: d.email ?? '',
     notes: d.notes ?? '',
+    favorites: Array.isArray(d.favorites) ? d.favorites.filter((x: unknown): x is string => typeof x === 'string') : [],
     priceLevelId: d.priceLevelId ?? '',
     levelName: d.levelName ?? '',
     categoryAdjustments: adjustmentsOf(d.categoryAdjustments),
@@ -210,6 +211,13 @@ const clientData = (c: ClientInput) => ({
   status: c.status ?? 'active',
 });
 
+/** Favorites saved in a customer's access record (kept when the access code or phone changes). */
+async function favoritesOf(token: string): Promise<string[]> {
+  const snap = await getDoc(doc(requireDb(), CLIENT_ACCESS, token));
+  const f = snap.data()?.favorites;
+  return Array.isArray(f) ? f.filter((x: unknown): x is string => typeof x === 'string') : [];
+}
+
 /** One customer's profile (staff only), for billing details on the pick slip. */
 export async function getClient(id: string): Promise<Client | null> {
   const snap = await getDoc(doc(requireDb(), CLIENTS, id));
@@ -237,12 +245,15 @@ export async function updateClient(client: Client, input: ClientInput, level: Pr
   const batch = writeBatch(firestore);
   let token = client.accessToken;
   let renewed: string | null = null;
+  let favorites: string[] = [];
   if (phoneKey(input.phone) !== phoneKey(client.phone)) {
+    favorites = await favoritesOf(client.accessToken);
     renewed = token = newAccessToken(input.phone);
     batch.delete(doc(firestore, CLIENT_ACCESS, client.accessToken));
   }
   batch.update(doc(firestore, CLIENTS, client.id), { ...clientData(input), ...(renewed ? { accessToken: renewed } : {}) });
-  batch.set(doc(firestore, CLIENT_ACCESS, token), accessData(client.id, input, level));
+  // merge: the customer's favorites live in this document and must survive an admin edit
+  batch.set(doc(firestore, CLIENT_ACCESS, token), { ...accessData(client.id, input, level), ...(renewed ? { favorites } : {}) }, { merge: true });
   await batch.commit();
   return renewed;
 }
@@ -252,9 +263,10 @@ export async function resetClientAccess(client: Client, level: PriceLevel): Prom
   const firestore = requireDb();
   const token = newAccessToken(client.phone);
   const input: ClientInput = { ...client };
+  const favorites = await favoritesOf(client.accessToken);
   const batch = writeBatch(firestore);
   batch.delete(doc(firestore, CLIENT_ACCESS, client.accessToken));
-  batch.set(doc(firestore, CLIENT_ACCESS, token), accessData(client.id, input, level));
+  batch.set(doc(firestore, CLIENT_ACCESS, token), { ...accessData(client.id, input, level), favorites });
   batch.update(doc(firestore, CLIENTS, client.id), { accessToken: token });
   await batch.commit();
   return token;

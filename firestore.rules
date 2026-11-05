@@ -194,7 +194,12 @@ service cloud.firestore {
     match /client_access/{token} {
       allow get: if true;
       allow list: if isAgent();
-      allow create, update, delete: if isAdmin();
+      allow create, delete: if isAdmin();
+      // The customer (anyone holding the secret token) may change only their favorites list.
+      allow update: if isAdmin()
+        || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['favorites'])
+            && request.resource.data.favorites is list
+            && request.resource.data.favorites.size() <= 100);
     }
 
     // ---------------------------------------------------------------- users
