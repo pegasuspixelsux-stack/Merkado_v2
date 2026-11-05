@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useClient, type TokenResult } from '@/src/context/ClientContext';
+import BrandName from '@/src/components/BrandName';
 
 const messages: Record<Exclude<TokenResult, 'ok'>, string> = {
   invalid: 'Este enlace no es válido o ya fue reemplazado. Pedile uno nuevo a Merkado.',
@@ -37,7 +38,7 @@ export default function ClientPortal() {
   return (
     <main className="min-h-screen bg-[#FBFBFD] text-[#1D1D1F] font-sans antialiased flex items-center justify-center px-6">
       <div className="max-w-sm text-center space-y-4">
-        <p className="font-semibold text-lg tracking-tight">Merkado<span className="sm:hidden"> M</span><span className="hidden sm:inline"> para Mayoristas</span>.</p>
+        <p className="font-semibold text-lg tracking-tight"><BrandName /></p>
         {text ? (
           <>
             <p role="alert" className="text-sm text-[#515154]">{text}</p>

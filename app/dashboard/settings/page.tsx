@@ -6,6 +6,7 @@ import { ArrowUpRight } from 'lucide-react';
 import { roleLabels } from '@/src/utils/format';
 import { useAuth } from '@/src/context/AuthContext';
 import { PageHeader, cardClass, inputClass, labelClass } from '@/src/components/dashboard/ui';
+import BusinessForm from '@/src/components/dashboard/BusinessForm';
 
 export default function SettingsPage() {
   const { agent, updateProfile } = useAuth();
@@ -32,7 +33,7 @@ export default function SettingsPage() {
 
   return (
     <>
-      <PageHeader eyebrow="Cuenta" title="Ajustes" description="Tu perfil y las herramientas del equipo." />
+      <PageHeader eyebrow="Cuenta" title="Ajustes" description="Tu perfil, los datos del negocio y las herramientas del equipo." />
 
       <form onSubmit={save} className={`${cardClass} p-6 md:p-8 max-w-xl space-y-6`}>
         <div>
@@ -64,6 +65,8 @@ export default function SettingsPage() {
           {saving ? 'Guardando…' : 'Guardar perfil'}
         </button>
       </form>
+
+      <BusinessForm />
 
       {agent.role === 'admin' && (
         <Link

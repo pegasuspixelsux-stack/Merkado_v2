@@ -6,6 +6,7 @@ import { useLeads } from '@/src/hooks/useLeads';
 import { useCategories } from '@/src/hooks/useCategories';
 import { getProperty } from '@/src/services/dbService';
 import { useAuth } from '@/src/context/AuthContext';
+import { useBusiness } from '@/src/context/BusinessContext';
 import type { LeadStatus, PricingMode, Property } from '@/src/types/firestore';
 import { pricingModeLabels, quantityLabel } from '@/src/utils/format';
 import { dayKey, groupOrders, modeOfLine, orderDay, withoutPartialOrder } from '@/src/utils/orders';
@@ -56,6 +57,7 @@ function equivalence(row: Row, qty: number): string {
  */
 export default function DailyOrder() {
   const { agent } = useAuth();
+  const business = useBusiness();
   const { leads: loaded, loading, error } = useLeads(LIMIT);
   const { labelFor } = useCategories();
   const [date, setDate] = useState(() => dayKey(Date.now()));
@@ -215,7 +217,7 @@ export default function DailyOrder() {
   .notes pre{white-space:pre-wrap;font:inherit;margin:0}
   .foot{margin-top:14px;color:#555;font-size:11px}
 </style></head><body>
-<div class="top"><div><h1>Merkado — Pedido al mercado</h1><div class="sub">${esc(prettyDate)}</div></div>
+<div class="top"><div><h1>${esc(business.businessName || 'Merkado')} — Pedido al mercado</h1><div class="sub">${esc(prettyDate)}${business.rut ? ` · RUT ${esc(business.rut)}` : ''}</div></div>
 <div style="text-align:right">Operador: <b>${esc(agent?.name || '—')}</b><br>${orders.length} pedidos · ${clientCount} clientes</div></div>
 <table><thead><tr><th class="r">#</th><th>Producto</th><th class="r">Cantidad</th><th>Unidad</th><th>Equivale a</th><th>Ok</th></tr></thead><tbody>${body}</tbody></table>
 <p class="tot">${rows.length} productos${boxes ? ` · ${boxes} cajas en total` : ''}</p>

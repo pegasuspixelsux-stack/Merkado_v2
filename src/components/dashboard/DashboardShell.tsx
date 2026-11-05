@@ -15,6 +15,7 @@ import {
   PlusSquare,
   Settings,
   Tags,
+  UserCog,
   Users,
   X,
 } from 'lucide-react';
@@ -24,15 +25,17 @@ import { useLeads } from '../../hooks/useLeads';
 import { groupOrders } from '../../utils/orders';
 import LeadInbox from '../LeadInbox';
 
-const nav = [
+const nav: { href: string; label: string; icon: typeof Users; exact?: boolean; adminOnly?: boolean }[] = [
   { href: '/dashboard', label: 'Resumen', icon: LayoutDashboard, exact: true },
-  { href: '/dashboard/properties', label: 'Artículos', icon: Building2 },
-  { href: '/dashboard/properties/new', label: 'Agregar artículo', icon: PlusSquare },
-  { href: '/dashboard/categories', label: 'Categorías', icon: Tags },
-  { href: '/dashboard/price-levels', label: 'Niveles de precio', icon: Percent },
-  { href: '/dashboard/customers', label: 'Clientes', icon: Users },
   { href: '/dashboard/leads', label: 'Pedidos', icon: Inbox },
   { href: '/dashboard/daily-order', label: 'Pedido del día', icon: ClipboardList },
+  { href: '/dashboard/price-levels', label: 'Niveles de precio', icon: Percent },
+  { href: '/dashboard/categories', label: 'Categorías', icon: Tags },
+  { href: '/dashboard/properties', label: 'Artículos', icon: Building2 },
+  { href: '/dashboard/properties/new', label: 'Agregar artículo', icon: PlusSquare },
+  { href: '/dashboard/customers', label: 'Clientes', icon: Users },
+  // Staff / operators: add agents, change roles, deactivate accounts.
+  { href: '/admin', label: 'Usuarios', icon: UserCog, adminOnly: true },
   { href: '/dashboard/settings', label: 'Ajustes', icon: Settings },
 ];
 
@@ -70,7 +73,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
       </div>
       <p className="px-6 pt-4 pb-2 text-xs uppercase tracking-widest text-white/60 font-semibold">Panel</p>
       <nav className="px-3 space-y-1" aria-label="Panel">
-        {nav.map(({ href, label, icon: Icon, exact }) => {
+        {nav.filter((n) => !n.adminOnly || agent?.role === 'admin').map(({ href, label, icon: Icon, exact }) => {
           const active = isActive(href, exact);
           return (
             <Link

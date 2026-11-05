@@ -254,3 +254,33 @@ export interface ClientAccess {
   categoryAdjustments: Record<string, number>;
   status: ClientStatus;
 }
+
+// ------------------------------------------------------------ Business
+
+/** settings/business: the operator's public details, set in Ajustes and shown across the site and on printed sheets. */
+export interface BusinessSettings {
+  /** Operator / business name: the title of the catalogue. */
+  businessName: string;
+  address: string;
+  email: string;
+  /** WhatsApp number. */
+  whatsapp: string;
+  phone: string;
+  /** Tax id (RUT). */
+  rut: string;
+  /** Operating license / habilitación. */
+  license: string;
+  /** Hours of operation, free text. */
+  hours: string;
+}
+
+export const emptyBusiness: BusinessSettings = {
+  businessName: '',
+  address: '',
+  email: '',
+  whatsapp: '',
+  phone: '',
+  rut: '',
+  license: '',
+  hours: '',
+};

@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { Check, CheckCheck, Printer, X } from 'lucide-react';
 import { getProperty, updateLeadDetails, updateLeadStatus } from '@/src/services/dbService';
 import { getClient } from '@/src/services/pricingService';
+import { useBusiness } from '@/src/context/BusinessContext';
 import { PAYMENT_METHODS, paymentMethodLabels } from '@/src/types/firestore';
 import type { Client, Lead, LeadStatus, PaymentMethod, PricingMode, Property } from '@/src/types/firestore';
 import { formatMoney, pricingModeLabels, whatsappUrl } from '@/src/utils/format';
@@ -82,6 +83,7 @@ export default function OrderModal({
   agentName: string;
   onClose: () => void;
 }) {
+  const business = useBusiness();
   const group = useMemo(() => [...siblings].sort((a, b) => a.id.localeCompare(b.id)), [siblings]);
   const primary = group[0] ?? lead;
   const info = parseMessage(primary.message);
@@ -243,7 +245,7 @@ export default function OrderModal({
 <style>
   *{box-sizing:border-box}body{font:13px/1.45 -apple-system,Segoe UI,Roboto,sans-serif;color:#111;margin:28px}
   .top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #111;padding-bottom:10px}
-  h1{font-size:22px;margin:0}.tag{display:inline-block;margin-top:4px;border:1px solid #111;padding:2px 8px;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+  h1{font-size:22px;margin:0}.sub{color:#555;font-size:12px;margin:2px 0}.tag{display:inline-block;margin-top:4px;border:1px solid #111;padding:2px 8px;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
   .meta{text-align:right}.meta b{font-size:16px}
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 28px;margin:14px 0}
   .box h2{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:#555;margin:0 0 3px}.box p{margin:0}
@@ -264,7 +266,7 @@ export default function OrderModal({
   .foot{margin-top:14px;color:#555;font-size:11px;text-align:center}
 </style></head><body>
 <div class="top">
-  <div><h1>Merkado — Hoja de preparación</h1><span class="tag">Documento interno · no es una factura</span></div>
+  <div><h1>${esc(business.businessName || 'Merkado')} — Hoja de preparación</h1><div class="sub">${esc([business.rut && `RUT ${business.rut}`, business.address, business.whatsapp || business.phone].filter(Boolean).join(' · '))}</div><span class="tag">Documento interno · no es una factura</span></div>
   <div class="meta"><b>${esc(orderNumber(primary))}</b><br>${esc(primary.createdAt ? new Date(primary.createdAt).toLocaleString('es-UY') : '')}<br>Operador: <b>${esc(agentName || '—')}</b></div>
 </div>
 <div class="grid">

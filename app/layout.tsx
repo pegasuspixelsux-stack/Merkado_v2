@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ClientProvider } from "@/src/context/ClientContext";
+import { BusinessProvider } from "@/src/context/BusinessContext";
+import { getBusinessSettings } from "@/src/services/businessService";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,20 +15,28 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Merkado para Mayoristas",
-  description:
-    "Frutas y verduras frescas directo del productor, para minoristas y mayoristas.",
-};
+const DEFAULT_TITLE = "Merkado para Mayoristas";
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export async function generateMetadata(): Promise<Metadata> {
+  const { businessName } = await getBusinessSettings();
+  return {
+    title: businessName || DEFAULT_TITLE,
+    description:
+      "Frutas y verduras frescas directo del productor, para minoristas y mayoristas.",
+  };
+}
+
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const business = await getBusinessSettings();
   return (
     <html
       lang="es-UY"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <ClientProvider>{children}</ClientProvider>
+        <BusinessProvider initial={business}>
+          <ClientProvider>{children}</ClientProvider>
+        </BusinessProvider>
       </body>
     </html>
   );

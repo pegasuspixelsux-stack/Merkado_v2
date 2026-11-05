@@ -210,6 +210,25 @@ service cloud.firestore {
     // users/{uid} is the agent profile. You can read your own; admins read and manage all.
     // Agents may edit their own name, phone and avatar but never their role or active flag.
 
+    // settings/business: the operator's public details (name, address, contact, RUT, hours). Public read; admins write.
+
+    match /settings/{id} {
+      allow read: if true;
+      allow create, update: if isAdmin()
+        && id == 'business'
+        && request.resource.data.keys().hasOnly(['businessName', 'address', 'email', 'whatsapp', 'phone', 'rut', 'license', 'hours', 'updatedAt'])
+        && request.resource.data.businessName is string && request.resource.data.businessName.size() <= 120
+        && request.resource.data.address is string && request.resource.data.address.size() <= 200
+        && request.resource.data.email is string && request.resource.data.email.size() <= 200
+        && request.resource.data.whatsapp is string && request.resource.data.whatsapp.size() <= 50
+        && request.resource.data.phone is string && request.resource.data.phone.size() <= 50
+        && request.resource.data.rut is string && request.resource.data.rut.size() <= 60
+        && request.resource.data.license is string && request.resource.data.license.size() <= 120
+        && request.resource.data.hours is string && request.resource.data.hours.size() <= 400
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if false;
+    }
+
     // client_pins/{phone}-{pin}: lets a customer sign in with phone + 4-digit PIN. It only holds a pointer
     // to their access token. Reading one entry needs both values; listing is blocked. Only admins write.
 

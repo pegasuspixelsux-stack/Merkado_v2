@@ -15,6 +15,7 @@ import MobileNavMenu from '@/src/components/MobileNavMenu';
 import { useClient } from '@/src/context/ClientContext';
 import { applyBoxFirst, applyLevel } from '@/src/utils/pricing';
 import SimilarItems, { type SimilarItem } from '@/src/components/SimilarItems';
+import BrandName from '@/src/components/BrandName';
 
 const PAGE_SIZE = 12;
 
@@ -160,7 +161,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
           Envío gratis en pedidos de más de US$ 50
         </div>
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="font-semibold text-lg tracking-tight">Merkado<span className="sm:hidden"> M</span><span className="hidden sm:inline"> para Mayoristas</span>.</Link>
+          <Link href="/" className="font-semibold text-lg tracking-tight"><BrandName /></Link>
           <SiteNavLinks />
           <div className="flex items-center gap-1">
           <WholesaleAccess />

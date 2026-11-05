@@ -25,6 +25,7 @@ import {
   ChevronRight,
   ShoppingCart,
 } from 'lucide-react';
+import BrandName from '@/src/components/BrandName';
 
 const PAGE_SIZE = 12;
 
@@ -322,7 +323,7 @@ export default function MerkadoHome({
           Envío gratis en pedidos de más de US$ 50
         </div>
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <span className="font-semibold text-lg tracking-tight">Merkado<span className="sm:hidden"> M</span><span className="hidden sm:inline"> para Mayoristas</span>.</span>
+          <span className="font-semibold text-lg tracking-tight"><BrandName /></span>
           <SiteNavLinks />
           <div className="flex items-center gap-1">
           <WholesaleAccess />

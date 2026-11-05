@@ -1,0 +1,46 @@
+import { doc, getDoc, onSnapshot, serverTimestamp, setDoc, type Unsubscribe } from 'firebase/firestore';
+import { db } from '../lib/firebase';
+import { emptyBusiness, type BusinessSettings } from '../types/firestore';
+
+const REF = ['settings', 'business'] as const;
+
+const clip = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
+
+export function toBusiness(d: Record<string, unknown> | undefined): BusinessSettings {
+  return {
+    businessName: clip(d?.businessName, 120),
+    address: clip(d?.address, 200),
+    email: clip(d?.email, 200),
+    whatsapp: clip(d?.whatsapp, 50),
+    phone: clip(d?.phone, 50),
+    rut: clip(d?.rut, 60),
+    license: clip(d?.license, 120),
+    hours: clip(d?.hours, 400),
+  };
+}
+
+/** Read once (also works on the server); empty details if the document does not exist or cannot be read. */
+export async function getBusinessSettings(): Promise<BusinessSettings> {
+  if (!db) return emptyBusiness;
+  try {
+    const snap = await getDoc(doc(db, ...REF));
+    return snap.exists() ? toBusiness(snap.data()) : emptyBusiness;
+  } catch {
+    return emptyBusiness;
+  }
+}
+
+export function subscribeBusinessSettings(onData: (b: BusinessSettings) => void): Unsubscribe {
+  if (!db) return () => {};
+  return onSnapshot(
+    doc(db, ...REF),
+    (snap) => onData(snap.exists() ? toBusiness(snap.data()) : emptyBusiness),
+    () => {},
+  );
+}
+
+/** Admins only (security rules). */
+export async function saveBusinessSettings(b: BusinessSettings): Promise<void> {
+  if (!db) throw new Error('Firebase no está configurado.');
+  await setDoc(doc(db, ...REF), { ...toBusiness({ ...b }), updatedAt: serverTimestamp() });
+}

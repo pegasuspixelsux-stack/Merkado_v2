@@ -1,34 +1,74 @@
+'use client';
+
 import Link from 'next/link';
-import { Mail, MapPin, Phone } from 'lucide-react';
+import { Clock, FileText, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
+import { useBusiness } from '@/src/context/BusinessContext';
+import { whatsappUrl } from '@/src/utils/format';
+import BrandName from '@/src/components/BrandName';
 
 const linkClass = 'hover:text-white transition-colors';
 
 /** The four-column site footer, shared by the homepage and the item pages. */
 export default function SiteFooter() {
+  const business = useBusiness();
+  const wa = business.whatsapp ? whatsappUrl(business.whatsapp, 'Hola, quiero consultar por el catálogo.') : null;
+  const hasContact = Boolean(
+    business.address || business.email || business.whatsapp || business.phone || business.hours || business.rut || business.license,
+  );
   return (
     <footer className="bg-[#000000] text-[#FBFBFD] py-32 px-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
         {/* Column 1: Brand */}
         <div className="space-y-4">
-          <span className="text-lg font-semibold tracking-tight text-white">Merkado<span className="sm:hidden"> M</span><span className="hidden sm:inline"> para Mayoristas</span>.</span>
+          <span className="text-lg font-semibold tracking-tight text-white"><BrandName /></span>
           <p className="text-xs text-white/60 leading-relaxed font-light">
             Frutas y verduras frescas, directo del productor a tu negocio o a tu mesa.
           </p>
 
-          <ul className="space-y-3 pt-2 text-xs text-white/80 font-light" aria-label="Contacto">
-            <li className="flex items-start gap-3">
-              <MapPin className="w-4 h-4 shrink-0 text-white/50" aria-hidden="true" />
-              <span>101 Ocean Avenue, Carmel-by-the-Sea, CA</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <Mail className="w-4 h-4 shrink-0 text-white/50" aria-hidden="true" />
-              <a href="mailto:contacto@merkado.uy" className={linkClass}>contacto@merkado.uy</a>
-            </li>
-            <li className="flex items-start gap-3">
-              <Phone className="w-4 h-4 shrink-0 text-white/50" aria-hidden="true" />
-              <a href="tel:+18315550199" className={linkClass}>+1 (831) 555-0199</a>
-            </li>
-          </ul>
+          {hasContact && (
+            <ul className="space-y-3 pt-2 text-xs text-white/80 font-light" aria-label="Contacto">
+              {business.address && (
+                <li className="flex items-start gap-3">
+                  <MapPin className="w-4 h-4 shrink-0 text-white/50" aria-hidden="true" />
+                  <span>{business.address}</span>
+                </li>
+              )}
+              {business.email && (
+                <li className="flex items-start gap-3">
+                  <Mail className="w-4 h-4 shrink-0 text-white/50" aria-hidden="true" />
+                  <a href={`mailto:${business.email}`} className={linkClass}>{business.email}</a>
+                </li>
+              )}
+              {business.whatsapp && (
+                <li className="flex items-start gap-3">
+                  <MessageCircle className="w-4 h-4 shrink-0 text-white/50" aria-hidden="true" />
+                  {wa ? (
+                    <a href={wa} target="_blank" rel="noopener noreferrer" className={linkClass}>{business.whatsapp} (WhatsApp)</a>
+                  ) : (
+                    <span>{business.whatsapp} (WhatsApp)</span>
+                  )}
+                </li>
+              )}
+              {business.phone && (
+                <li className="flex items-start gap-3">
+                  <Phone className="w-4 h-4 shrink-0 text-white/50" aria-hidden="true" />
+                  <a href={`tel:${business.phone.replace(/[^+\d]/g, '')}`} className={linkClass}>{business.phone}</a>
+                </li>
+              )}
+              {business.hours && (
+                <li className="flex items-start gap-3">
+                  <Clock className="w-4 h-4 shrink-0 text-white/50" aria-hidden="true" />
+                  <span className="whitespace-pre-line">{business.hours}</span>
+                </li>
+              )}
+              {(business.rut || business.license) && (
+                <li className="flex items-start gap-3">
+                  <FileText className="w-4 h-4 shrink-0 text-white/50" aria-hidden="true" />
+                  <span>{[business.rut && `RUT ${business.rut}`, business.license && `Habilitación ${business.license}`].filter(Boolean).join(' · ')}</span>
+                </li>
+              )}
+            </ul>
+          )}
         </div>
 
         {/* Column 2: Inventory */}
