@@ -22,28 +22,28 @@ export default function SiteFooter() {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
         {/* Column 1: Brand */}
         <div className="space-y-4">
-          <span className="text-lg font-semibold tracking-tight text-black"><BrandName /></span>
-          <p className="text-xs text-black/70 leading-relaxed font-light">
+          <span className="text-xl md:text-2xl font-semibold tracking-tight text-black"><BrandName /></span>
+          <p className="text-sm md:text-base text-black/70 leading-relaxed font-light">
             Frutas y verduras frescas, directo del productor a tu negocio o a tu mesa.
           </p>
 
           {hasContact && (
-            <ul className="space-y-3 pt-2 text-xs text-black/80 font-light" aria-label="Contacto">
+            <ul className="space-y-3 pt-2 text-sm md:text-base text-black/80 font-light" aria-label="Contacto">
               {business.address && (
                 <li className="flex items-start gap-3">
-                  <MapPin className="w-4 h-4 shrink-0 text-black/70" aria-hidden="true" />
+                  <MapPin className="w-5 h-5 shrink-0 text-black/70" aria-hidden="true" />
                   <span>{business.address}</span>
                 </li>
               )}
               {business.email && (
                 <li className="flex items-start gap-3">
-                  <Mail className="w-4 h-4 shrink-0 text-black/70" aria-hidden="true" />
+                  <Mail className="w-5 h-5 shrink-0 text-black/70" aria-hidden="true" />
                   <a href={`mailto:${business.email}`} className={linkClass}>{business.email}</a>
                 </li>
               )}
               {business.whatsapp && (
                 <li className="flex items-start gap-3">
-                  <MessageCircle className="w-4 h-4 shrink-0 text-black/70" aria-hidden="true" />
+                  <MessageCircle className="w-5 h-5 shrink-0 text-black/70" aria-hidden="true" />
                   {wa ? (
                     <a href={wa} target="_blank" rel="noopener noreferrer" className={linkClass}>{business.whatsapp} (WhatsApp)</a>
                   ) : (
@@ -53,19 +53,19 @@ export default function SiteFooter() {
               )}
               {business.phone && (
                 <li className="flex items-start gap-3">
-                  <Phone className="w-4 h-4 shrink-0 text-black/70" aria-hidden="true" />
+                  <Phone className="w-5 h-5 shrink-0 text-black/70" aria-hidden="true" />
                   <a href={`tel:${business.phone.replace(/[^+\d]/g, '')}`} className={linkClass}>{business.phone}</a>
                 </li>
               )}
               {business.hours && (
                 <li className="flex items-start gap-3">
-                  <Clock className="w-4 h-4 shrink-0 text-black/70" aria-hidden="true" />
+                  <Clock className="w-5 h-5 shrink-0 text-black/70" aria-hidden="true" />
                   <span className="whitespace-pre-line">{business.hours}</span>
                 </li>
               )}
               {(business.rut || business.license) && (
                 <li className="flex items-start gap-3">
-                  <FileText className="w-4 h-4 shrink-0 text-black/70" aria-hidden="true" />
+                  <FileText className="w-5 h-5 shrink-0 text-black/70" aria-hidden="true" />
                   <span>{[business.rut && `RUT ${business.rut}`, business.license && `Habilitación ${business.license}`].filter(Boolean).join(' · ')}</span>
                 </li>
               )}
@@ -75,8 +75,8 @@ export default function SiteFooter() {
 
         {/* Column 2: Inventory */}
         <div className="space-y-4">
-          <p className="text-xs uppercase tracking-widest text-black/60 font-semibold">Catálogo</p>
-          <ul className="space-y-2.5 text-xs text-black/80 font-light">
+          <p className="text-sm uppercase tracking-widest text-black/60 font-semibold">Catálogo</p>
+          <ul className="space-y-3 text-sm md:text-base text-black/80 font-light">
             {categories.map((c) => (
               <li key={c.id}><Link href={`/items?category=${encodeURIComponent(c.id)}`} className={linkClass}>{c.name}</Link></li>
             ))}
@@ -86,8 +86,8 @@ export default function SiteFooter() {
 
         {/* Column 3: Company */}
         <div className="space-y-4">
-          <p className="text-xs uppercase tracking-widest text-black/60 font-semibold">Empresa</p>
-          <ul className="space-y-2.5 text-xs text-black/80 font-light">
+          <p className="text-sm uppercase tracking-widest text-black/60 font-semibold">Empresa</p>
+          <ul className="space-y-3 text-sm md:text-base text-black/80 font-light">
             <li><Link href="/#vision" className={linkClass}>Quiénes somos</Link></li>
             <li><Link href="/#contact" className={linkClass}>Mayoristas</Link></li>
             <li><Link href="/#contact" className={linkClass}>Contacto</Link></li>
@@ -96,8 +96,8 @@ export default function SiteFooter() {
 
         {/* Column 4: Legal & Notice */}
         <div className="space-y-4">
-          <p className="text-xs uppercase tracking-widest text-black/60 font-semibold">Legal</p>
-          <ul className="space-y-2.5 text-xs text-black/80 font-light">
+          <p className="text-sm uppercase tracking-widest text-black/60 font-semibold">Legal</p>
+          <ul className="space-y-3 text-sm md:text-base text-black/80 font-light">
             <li><Link href="/privacidad" className={linkClass}>Política de privacidad</Link></li>
             <li><Link href="/creditos" className={linkClass}>Créditos de fotos</Link></li>
             <li><a href="#" className={linkClass}>Términos del servicio</a></li>
@@ -107,7 +107,7 @@ export default function SiteFooter() {
       </div>
 
       {/* Bottom Bar */}
-      <div className="max-w-7xl mx-auto pt-8 border-t border-black/15 flex flex-col md:flex-row items-center justify-between text-xs text-black/60 font-light">
+      <div className="max-w-7xl mx-auto pt-8 border-t border-black/15 flex flex-col md:flex-row items-center justify-between text-sm md:text-base text-black/60 font-light">
         <p>&copy; {new Date().getFullYear()} Merkado Inc. Todos los derechos reservados.</p>
         <p className="mt-4 md:mt-0">Diseñado con atención a cada detalle.</p>
       </div>
