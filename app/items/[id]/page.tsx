@@ -64,6 +64,8 @@ export default async function ItemPage({ params }: Props) {
     unitWeight: item.unitWeight,
     boxPrice: item.boxPrice,
     unitPrice: item.unitPrice,
+    boxUnits: item.boxUnits,
+    looseAllowed: item.looseAllowed,
   };
 
   // Other items to browse: same category first, then the rest (at most 10).

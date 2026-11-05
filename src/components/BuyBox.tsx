@@ -38,7 +38,7 @@ export default function BuyBox({
   const [chosen, setChosen] = useState<PricingMode | null>(null);
   const { client, level } = useClient();
   const wholesale = !!(client && level);
-  const options = saleOptions(pricing, wholesale ? 'wholesale' : 'retail');
+  const options = saleOptions(pricing, wholesale ? 'wholesale' : 'retail', { allowLoose: client?.allowLoose });
   // Falls back to the first option when the chosen one is not offered (e.g. after logging in or out).
   const active = options.find((o) => o.mode === chosen) ?? options[0];
   const mode = active.mode;

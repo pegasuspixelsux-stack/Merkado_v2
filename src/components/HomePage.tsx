@@ -15,7 +15,7 @@ import FavoriteButton from '@/src/components/FavoriteButton';
 import SiteNavLinks from '@/src/components/SiteNavLinks';
 import MobileNavMenu from '@/src/components/MobileNavMenu';
 import { useClient } from '@/src/context/ClientContext';
-import { applyLevel } from '@/src/utils/pricing';
+import { applyBoxFirst, applyLevel } from '@/src/utils/pricing';
 import {
   ArrowUpRight,
   MapPin,
@@ -203,8 +203,9 @@ export default function MerkadoHome({
       : fallbackProperties.map((p) => ({ ...p, href: `/items/sample-${p.id}` })),
   );
   // A customer who logged in with Acceso mayoristas sees their price level; everyone else sees list prices.
-  const { level } = useClient();
-  const properties = useMemo(() => applyLevel(baseProperties, level), [baseProperties, level]);
+  const { client, level } = useClient();
+  const allowLoose = client?.allowLoose ?? false;
+  const properties = useMemo(() => applyBoxFirst(applyLevel(baseProperties, level), level, allowLoose), [baseProperties, level, allowLoose]);
   const [query, setQuery] = useState('');
   // Wholesale (mayorista) enrollment form in the contact section.
   const [wholesale, setWholesale] = useState({

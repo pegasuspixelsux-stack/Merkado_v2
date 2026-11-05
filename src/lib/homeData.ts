@@ -41,6 +41,16 @@ export type HomeProperty = {
   unitPrice?: number;
   /** Formatted sale price; when set, `price` is the regular (crossed-out) price. */
   salePrice?: string;
+  /** Raw selling data (never changed by price levels), used to offer the box to wholesale clients. */
+  sale?: {
+    salePrice?: number;
+    boxWeight?: number;
+    unitWeight?: number;
+    boxPrice?: number;
+    manualUnitPrice?: number;
+    boxUnits?: number;
+    looseAllowed?: boolean;
+  };
 };
 
 /** Where the item is delivered, e.g. "Maldonado · Montevideo". */
@@ -81,6 +91,15 @@ export function toHomeProperty(p: Property, label: (t: string) => string): HomeP
     inStock: p.inStock !== false,
     listPrice: p.price,
     unitPrice: p.salePrice ?? p.price,
+    sale: {
+      salePrice: p.salePrice,
+      boxWeight: p.boxWeight,
+      unitWeight: p.unitWeight,
+      boxPrice: p.boxPrice,
+      manualUnitPrice: p.unitPrice,
+      boxUnits: p.boxUnits,
+      looseAllowed: p.looseAllowed,
+    },
     salePrice: p.salePrice === undefined ? undefined : withUnitSuffix(formatMoney(p.salePrice, p.currency), p.pricingMode),
   };
 }

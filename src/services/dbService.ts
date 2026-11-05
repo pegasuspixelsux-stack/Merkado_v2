@@ -103,6 +103,8 @@ function toProperty(id: string, d: DocumentData): Property {
     pricingMode: toPricingMode(d.pricingMode),
     boxWeight: typeof d.boxWeight === 'number' && d.boxWeight > 0 ? d.boxWeight : undefined,
     unitWeight: typeof d.unitWeight === 'number' && d.unitWeight > 0 ? d.unitWeight : undefined,
+    boxUnits: typeof d.boxUnits === 'number' && d.boxUnits >= 1 ? Math.floor(d.boxUnits) : undefined,
+    looseAllowed: d.looseAllowed === true ? true : undefined,
     boxPrice: money(d.boxPrice),
     unitPrice: money(d.unitPrice),
     operation: d.operation ?? 'sale',
@@ -143,7 +145,7 @@ export async function updateProperty(id: string, data: PropertyUpdate): Promise<
   // clean() drops undefined keys, so clearing a sale has to be an explicit field delete.
   if ('salePrice' in data && data.salePrice === undefined) payload.salePrice = deleteField();
   if ('wholesalePrice' in data && data.wholesalePrice === undefined) payload.wholesalePrice = deleteField();
-  for (const key of ['boxWeight', 'unitWeight', 'boxPrice', 'unitPrice'] as const) {
+  for (const key of ['boxWeight', 'unitWeight', 'boxPrice', 'unitPrice', 'boxUnits', 'looseAllowed'] as const) {
     if (key in data && data[key] === undefined) payload[key] = deleteField();
   }
   await updateDoc(doc(requireDb(), PROPERTIES, id), payload);

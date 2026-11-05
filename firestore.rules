@@ -46,6 +46,8 @@ service cloud.firestore {
              && p.deliveryAreas.hasOnly(['Maldonado', 'Montevideo', 'Canelones'])))
         && (!('boxWeight' in p) || (p.boxWeight is number && p.boxWeight > 0))
         && (!('unitWeight' in p) || (p.unitWeight is number && p.unitWeight > 0))
+        && (!('boxUnits' in p) || (p.boxUnits is int && p.boxUnits >= 1 && p.boxUnits <= 100000))
+        && (!('looseAllowed' in p) || p.looseAllowed is bool)
         && (!('boxPrice' in p) || (p.boxPrice is number && p.boxPrice >= 0))
         && (!('unitPrice' in p) || (p.unitPrice is number && p.unitPrice >= 0))
         && (!('pricingMode' in p) || p.pricingMode in ['por_kilo', 'por_caja', 'por_atado', 'por_unidad', 'por_bolson'])

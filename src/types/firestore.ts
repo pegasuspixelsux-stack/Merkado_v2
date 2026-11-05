@@ -108,6 +108,10 @@ export interface Property {
   /** Weight in kg of one box / one unit. With them the other selling units are worked out from the price. */
   boxWeight?: number;
   unitWeight?: number;
+  /** How many units (or atados) come in one box. */
+  boxUnits?: number;
+  /** Exception to "clients order boxes": this item may also be ordered loose (by unit, atado or kilo). */
+  looseAllowed?: boolean;
   /** Optional manual prices for a whole box / one unit; otherwise they are derived from the price and weights. */
   boxPrice?: number;
   unitPrice?: number;
@@ -210,6 +214,8 @@ export interface Client {
   email: string;
   /** 4-digit PIN the customer types with their phone to sign in ("" = none). */
   pin: string;
+  /** Exception to "clients order boxes": this customer may also order loose units. */
+  allowLoose: boolean;
   /** How the customer pays: house account, card or cash. */
   paymentMethod: PaymentMethod;
   /** Tax (IVA) percentage added to their orders; 0 = none. */
@@ -240,6 +246,7 @@ export interface ClientAccess {
   receivingTime: string;
   email: string;
   notes: string;
+  allowLoose: boolean;
   /** Product ids the customer marked as favorites (prices are never stored, always looked up). */
   favorites: string[];
   priceLevelId: string;

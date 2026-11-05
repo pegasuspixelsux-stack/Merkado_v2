@@ -107,6 +107,7 @@ export default function CartDrawer({
         form.fulfillment === 'delivery' ? `Entrega a domicilio: ${form.address.trim()}` : 'Retiro en local',
         `${form.fulfillment === 'delivery' ? 'Hora de recepción' : 'Hora de retiro'}: ${form.date ? `${form.date} ` : ''}${form.time}`,
         `Contacto: ${name} · WhatsApp: ${phone || '—'}`,
+        'Precios sujetos a confirmación: se confirma el pedido con precios ajustados antes del envío.',
         form.notes.trim() && `Instrucciones especiales: ${form.notes.trim()}`,
       ];
       for (const { item, qty } of lines) {
@@ -250,6 +251,9 @@ export default function CartDrawer({
 
         {lines.length > 0 && (
           <div className="border-t border-[#000000]/5 px-6 py-5 space-y-3 shrink-0">
+            <p className="rounded-xl bg-amber-50 text-amber-900 text-xs leading-relaxed px-3 py-2.5">
+              <strong className="font-semibold">Precios del día.</strong> Los precios de mercado valen para hoy. Si el pedido es para otro día, pueden cambiar: te confirmamos el pedido con los precios ajustados antes del envío.
+            </p>
             <div className="flex items-center justify-between text-sm">
               <span className="text-[#515154]">Total</span>
               <span className="text-lg font-semibold">{formatMoney(total)}</span>

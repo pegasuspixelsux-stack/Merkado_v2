@@ -18,7 +18,7 @@ import {
 import { PAYMENT_METHODS, paymentMethodLabels, type Client, type PaymentMethod } from '@/src/types/firestore';
 import { PageHeader, cardClass, inputClass, labelClass } from '@/src/components/dashboard/ui';
 
-const emptyForm: ClientInput = { businessName: '', contactName: '', phone: '', address: '', receivingTime: '', email: '', pin: '', paymentMethod: 'house_account', taxRate: 0, shippingFee: 0, notes: '', priceLevelId: 'level_1', status: 'active' };
+const emptyForm: ClientInput = { businessName: '', contactName: '', phone: '', address: '', receivingTime: '', email: '', pin: '', allowLoose: false, paymentMethod: 'house_account', taxRate: 0, shippingFee: 0, notes: '', priceLevelId: 'level_1', status: 'active' };
 
 /** International number for wa.me: Uruguayan numbers saved without the country code get 598. */
 const waNumber = (phone: string) => {
@@ -65,7 +65,7 @@ export default function CustomersPage() {
   const open = (c: Client | 'new') => {
     setEditing(c);
     setFormError(null);
-    setForm(c === 'new' ? emptyForm : { businessName: c.businessName, contactName: c.contactName, phone: c.phone, address: c.address, receivingTime: c.receivingTime, email: c.email, pin: c.pin, paymentMethod: c.paymentMethod, taxRate: c.taxRate, shippingFee: c.shippingFee, notes: c.notes, priceLevelId: c.priceLevelId, status: c.status });
+    setForm(c === 'new' ? emptyForm : { businessName: c.businessName, contactName: c.contactName, phone: c.phone, address: c.address, receivingTime: c.receivingTime, email: c.email, pin: c.pin, allowLoose: c.allowLoose, paymentMethod: c.paymentMethod, taxRate: c.taxRate, shippingFee: c.shippingFee, notes: c.notes, priceLevelId: c.priceLevelId, status: c.status });
   };
 
   const save = async (e: React.FormEvent) => {
@@ -329,6 +329,13 @@ O con tu PIN de 4 números: ${access.pin}` : ''}`
               <label htmlFor="c-notes" className={labelClass}>Notas o pedidos especiales</label>
               <textarea id="c-notes" rows={2} maxLength={1000} className={`${inputClass} resize-none`} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Ej.: entrada de servicio, tomates verdes, sin bolsas de plástico…" />
             </div>
+            <label className="flex items-start gap-3 rounded-xl bg-[#F5F5F7] px-4 py-3 text-sm cursor-pointer">
+              <input type="checkbox" className="mt-0.5" checked={form.allowLoose} onChange={(e) => setForm({ ...form, allowLoose: e.target.checked })} />
+              <span>
+                <span className="font-medium">Puede pedir suelto (excepción)</span>
+                <span className="block text-xs text-[#515154] mt-0.5">Por defecto este cliente pide cajas. Con esto también puede pedir por unidad.</span>
+              </span>
+            </label>
             <div>
               <label htmlFor="c-level" className={labelClass}>Nivel de precio</label>
               <select id="c-level" className={inputClass} value={form.priceLevelId} onChange={(e) => setForm({ ...form, priceLevelId: e.target.value })}>

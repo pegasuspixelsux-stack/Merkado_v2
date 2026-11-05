@@ -6,8 +6,9 @@ import { Check, CheckCheck, Printer, X } from 'lucide-react';
 import { getProperty, updateLeadDetails, updateLeadStatus } from '@/src/services/dbService';
 import { getClient } from '@/src/services/pricingService';
 import { PAYMENT_METHODS, paymentMethodLabels } from '@/src/types/firestore';
-import type { Client, Lead, LeadStatus, PaymentMethod, Property } from '@/src/types/firestore';
+import type { Client, Lead, LeadStatus, PaymentMethod, PricingMode, Property } from '@/src/types/firestore';
 import { formatMoney, pricingModeLabels, whatsappUrl } from '@/src/utils/format';
+import { boxDescription } from '@/src/utils/pricing';
 import { inputClass, labelClass } from '@/src/components/dashboard/ui';
 
 /** Order flow: Nuevo -> Aceptado (contacted) -> Confirmado (closed). */
@@ -47,12 +48,25 @@ function parseMessage(message: string) {
   };
 }
 
-/** "Caja · 20 kg", "Unidad · 0,3 kg", "Kilo"… the unit a line is sold in. */
-function unitText(p: Property | null): string {
-  if (!p) return '';
-  const mode = p.pricingMode ?? 'por_kilo';
+/** The unit the customer ordered in, read from the order line ("2 Cajas @ $54/caja"). */
+function modeOfLine(message: string, fallback: PricingMode): PricingMode {
+  const noun = message.match(/ - \d+ ([^@\n]+?) @/)?.[1]?.trim().toLowerCase() ?? '';
+  if (noun.startsWith('caj')) return 'por_caja';
+  if (noun.startsWith('kil')) return 'por_kilo';
+  if (noun.startsWith('unid')) return 'por_unidad';
+  if (noun.startsWith('atad')) return 'por_atado';
+  if (noun.startsWith('bols')) return 'por_bolson';
+  return fallback;
+}
+
+/** "Caja de 12 unidades · 6 kg", "Unidad · 0,3 kg", "Kilo"… the unit a line is sold in. */
+function unitText(p: Property | null, mode: PricingMode): string {
   const base = pricingModeLabels[mode].replace('Por ', '');
-  const w = mode === 'por_caja' ? p.boxWeight : mode === 'por_unidad' ? p.unitWeight : undefined;
+  if (!p) return base;
+  if (mode === 'por_caja') {
+    return boxDescription({ pricingMode: p.pricingMode, boxUnits: p.boxUnits, boxWeight: p.boxWeight }) || base;
+  }
+  const w = mode === 'por_unidad' ? p.unitWeight : undefined;
   return w ? `${base} · ${String(w).replace('.', ',')} kg` : base;
 }
 
@@ -231,7 +245,7 @@ export default function OrderModal({
       .map((l) => {
         const q = num(l.qty) ?? 0;
         const p = num(l.price) ?? 0;
-        return `<tr><td>${esc(l.title || '—')}</td><td class="r">${q || ''}</td><td>${esc(unitText(l.property))}</td><td class="r">${p ? money(p) : ''}</td><td class="r">${q && p ? money(q * p) : ''}</td></tr>`;
+        return `<tr><td>${esc(l.title || '—')}</td><td class="r">${q || ''}</td><td>${esc(unitText(l.property, modeOfLine(l.lead.message, l.property?.pricingMode ?? 'por_kilo')))}</td><td class="r">${p ? money(p) : ''}</td><td class="r">${q && p ? money(q * p) : ''}</td></tr>`;
       })
       .join('');
     const when = [info.pickup ? 'Retiro en local' : 'Entrega a domicilio', contact.time && `Hora: ${contact.time}`].filter(Boolean).join(' · ');
@@ -253,6 +267,10 @@ export default function OrderModal({
   .notes pre{white-space:pre-wrap;font:inherit;margin:0 0 6px}
   .rule{border-bottom:1px solid #ccc;height:22px}
   .sign{margin-top:34px;display:flex;gap:36px}.sign div{flex:1;border-top:1px solid #111;padding-top:5px;color:#555;font-size:11px}
+  .confirm{margin-top:16px;border:2px solid #111;padding:9px 12px}
+  .confirm h2{font-size:11px;text-transform:uppercase;letter-spacing:.09em;margin:0 0 4px}
+  .confirm p{margin:0 0 8px}.confirm .box{display:inline-block;width:12px;height:12px;border:1.5px solid #111;margin-right:7px;vertical-align:-2px}
+  .confirm .line{display:inline-block;border-bottom:1px solid #111;width:150px;margin:0 8px}
   .foot{margin-top:14px;color:#555;font-size:11px;text-align:center}
 </style></head><body>
 <div class="top">
@@ -281,6 +299,12 @@ export default function OrderModal({
   ${info.instructions ? `<pre><b>Del cliente:</b> ${esc(info.instructions)}</pre>` : ''}
   ${notes.trim() ? `<pre>${esc(notes)}</pre>` : ''}
   <div class="rule"></div><div class="rule"></div><div class="rule"></div>
+</div>
+<div class="confirm">
+  <h2>Confirmar pedido con el cliente antes de enviar</h2>
+  <p>Los precios de mercado valen para el día. Si el pedido es para otro día, pueden haber cambiado: confirmar con el cliente el pedido con los precios ajustados antes del envío.</p>
+  <p><span class="box"></span>Precios confirmados con el cliente &nbsp;&nbsp; <span class="box"></span>Cambios acordados (ver notas)</p>
+  <p style="margin:0">Confirmó:<span class="line"></span>Fecha y hora:<span class="line"></span></p>
 </div>
 <div class="sign"><div>Preparó</div><div>Controló</div><div>Recibió</div></div>
 <p class="foot">Uso interno de Merkado — no válido como comprobante fiscal.</p>
@@ -347,7 +371,7 @@ export default function OrderModal({
                 <li key={l.lead.id} className="grid grid-cols-[1fr_5rem_6rem] sm:grid-cols-[1fr_6rem_7rem_6rem] items-center gap-2 px-3 py-2.5 text-sm">
                   <div className="min-w-0">
                     <p className="font-medium truncate">{l.title || 'Producto'}</p>
-                    <p className="text-xs text-[#515154] truncate">{unitText(l.property) || '—'}</p>
+                    <p className="text-xs text-[#515154] truncate">{unitText(l.property, modeOfLine(l.lead.message, l.property?.pricingMode ?? 'por_kilo')) || '—'}</p>
                   </div>
                   <input
                     aria-label={`Cantidad de ${l.title}`}
@@ -398,6 +422,10 @@ export default function OrderModal({
             <label htmlFor="om-notes" className={labelClass}>Notas o pedidos especiales</label>
             <textarea id="om-notes" rows={3} maxLength={2000} className={`${inputClass} resize-y`} placeholder="Se imprimen en la hoja de preparación." value={notes} onChange={(e) => setNotes(e.target.value)} />
           </div>
+
+          <p className="rounded-xl bg-amber-50 text-amber-900 text-xs leading-relaxed px-3 py-2.5">
+            <strong className="font-semibold">Antes de confirmar:</strong> los precios de mercado valen para el día. Si el pedido es para otro día, ajustá los precios arriba y confirmalo con el cliente antes del envío.
+          </p>
 
           {feedback && (
             <p role={feedback.ok ? 'status' : 'alert'} className={`text-sm ${feedback.ok ? 'text-green-700' : 'text-red-600'}`}>

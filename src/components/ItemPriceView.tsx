@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useClient } from '@/src/context/ClientContext';
-import { optionPrice, saleOptions, type SaleSource } from '@/src/utils/pricing';
+import { boxDescription, optionPrice, saleOptions, type SaleSource } from '@/src/utils/pricing';
 import { formatMoney, pricingModeLabels, withUnitSuffix } from '@/src/utils/format';
 
 /**
@@ -14,7 +14,9 @@ import { formatMoney, pricingModeLabels, withUnitSuffix } from '@/src/utils/form
 export default function ItemPriceView({ pricing, categoryId }: { pricing: SaleSource; categoryId?: string }) {
   const { client, level } = useClient();
   const wholesale = !!(client && level);
-  const options = saleOptions(pricing, wholesale ? 'wholesale' : 'retail');
+  const options = saleOptions(pricing, wholesale ? 'wholesale' : 'retail', { allowLoose: client?.allowLoose });
+  const box = boxDescription(pricing);
+  const boxOption = options.find((o) => o.mode === 'por_caja');
 
   return (
     <dl className="grid grid-cols-2 gap-3 max-w-md">
@@ -29,6 +31,12 @@ export default function ItemPriceView({ pricing, categoryId }: { pricing: SaleSo
               <span className="text-2xl font-semibold">{withUnitSuffix(formatMoney(unit), o.mode)}</span>
               {was !== undefined && <s className="text-sm text-[#86868B]">{formatMoney(was)}</s>}
             </dd>
+            {o.mode === 'por_caja' && (
+              <p className="mt-1 text-xs text-[#515154]">
+                {box || 'Caja'}
+                {pricing.boxUnits && boxOption ? ` · ${formatMoney(Math.round((unit / pricing.boxUnits) * 100) / 100)} por ${pricing.pricingMode === 'por_atado' ? 'atado' : 'unidad'}` : ''}
+              </p>
+            )}
             {!wholesale && o.salePrice !== undefined && (
               <span className="inline-block mt-2 bg-[#1D1D1F] text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">Oferta</span>
             )}

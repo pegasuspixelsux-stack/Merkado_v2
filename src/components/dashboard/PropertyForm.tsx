@@ -21,6 +21,8 @@ interface FormState {
   pricingMode: PricingMode;
   boxWeight: string;
   unitWeight: string;
+  boxUnits: string;
+  looseAllowed: boolean;
   boxPrice: string;
   unitPrice: string;
   deliveryAreas: DeliveryArea[];
@@ -42,6 +44,8 @@ const emptyForm: FormState = {
   pricingMode: 'por_kilo',
   boxWeight: '',
   unitWeight: '',
+  boxUnits: '',
+  looseAllowed: false,
   boxPrice: '',
   unitPrice: '',
   deliveryAreas: ['Maldonado'],
@@ -64,6 +68,8 @@ function fromProperty(p: Property): FormState {
     pricingMode: p.pricingMode ?? 'por_kilo',
     boxWeight: p.boxWeight === undefined ? '' : String(p.boxWeight),
     unitWeight: p.unitWeight === undefined ? '' : String(p.unitWeight),
+    boxUnits: p.boxUnits === undefined ? '' : String(p.boxUnits),
+    looseAllowed: p.looseAllowed === true,
     boxPrice: p.boxPrice === undefined ? '' : String(p.boxPrice),
     unitPrice: p.unitPrice === undefined ? '' : String(p.unitPrice),
     deliveryAreas: p.deliveryAreas?.length ? p.deliveryAreas : ['Maldonado'],
@@ -113,6 +119,7 @@ export default function PropertyForm({ initial, submitLabel, onSubmit }: Propert
     ] as const) {
       if (value !== '' && !(Number(value) > 0)) return `Ingresá ${label} (mayor a 0).`;
     }
+    if (form.boxUnits !== '' && !(Number.isInteger(Number(form.boxUnits)) && Number(form.boxUnits) >= 1)) return 'Las unidades por caja deben ser un número entero de 1 o más.';
     for (const [value, label] of [
       [form.boxPrice, 'el precio por caja'],
       [form.unitPrice, 'el precio por unidad'],
@@ -151,6 +158,8 @@ export default function PropertyForm({ initial, submitLabel, onSubmit }: Propert
         pricingMode: form.pricingMode,
         boxWeight: form.boxWeight === '' ? undefined : Number(form.boxWeight),
         unitWeight: form.unitWeight === '' ? undefined : Number(form.unitWeight),
+        boxUnits: form.boxUnits === '' ? undefined : Number(form.boxUnits),
+        looseAllowed: form.looseAllowed ? true : undefined,
         boxPrice: form.boxPrice === '' ? undefined : Number(form.boxPrice),
         unitPrice: form.unitPrice === '' ? undefined : Number(form.unitPrice),
         deliveryAreas: form.deliveryAreas,
@@ -254,9 +263,9 @@ export default function PropertyForm({ initial, submitLabel, onSubmit }: Propert
 
         <div className="space-y-3">
           <div>
-            <span className={labelClass}>Otras formas de comprar (opcional)</span>
+            <span className={labelClass}>Caja y unidades</span>
             <p className="text-xs text-[#515154] -mt-1">
-              Minoristas compran por kilo o por unidad; mayoristas por caja o por unidad. Con los pesos, los precios se calculan solos a partir del precio de arriba; o fijá un precio propio.
+              Los clientes mayoristas piden cajas. Indicá cuántas {form.pricingMode === 'por_atado' ? 'atados' : 'unidades'} trae la caja y cuánto pesa: el precio por unidad y por caja se calculan solos desde el precio de arriba, o fijá un precio propio.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-4 md:gap-6">
@@ -269,6 +278,10 @@ export default function PropertyForm({ initial, submitLabel, onSubmit }: Propert
               <input id="i-unitw" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.unitWeight} onChange={(e) => set('unitWeight', e.target.value)} placeholder="0.25" />
             </div>
             <div>
+              <label htmlFor="i-boxu" className={labelClass}>{form.pricingMode === 'por_atado' ? 'Atados por caja' : 'Unidades por caja'}</label>
+              <input id="i-boxu" type="number" min={1} step={1} inputMode="numeric" className={inputClass} value={form.boxUnits} onChange={(e) => set('boxUnits', e.target.value)} placeholder="12" />
+            </div>
+            <div>
               <label htmlFor="i-boxp" className={labelClass}>Precio por caja ($)</label>
               <input id="i-boxp" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.boxPrice} onChange={(e) => set('boxPrice', e.target.value)} placeholder="Automático" />
             </div>
@@ -277,6 +290,13 @@ export default function PropertyForm({ initial, submitLabel, onSubmit }: Propert
               <input id="i-unitp" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.unitPrice} onChange={(e) => set('unitPrice', e.target.value)} placeholder="Automático" />
             </div>
           </div>
+          <label className="flex items-start gap-3 rounded-xl bg-[#F5F5F7] px-4 py-3 text-sm cursor-pointer">
+            <input type="checkbox" className="mt-0.5" checked={form.looseAllowed} onChange={(e) => set('looseAllowed', e.target.checked)} />
+            <span>
+              <span className="font-medium">Se puede pedir suelto (excepción)</span>
+              <span className="block text-xs text-[#515154] mt-0.5">Por defecto los clientes piden cajas. Con esto también pueden pedir por unidad (o atado) este producto.</span>
+            </span>
+          </label>
         </div>
 
         <fieldset>

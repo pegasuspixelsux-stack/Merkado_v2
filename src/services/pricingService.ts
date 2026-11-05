@@ -62,6 +62,7 @@ export function toClient(id: string, d: DocumentData): Client {
     receivingTime: d.receivingTime ?? '',
     email: d.email ?? '',
     pin: /^\d{4}$/.test(d.pin ?? '') ? d.pin : '',
+    allowLoose: d.allowLoose === true,
     paymentMethod: (PAYMENT_METHODS as readonly string[]).includes(d.paymentMethod) ? d.paymentMethod : 'house_account',
     taxRate: typeof d.taxRate === 'number' ? d.taxRate : 0,
     shippingFee: typeof d.shippingFee === 'number' ? d.shippingFee : 0,
@@ -84,6 +85,7 @@ export function toClientAccess(token: string, d: DocumentData): ClientAccess {
     receivingTime: d.receivingTime ?? '',
     email: d.email ?? '',
     notes: d.notes ?? '',
+    allowLoose: d.allowLoose === true,
     favorites: Array.isArray(d.favorites) ? d.favorites.filter((x: unknown): x is string => typeof x === 'string') : [],
     priceLevelId: d.priceLevelId ?? '',
     levelName: d.levelName ?? '',
@@ -190,6 +192,7 @@ export interface ClientInput {
   receivingTime: string;
   email: string;
   pin: string;
+  allowLoose: boolean;
   paymentMethod: PaymentMethod;
   taxRate: number;
   shippingFee: number;
@@ -207,6 +210,7 @@ const accessData = (clientId: string, c: ClientInput, level: PriceLevel) => ({
   receivingTime: c.receivingTime,
   email: c.email.trim(),
   notes: c.notes.trim(),
+  allowLoose: c.allowLoose,
   priceLevelId: level.id,
   levelName: level.name,
   categoryAdjustments: level.categoryAdjustments,
@@ -222,6 +226,7 @@ const clientData = (c: ClientInput) => ({
   receivingTime: c.receivingTime,
   email: c.email.trim(),
   pin: c.pin,
+  allowLoose: c.allowLoose,
   paymentMethod: c.paymentMethod,
   taxRate: c.taxRate,
   shippingFee: c.shippingFee,

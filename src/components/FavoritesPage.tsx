@@ -7,7 +7,7 @@ import { useClient } from '@/src/context/ClientContext';
 import { getCategories } from '@/src/services/dbService';
 import { getFavorites } from '@/src/services/favoritesService';
 import { toHomeProperty, type HomeProperty } from '@/src/lib/homeData';
-import { applyLevel } from '@/src/utils/pricing';
+import { applyBoxFirst, applyLevel } from '@/src/utils/pricing';
 import { formatMoney, mergeCategories, priceWithShortUnit, quantityLabel } from '@/src/utils/format';
 import CartDrawer, { unitPriceOf, type CartLine } from '@/src/components/CartDrawer';
 import FavoriteButton from '@/src/components/FavoriteButton';
@@ -59,9 +59,9 @@ export default function FavoritesPage() {
 
   // Today's price for this customer's level, in the order the customer saved them.
   const priced = useMemo(() => {
-    const byId = new Map(applyLevel(products, level).map((p) => [String(p.id), p]));
+    const byId = new Map(applyBoxFirst(applyLevel(products, level), level, client?.allowLoose ?? false).map((p) => [String(p.id), p]));
     return favorites.map((id) => byId.get(id)).filter((p): p is HomeProperty => !!p);
-  }, [products, level, favorites]);
+  }, [products, level, favorites, client?.allowLoose]);
   const available = priced.filter((p) => p.inStock !== false);
   const soldOut = priced.filter((p) => p.inStock === false);
 

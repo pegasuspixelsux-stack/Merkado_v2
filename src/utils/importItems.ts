@@ -14,6 +14,10 @@ export const IMPORT_COLUMNS = [
   'Precio mayorista',
   'URL de imagen',
   'Modalidad de precio',
+  'Unidades por caja',
+  'Peso por caja',
+  'Peso por unidad',
+  'Suelto',
 ] as const;
 
 type Field =
@@ -27,7 +31,11 @@ type Field =
   | 'salePrice'
   | 'wholesalePrice'
   | 'image'
-  | 'pricingMode';
+  | 'pricingMode'
+  | 'boxUnits'
+  | 'boxWeight'
+  | 'unitWeight'
+  | 'looseAllowed';
 
 /** Header names (after normalising) that map to each field. */
 const HEADERS: Record<Field, string[]> = {
@@ -42,6 +50,10 @@ const HEADERS: Record<Field, string[]> = {
   wholesalePrice: ['Precio mayorista', 'Wholesale price'],
   pricingMode: ['Modalidad de precio', 'Modalidad', 'Pricing mode'],
   image: ['URL de imagen', 'Imagen', 'Image URL', 'Image'],
+  boxUnits: ['Unidades por caja', 'Atados por caja', 'Unidades caja', 'Units per box'],
+  boxWeight: ['Peso por caja', 'Peso caja', 'Box weight'],
+  unitWeight: ['Peso por unidad', 'Peso unidad', 'Unit weight'],
+  looseAllowed: ['Suelto', 'Se puede pedir suelto', 'Loose'],
 };
 
 const REQUIRED: { field: Field; label: string }[] = [
@@ -174,6 +186,11 @@ export function parseItemRows(data: unknown[][], existing: Category[]): ParsedIm
     const wholesalePrice = text(wholesaleRaw) === '' ? undefined : toNumber(wholesaleRaw);
     const image = text(cell(row, 'image'));
     const pricingMode = toPricingMode(cell(row, 'pricingMode'));
+    const optNum = (f: Field) => (text(cell(row, f)) === '' ? undefined : toNumber(cell(row, f)));
+    const boxUnits = optNum('boxUnits');
+    const boxWeight = optNum('boxWeight');
+    const unitWeight = optNum('unitWeight');
+    const looseAllowed = ['si', 'yes', 'y', 's', 'true', '1'].includes(norm(cell(row, 'looseAllowed')));
 
     if (!title) return fail('Falta el título.');
     if (!description) return fail('Falta la descripción.');
@@ -183,6 +200,9 @@ export function parseItemRows(data: unknown[][], existing: Category[]): ParsedIm
     if (!categoryName) return fail('Falta la categoría.');
     if (pricingMode === null) return fail('"Modalidad de precio" debe ser: por kilo, por caja, por atado, por unidad o por bolsón.');
     if (inStock === null) return fail('"En stock" debe ser sí o no.');
+    if (boxUnits === null || (boxUnits !== undefined && (!Number.isInteger(boxUnits) || boxUnits < 1))) return fail('"Unidades por caja" debe ser un número entero de 1 o más.');
+    if (boxWeight === null || (boxWeight !== undefined && boxWeight <= 0)) return fail('"Peso por caja" debe ser un número mayor a 0.');
+    if (unitWeight === null || (unitWeight !== undefined && unitWeight <= 0)) return fail('"Peso por unidad" debe ser un número mayor a 0.');
     if (salePrice === null) return fail('El precio de oferta debe ser un número.');
     if (salePrice !== undefined && salePrice >= price) return fail('El precio de oferta debe ser menor al precio minorista.');
     if (wholesalePrice === null) return fail('El precio mayorista debe ser un número.');
@@ -213,6 +233,10 @@ export function parseItemRows(data: unknown[][], existing: Category[]): ParsedIm
       status: 'active',
       featured: false,
       pricingMode,
+      ...(boxUnits !== undefined ? { boxUnits } : {}),
+      ...(boxWeight !== undefined ? { boxWeight } : {}),
+      ...(unitWeight !== undefined ? { unitWeight } : {}),
+      ...(looseAllowed ? { looseAllowed: true } : {}),
       deliveryAreas: ['Maldonado'],
       location: { city: '', country: '' },
       specs: { bedrooms: 0, bathrooms: 0, areaM2: 0 },

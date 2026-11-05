@@ -41,6 +41,10 @@ export interface SaleSource {
   unitWeight?: number;
   boxPrice?: number;
   unitPrice?: number;
+  /** Units (or atados) per box. */
+  boxUnits?: number;
+  /** Exception: the item may also be ordered loose. */
+  looseAllowed?: boolean;
 }
 
 /** One way to buy an item: the unit and its list (and sale) price. */
@@ -53,10 +57,15 @@ export interface SaleOption {
 /**
  * The units an item can be bought in. `price` is per the item's base unit (`pricingMode`);
  * the other units are worked out from it with the box / unit weight, unless a manual price is set.
- * Retail customers get kilo or unidad; wholesale customers get caja or unidad.
- * An item that cannot offer those (no weights, or sold por atado / bolsón) offers just its base unit.
+ * Retail customers get kilo or unidad. Wholesale customers order BOXES; they only also get loose units
+ * (unidad) when the item is marked "se puede pedir suelto" or the client has that exception.
+ * An item that has no box information offers just its base unit (it cannot be forced into a box).
  */
-export function saleOptions(src: SaleSource, audience: 'retail' | 'wholesale'): SaleOption[] {
+export function saleOptions(
+  src: SaleSource,
+  audience: 'retail' | 'wholesale',
+  opts: { allowLoose?: boolean } = {},
+): SaleOption[] {
   const base: PricingMode = src.pricingMode ?? 'por_kilo';
   const bw = src.boxWeight && src.boxWeight > 0 ? src.boxWeight : undefined;
   const uw = src.unitWeight && src.unitWeight > 0 ? src.unitWeight : undefined;
@@ -90,9 +99,36 @@ export function saleOptions(src: SaleSource, audience: 'retail' | 'wholesale'): 
     else if (s) all.por_unidad = { ...s, mode: 'por_unidad' };
   }
 
+  // Units per box: the box and the unit price follow from each other (a bunch counts as a unit).
+  const bu = src.boxUnits && src.boxUnits >= 1 ? src.boxUnits : undefined;
+  if (bu) {
+    if (!all.por_unidad && base === 'por_caja') {
+      all.por_unidad = { mode: 'por_unidad', price: round2(src.price / bu), salePrice: src.salePrice === undefined ? undefined : round2(src.salePrice / bu) };
+    }
+    if (!all.por_caja && (base === 'por_unidad' || base === 'por_atado')) {
+      all.por_caja = { mode: 'por_caja', price: round2(src.price * bu), salePrice: src.salePrice === undefined ? undefined : round2(src.salePrice * bu) };
+    }
+  }
+
+  if (audience === 'wholesale' && all.por_caja) {
+    const loose = src.looseAllowed || opts.allowLoose;
+    const looseOption = all.por_unidad ?? (base !== 'por_caja' ? all[base] : undefined);
+    return loose && looseOption ? [all.por_caja, looseOption] : [all.por_caja];
+  }
+
   const wanted: PricingMode[] = audience === 'wholesale' ? ['por_caja', 'por_unidad'] : ['por_kilo', 'por_unidad'];
   const picked = wanted.map((m) => all[m]).filter((o): o is SaleOption => !!o);
   return picked.length ? picked : [all[base] as SaleOption];
+}
+
+/** "Caja de 12 unidades · 6 kg" (empty when the item has no box information). */
+export function boxDescription(src: Pick<SaleSource, 'pricingMode' | 'boxUnits' | 'boxWeight'>): string {
+  const noun = src.pricingMode === 'por_atado' ? 'atados' : 'unidades';
+  const parts = [
+    src.boxUnits ? `${src.boxUnits} ${src.boxUnits === 1 ? noun.slice(0, -1) : noun}` : '',
+    src.boxWeight ? `${String(src.boxWeight).replace('.', ',')} kg` : '',
+  ].filter(Boolean);
+  return parts.length ? `Caja de ${parts.join(' · ')}` : '';
 }
 
 /** What the customer pays for one option (their level's price, or the sale / list price) and the price it replaces. */
@@ -122,6 +158,45 @@ export function applyLevel(items: HomeProperty[], level: LevelAdjustments | null
       price: withUnitSuffix(formatMoney(tier), p.pricingMode),
       salePrice: onSale ? withUnitSuffix(formatMoney(unit), p.pricingMode) : undefined,
       unitPrice: unit,
+    };
+  });
+}
+
+/**
+ * Wholesale clients order boxes: items that have box information are shown (and added to the cart) per box,
+ * at the client's level price. `allowLoose` is the client-level exception (they may also order loose).
+ * Items without box information keep their own unit.
+ */
+export function applyBoxFirst(items: HomeProperty[], level: LevelAdjustments | null, allowLoose = false): HomeProperty[] {
+  if (!level) return items;
+  return items.map((p) => {
+    if (p.listPrice === undefined || !p.sale) return p;
+    const options = saleOptions(
+      {
+        price: p.listPrice,
+        salePrice: p.sale.salePrice,
+        pricingMode: p.pricingMode,
+        boxWeight: p.sale.boxWeight,
+        unitWeight: p.sale.unitWeight,
+        boxPrice: p.sale.boxPrice,
+        unitPrice: p.sale.manualUnitPrice,
+        boxUnits: p.sale.boxUnits,
+        looseAllowed: p.sale.looseAllowed,
+      },
+      'wholesale',
+      { allowLoose },
+    );
+    const box = options[0];
+    if (!box || box.mode !== 'por_caja') return p;
+    const { unit, was } = optionPrice(box, p.type, level);
+    return {
+      ...p,
+      pricingMode: 'por_caja',
+      price: withUnitSuffix(formatMoney(was ?? unit), 'por_caja'),
+      salePrice: was !== undefined ? withUnitSuffix(formatMoney(unit), 'por_caja') : undefined,
+      unitPrice: unit,
+      listPrice: box.price,
+      area: boxDescription({ pricingMode: p.pricingMode, boxUnits: p.sale.boxUnits, boxWeight: p.sale.boxWeight }) || p.area,
     };
   });
 }

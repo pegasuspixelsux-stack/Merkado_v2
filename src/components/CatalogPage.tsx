@@ -13,7 +13,7 @@ import FavoriteButton from '@/src/components/FavoriteButton';
 import SiteNavLinks from '@/src/components/SiteNavLinks';
 import MobileNavMenu from '@/src/components/MobileNavMenu';
 import { useClient } from '@/src/context/ClientContext';
-import { applyLevel } from '@/src/utils/pricing';
+import { applyBoxFirst, applyLevel } from '@/src/utils/pricing';
 import SimilarItems, { type SimilarItem } from '@/src/components/SimilarItems';
 
 const PAGE_SIZE = 12;
@@ -40,8 +40,9 @@ const labelClass = 'block text-[10px] uppercase tracking-wider font-semibold tex
 
 export default function CatalogPage({ items: baseItems }: { items: HomeProperty[] }) {
   // A customer who opened their access link sees their price level; everyone else sees list prices.
-  const { level } = useClient();
-  const items = useMemo(() => applyLevel(baseItems, level), [baseItems, level]);
+  const { client, level } = useClient();
+  const allowLoose = client?.allowLoose ?? false;
+  const items = useMemo(() => applyBoxFirst(applyLevel(baseItems, level), level, allowLoose), [baseItems, level, allowLoose]);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('all');
   const [availability, setAvailability] = useState<Availability>('all');
