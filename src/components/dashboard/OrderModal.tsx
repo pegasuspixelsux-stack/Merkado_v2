@@ -9,6 +9,7 @@ import { PAYMENT_METHODS, paymentMethodLabels } from '@/src/types/firestore';
 import type { Client, Lead, LeadStatus, PaymentMethod, PricingMode, Property } from '@/src/types/firestore';
 import { formatMoney, pricingModeLabels, whatsappUrl } from '@/src/utils/format';
 import { boxDescription } from '@/src/utils/pricing';
+import { modeOfLine } from '@/src/utils/orders';
 import { inputClass, labelClass } from '@/src/components/dashboard/ui';
 
 /** Order flow: Nuevo -> Aceptado (contacted) -> Confirmado (closed). */
@@ -46,17 +47,6 @@ function parseMessage(message: string) {
     whatsapp: wa && wa !== '—' ? wa : '',
     instructions: pick('Instrucciones especiales:'),
   };
-}
-
-/** The unit the customer ordered in, read from the order line ("2 Cajas @ $54/caja"). */
-function modeOfLine(message: string, fallback: PricingMode): PricingMode {
-  const noun = message.match(/ - \d+ ([^@\n]+?) @/)?.[1]?.trim().toLowerCase() ?? '';
-  if (noun.startsWith('caj')) return 'por_caja';
-  if (noun.startsWith('kil')) return 'por_kilo';
-  if (noun.startsWith('unid')) return 'por_unidad';
-  if (noun.startsWith('atad')) return 'por_atado';
-  if (noun.startsWith('bols')) return 'por_bolson';
-  return fallback;
 }
 
 /** "Caja de 12 unidades · 6 kg", "Unidad · 0,3 kg", "Kilo"… the unit a line is sold in. */

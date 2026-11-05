@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   Building2,
+  ClipboardList,
   Inbox,
   LayoutDashboard,
   LogOut,
@@ -31,6 +32,7 @@ const nav = [
   { href: '/dashboard/price-levels', label: 'Niveles de precio', icon: Percent },
   { href: '/dashboard/customers', label: 'Clientes', icon: Users },
   { href: '/dashboard/leads', label: 'Pedidos', icon: Inbox },
+  { href: '/dashboard/daily-order', label: 'Pedido del día', icon: ClipboardList },
   { href: '/dashboard/settings', label: 'Ajustes', icon: Settings },
 ];
 

@@ -1,4 +1,4 @@
-import type { Lead, LeadStatus } from '../types/firestore';
+import type { Lead, LeadStatus, PricingMode } from '../types/firestore';
 
 /** An order: every product line the customer sent together (the cart saves one lead per product). */
 export interface OrderGroup {
@@ -58,4 +58,28 @@ export function orderNumberOf(group: OrderGroup): string {
   const d = l.createdAt ? new Date(l.createdAt) : new Date();
   const ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
   return `MK-${ymd}-${(l.orderId || l.id).slice(0, 4).toUpperCase()}`;
+}
+
+/** The unit the customer ordered in, read from the order line ("2 Cajas @ $54/caja"). */
+export function modeOfLine(message: string, fallback: PricingMode = 'por_kilo'): PricingMode {
+  const noun = message.match(/ - \d+ ([^@\n]+?) @/)?.[1]?.trim().toLowerCase() ?? '';
+  if (noun.startsWith('caj')) return 'por_caja';
+  if (noun.startsWith('kil')) return 'por_kilo';
+  if (noun.startsWith('unid')) return 'por_unidad';
+  if (noun.startsWith('atad')) return 'por_atado';
+  if (noun.startsWith('bols')) return 'por_bolson';
+  return fallback;
+}
+
+const pad2 = (n: number) => String(n).padStart(2, '0');
+/** Local calendar day as YYYY-MM-DD. */
+export const dayKey = (ms: number) => {
+  const d = new Date(ms);
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+};
+
+/** The day an order is for: the delivery / pickup date the customer chose, else the day it was placed. */
+export function orderDay(group: OrderGroup): string {
+  const m = group.primary.message.match(/Hora de (?:recepción|retiro): (\d{4}-\d{2}-\d{2})/);
+  return m ? m[1] : dayKey(group.createdAt);
 }

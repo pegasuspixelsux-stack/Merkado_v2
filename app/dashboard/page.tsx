@@ -59,8 +59,8 @@ export default function OverviewPage() {
     <>
       <PageHeader
         eyebrow="Resumen"
-        title={`Bienvenido/a${agent?.name ? `, ${agent.name.split(' ')[0]}` : ''}`}
-        description="Esto es lo que está pasando con tu inventario."
+        title="Panel de Ventas"
+        description="Esto es lo que está pasando con tus ventas y tu inventario."
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
