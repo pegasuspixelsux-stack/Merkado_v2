@@ -118,7 +118,8 @@ export async function loadHomeData(): Promise<{ properties: HomeProperty[]; slid
     const categories = mergeCategories(custom);
     const label = (t: string) => categories.find((c) => c.id === t)?.name ?? t;
     const featured = active.filter((p) => p.featured);
-    const hero = (featured.length ? featured : active).slice(0, 5);
+    // Always 5 slides: the featured items first, topped up with the newest ones.
+    const hero = [...featured, ...active.filter((p) => !p.featured)].slice(0, 5);
     return { properties: active.map((p) => toHomeProperty(p, label)), slides: hero.map((p) => toSlide(p, label)) };
   } catch {
     return { properties: [], slides: [] }; // the page falls back to its built-in samples

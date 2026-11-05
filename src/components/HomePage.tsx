@@ -381,14 +381,19 @@ export default function MerkadoHome({
                   {slide.tagline}
                 </p>
               </div>
-              <div className="hidden md:block md:pr-16">
-                <a
-                  href="#contact"
-                  className="inline-flex items-center space-x-2 bg-white text-black px-6 py-3 rounded-full text-sm font-medium hover:bg-white/90 transition-all"
+              <div className="md:pr-16">
+                <button
+                  type="button"
+                  onClick={() => {
+                    addToCart(String(slide.id));
+                    setCartOpen(true);
+                  }}
+                  aria-label={`Pedido rápido: ${slide.title}`}
+                  className="inline-flex items-center space-x-2 bg-white text-black px-6 py-3 rounded-full text-sm font-medium hover:bg-white/90 active:scale-95 transition-all"
                 >
-                  <span>Pedir detalles</span>
-                  <ArrowUpRight className="w-4 h-4" />
-                </a>
+                  <span>Pedido rápido</span>
+                  <ShoppingCart className="w-4 h-4" />
+                </button>
               </div>
             </div>
           </div>
