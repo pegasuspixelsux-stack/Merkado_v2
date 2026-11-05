@@ -2,7 +2,7 @@
 
 import SignInNotice from '@/src/components/SignInNotice';
 import { useState } from 'react';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { Minus, Plus } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { formatMoney, priceWithShortUnit, pricingModeLabels, quantityLabel, quantityNounPlural } from '@/src/utils/format';
@@ -64,7 +64,9 @@ export default function BuyBox({
     setFormError(null);
     setState('sending');
     try {
-      await addDoc(collection(db, 'leads'), {
+      const ref = doc(collection(db, 'leads'));
+      await setDoc(ref, {
+        orderId: ref.id,
         name: client ? `${client.businessName}${name !== client.businessName ? ` (${name})` : ''}` : name,
         phone,
         email: form.email.trim(),

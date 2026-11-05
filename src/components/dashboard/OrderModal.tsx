@@ -28,7 +28,7 @@ const num = (v: string) => (v.trim() === '' ? undefined : Number(v.replace(',', 
 export function orderNumber(lead: Lead): string {
   const d = lead.createdAt ? new Date(lead.createdAt) : new Date();
   const ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
-  return `MK-${ymd}-${lead.id.slice(0, 4).toUpperCase()}`;
+  return `MK-${ymd}-${(lead.orderId || lead.id).slice(0, 4).toUpperCase()}`;
 }
 
 /** Delivery details the cart wrote into the order message, one per line. */

@@ -161,6 +161,8 @@ export interface Lead {
   quantity?: number;
   /** Price level applied to the order ('list_price' = no level). */
   priceLevelId?: string;
+  /** Shared by every product line of the same order; older orders do not have one. */
+  orderId?: string;
   /** Pick-slip extras the operator sets: payment form, tax % and shipping fee. */
   paymentMethod?: PaymentMethod;
   taxRate?: number;
@@ -206,6 +208,8 @@ export interface Client {
   /** Usual receiving hour, "HH:MM". */
   receivingTime: string;
   email: string;
+  /** 4-digit PIN the customer types with their phone to sign in ("" = none). */
+  pin: string;
   /** How the customer pays: house account, card or cash. */
   paymentMethod: PaymentMethod;
   /** Tax (IVA) percentage added to their orders; 0 = none. */

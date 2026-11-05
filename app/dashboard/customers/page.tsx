@@ -9,6 +9,7 @@ import {
   codeOfToken,
   createClient,
   deleteClient,
+  newPin,
   phoneKey,
   resetClientAccess,
   updateClient,
@@ -17,7 +18,7 @@ import {
 import { PAYMENT_METHODS, paymentMethodLabels, type Client, type PaymentMethod } from '@/src/types/firestore';
 import { PageHeader, cardClass, inputClass, labelClass } from '@/src/components/dashboard/ui';
 
-const emptyForm: ClientInput = { businessName: '', contactName: '', phone: '', address: '', receivingTime: '', email: '', paymentMethod: 'house_account', taxRate: 0, shippingFee: 0, notes: '', priceLevelId: 'level_1', status: 'active' };
+const emptyForm: ClientInput = { businessName: '', contactName: '', phone: '', address: '', receivingTime: '', email: '', pin: '', paymentMethod: 'house_account', taxRate: 0, shippingFee: 0, notes: '', priceLevelId: 'level_1', status: 'active' };
 
 /** International number for wa.me: Uruguayan numbers saved without the country code get 598. */
 const waNumber = (phone: string) => {
@@ -28,6 +29,12 @@ const waNumber = (phone: string) => {
 export default function CustomersPage() {
   const { agent } = useAuth();
   const { clients, loading, error } = useClients();
+  const [search, setSearch] = useState('');
+  const norm = (v: string) => v.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  const shown = clients.filter((c) => {
+    const q = norm(search.trim());
+    return !q || norm(`${c.businessName} ${c.contactName} ${c.phone} ${c.email}`).includes(q);
+  });
   const { levels } = usePriceLevels();
   const [editing, setEditing] = useState<Client | 'new' | null>(null);
   const [form, setForm] = useState<ClientInput>(emptyForm);
@@ -35,7 +42,7 @@ export default function CustomersPage() {
   const [formError, setFormError] = useState<string | null>(null);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   // Shown after creating a customer or resetting access: the link and code to hand over.
-  const [access, setAccess] = useState<{ name: string; phone: string; contact: string; token: string } | null>(null);
+  const [access, setAccess] = useState<{ name: string; phone: string; contact: string; token: string; pin: string } | null>(null);
 
   const levelOf = (id: string) => levels.find((l) => l.id === id);
   const fail = (err: unknown, fallback: string) => {
@@ -58,12 +65,13 @@ export default function CustomersPage() {
   const open = (c: Client | 'new') => {
     setEditing(c);
     setFormError(null);
-    setForm(c === 'new' ? emptyForm : { businessName: c.businessName, contactName: c.contactName, phone: c.phone, address: c.address, receivingTime: c.receivingTime, email: c.email, paymentMethod: c.paymentMethod, taxRate: c.taxRate, shippingFee: c.shippingFee, notes: c.notes, priceLevelId: c.priceLevelId, status: c.status });
+    setForm(c === 'new' ? emptyForm : { businessName: c.businessName, contactName: c.contactName, phone: c.phone, address: c.address, receivingTime: c.receivingTime, email: c.email, pin: c.pin, paymentMethod: c.paymentMethod, taxRate: c.taxRate, shippingFee: c.shippingFee, notes: c.notes, priceLevelId: c.priceLevelId, status: c.status });
   };
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.businessName.trim()) return setFormError('Ingresá el nombre del negocio.');
+    if (!/^\d{4}$/.test(form.pin)) return setFormError('El PIN tiene que ser de 4 números.');
     if (!form.contactName.trim()) return setFormError('Ingresá el nombre de contacto.');
     if (!form.address.trim()) return setFormError('Ingresá la dirección de entrega.');
     if (!form.receivingTime) return setFormError('Ingresá la hora de recepción.');
@@ -76,12 +84,12 @@ export default function CustomersPage() {
     try {
       if (editing === 'new') {
         const token = await createClient(form, level);
-        setAccess({ name: form.businessName.trim(), phone: form.phone.trim(), contact: form.contactName.trim(), token });
+        setAccess({ name: form.businessName.trim(), phone: form.phone.trim(), contact: form.contactName.trim(), token, pin: form.pin });
         setMessage({ ok: true, text: `Se creó “${form.businessName.trim()}”. Entregale el acceso.` });
       } else if (editing) {
         const renewed = await updateClient(editing, form, level);
         if (renewed) {
-          setAccess({ name: form.businessName.trim(), phone: form.phone.trim(), contact: form.contactName.trim(), token: renewed });
+          setAccess({ name: form.businessName.trim(), phone: form.phone.trim(), contact: form.contactName.trim(), token: renewed, pin: form.pin });
           setMessage({ ok: true, text: 'Cambió el teléfono, así que se generó un acceso nuevo. Entregáselo al cliente.' });
         } else {
           setMessage({ ok: true, text: 'Cliente actualizado.' });
@@ -114,7 +122,7 @@ export default function CustomersPage() {
     setMessage(null);
     try {
       const token = await resetClientAccess(c, level);
-      setAccess({ name: c.businessName, phone: c.phone, contact: c.contactName, token });
+      setAccess({ name: c.businessName, phone: c.phone, contact: c.contactName, token, pin: c.pin });
       setMessage({ ok: true, text: 'Acceso restablecido. Entregale el nuevo enlace.' });
     } catch (err) {
       fail(err, 'No se pudo restablecer el acceso.');
@@ -136,7 +144,7 @@ export default function CustomersPage() {
   const code = access ? codeOfToken(access.token) : '';
   const copy = (text: string) => void navigator.clipboard?.writeText(text);
   const whatsappText = access
-    ? `Hola${access.contact ? ` ${access.contact}` : ''}, este es tu acceso a Merkado para ver tus precios mayoristas: ${link}\nTambién podés ingresar con “Acceso mayoristas” usando tu teléfono y este código: ${code}`
+    ? `Hola${access.contact ? ` ${access.contact}` : ''}, este es tu acceso a Merkado para ver tus precios mayoristas: ${link}\nTambién podés ingresar con “Acceso mayoristas” usando tu teléfono y este PIN: ${access.pin || code}`
     : '';
 
   return (
@@ -170,12 +178,24 @@ export default function CustomersPage() {
             <code className="text-xs bg-[#F5F5F7] rounded-xl px-3 py-2.5 break-all">{link}</code>
             <button type="button" onClick={() => copy(link)} className="inline-flex items-center justify-center gap-2 text-xs font-medium px-4 py-2.5 rounded-full bg-[#F5F5F7] hover:bg-[#E8E8ED]"><Copy className="w-3.5 h-3.5" /> Copiar enlace</button>
           </div>
-          <p className="text-sm">Teléfono: <strong>{access.phone}</strong> · Código: <strong className="tracking-widest">{code}</strong></p>
+          <p className="text-sm">Teléfono: <strong>{access.phone}</strong> · PIN: <strong className="tracking-widest">{access.pin || code}</strong></p>
           <a href={`https://wa.me/${waNumber(access.phone)}?text=${encodeURIComponent(whatsappText)}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-xs font-medium px-4 py-2.5 rounded-full bg-[#1D1D1F] text-white hover:bg-[#333336]">
             <MessageCircle className="w-3.5 h-3.5" /> Enviar por WhatsApp
           </a>
         </div>
       )}
+
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <input
+          type="search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Buscar por negocio, contacto, teléfono o correo…"
+          aria-label="Buscar clientes"
+          className={`${inputClass} max-w-md`}
+        />
+        <p className="text-xs text-[#515154] shrink-0">{search ? `${shown.length} de ${clients.length}` : `${clients.length} ${clients.length === 1 ? 'cliente' : 'clientes'}`}</p>
+      </div>
 
       <div className={`${cardClass} overflow-x-auto`}>
         <table className="w-full text-sm">
@@ -193,7 +213,10 @@ export default function CustomersPage() {
             {!loading && clients.length === 0 && (
               <tr><td colSpan={5} className="px-5 py-6 text-[#515154]">Todavía no hay clientes. Agregá el primero con “Agregar cliente mayorista”.</td></tr>
             )}
-            {clients.map((c) => (
+            {!loading && clients.length > 0 && shown.length === 0 && (
+              <tr><td colSpan={5} className="px-5 py-6 text-[#515154]">Ningún cliente coincide con la búsqueda.</td></tr>
+            )}
+            {shown.map((c) => (
               <tr key={c.id}>
                 <td className="px-5 py-4">
                   <p className="font-medium">{c.businessName}</p>
@@ -255,6 +278,14 @@ export default function CustomersPage() {
             <div>
               <label htmlFor="c-address" className={labelClass}>Dirección de entrega</label>
               <textarea id="c-address" rows={2} className={`${inputClass} resize-none`} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+            </div>
+            <div>
+              <label htmlFor="c-pin" className={labelClass}>PIN de acceso (4 números)</label>
+              <div className="flex gap-2">
+                <input id="c-pin" inputMode="numeric" maxLength={4} className={`${inputClass} tracking-[0.4em] font-semibold`} value={form.pin} onChange={(e) => setForm({ ...form, pin: e.target.value.replace(/\D/g, '').slice(0, 4) })} placeholder="0000" />
+                <button type="button" onClick={() => setForm({ ...form, pin: newPin() })} className="shrink-0 rounded-xl border border-[#000000]/10 px-4 text-xs font-medium hover:bg-[#F5F5F7]">Generar</button>
+              </div>
+              <p className="text-xs text-[#86868B] mt-1">El cliente entra con su teléfono + este PIN. Pasáselo por WhatsApp.</p>
             </div>
             <div>
               <label htmlFor="c-email" className={labelClass}>Correo electrónico</label>

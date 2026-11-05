@@ -7,6 +7,7 @@ import LeadList from '@/src/components/LeadList';
 import AddOrder from '@/src/components/dashboard/AddOrder';
 import { PageHeader, cardClass } from '@/src/components/dashboard/ui';
 import type { LeadStatus } from '@/src/types/firestore';
+import { groupOrders, withoutPartialOrder } from '@/src/utils/orders';
 
 const filters: { value: LeadStatus | 'all'; label: string }[] = [
   { value: 'all', label: 'Todos' },
@@ -15,13 +16,19 @@ const filters: { value: LeadStatus | 'all'; label: string }[] = [
   { value: 'closed', label: 'Confirmados' },
 ];
 
+const LIMIT = 500;
+
 export default function LeadsPage() {
   const { agent } = useAuth();
-  const { leads, loading, error } = useLeads(200);
+  const { leads: loaded, loading, error } = useLeads(LIMIT);
   const [filter, setFilter] = useState<LeadStatus | 'all'>('all');
 
-  const visible = filter === 'all' ? leads : leads.filter((l) => l.status === filter);
-  const count = (s: LeadStatus | 'all') => (s === 'all' ? leads.length : leads.filter((l) => l.status === s).length);
+  // The list loads the newest records only; an order cut at the edge is dropped instead of shown incomplete.
+  const leads = withoutPartialOrder(loaded, LIMIT);
+  const truncated = loaded.length >= LIMIT;
+  const orders = groupOrders(leads);
+  const visible = (filter === 'all' ? orders : orders.filter((o) => o.status === filter)).flatMap((o) => o.lines);
+  const count = (s: LeadStatus | 'all') => (s === 'all' ? orders.length : orders.filter((o) => o.status === s).length);
 
   return (
     <>
@@ -59,10 +66,15 @@ export default function LeadsPage() {
           <LeadList
             leads={visible}
             agentName={agent?.name ?? ''}
-            emptyText={leads.length ? 'No hay pedidos con este estado.' : 'Todavía no hay pedidos. Los pedidos del sitio aparecen acá al instante.'}
+            emptyText={orders.length ? 'No hay pedidos con este estado.' : 'Todavía no hay pedidos. Los pedidos del sitio aparecen acá al instante.'}
           />
         )}
       </div>
+      {truncated && (
+        <p className="mt-3 text-xs text-[#86868B]">
+          Mostrando los pedidos más recientes (hasta {LIMIT} productos). Los más viejos no se muestran en esta lista.
+        </p>
+      )}
     </>
   );
 }

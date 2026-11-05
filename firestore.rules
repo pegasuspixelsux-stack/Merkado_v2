@@ -108,7 +108,7 @@ service cloud.firestore {
       allow create: if request.resource.data.keys().hasOnly([
             'name', 'email', 'property', 'message', 'status', 'createdAt',
             'propertyId', 'clientName', 'phone', 'channel',
-            'unitPrice', 'quantity', 'clientId', 'priceLevelId'
+            'unitPrice', 'quantity', 'clientId', 'priceLevelId', 'orderId'
           ])
         && request.resource.data.status == 'new'
         && request.resource.data.createdAt == request.time
@@ -132,6 +132,8 @@ service cloud.firestore {
             || (request.resource.data.clientId is string && request.resource.data.clientId.size() <= 64))
         && (!('priceLevelId' in request.resource.data)
             || (request.resource.data.priceLevelId is string && request.resource.data.priceLevelId.size() <= 40))
+        && (!('orderId' in request.resource.data)
+            || (request.resource.data.orderId is string && request.resource.data.orderId.size() <= 64))
         && (!('channel' in request.resource.data)
             || request.resource.data.channel in ['WhatsApp', 'Portal', 'Direct']);
 
@@ -205,6 +207,15 @@ service cloud.firestore {
     // ---------------------------------------------------------------- users
     // users/{uid} is the agent profile. You can read your own; admins read and manage all.
     // Agents may edit their own name, phone and avatar but never their role or active flag.
+
+    // client_pins/{phone}-{pin}: lets a customer sign in with phone + 4-digit PIN. It only holds a pointer
+    // to their access token. Reading one entry needs both values; listing is blocked. Only admins write.
+
+    match /client_pins/{id} {
+      allow get: if true;
+      allow list: if false;
+      allow create, update, delete: if isAdmin();
+    }
 
     match /users/{uid} {
       allow read: if signedIn() && (request.auth.uid == uid || isAdmin());

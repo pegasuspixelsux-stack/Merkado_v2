@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import { ArrowUpRight, Building2, ClipboardList, DollarSign, Inbox } from 'lucide-react';
 import { useAuth } from '@/src/context/AuthContext';
 import { useLeads } from '@/src/hooks/useLeads';
+import { groupOrders } from '@/src/utils/orders';
 import { useProperties } from '@/src/hooks/useProperties';
 import LeadList from '@/src/components/LeadList';
 import PropertyImage from '@/src/components/PropertyImage';
@@ -50,7 +51,7 @@ export default function OverviewPage() {
   const stats = [
     { label: 'Artículos', value: `${items.length}${hasMore ? '+' : ''}`, icon: Building2 },
     { label: 'Pedidos totales', value: leads.length, icon: ClipboardList },
-    { label: 'Pedidos nuevos', value: leads.filter((l) => l.status === 'new').length, icon: Inbox },
+    { label: 'Pedidos nuevos', value: groupOrders(leads).filter((g) => g.status === 'new').length, icon: Inbox },
     { label: 'Ventas', value: money(salesTotal), icon: DollarSign },
   ];
 

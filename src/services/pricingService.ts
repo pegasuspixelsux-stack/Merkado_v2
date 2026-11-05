@@ -17,6 +17,7 @@ import { PAYMENT_METHODS, PRICE_LEVEL_IDS, type Client, type ClientAccess, type 
 const PRICE_LEVELS = 'price_levels';
 const CLIENTS = 'clients';
 const CLIENT_ACCESS = 'client_access';
+const CLIENT_PINS = 'client_pins';
 
 export const defaultLevelNames: Record<string, string> = {
   level_1: 'Nivel 1 - Mayorista estándar',
@@ -60,6 +61,7 @@ export function toClient(id: string, d: DocumentData): Client {
     address: d.address ?? '',
     receivingTime: d.receivingTime ?? '',
     email: d.email ?? '',
+    pin: /^\d{4}$/.test(d.pin ?? '') ? d.pin : '',
     paymentMethod: (PAYMENT_METHODS as readonly string[]).includes(d.paymentMethod) ? d.paymentMethod : 'house_account',
     taxRate: typeof d.taxRate === 'number' ? d.taxRate : 0,
     shippingFee: typeof d.shippingFee === 'number' ? d.shippingFee : 0,
@@ -109,6 +111,21 @@ export function newAccessCode(): string {
 export const buildToken = (phone: string, code: string) => `${phoneKey(phone)}-${code.trim().toUpperCase()}`;
 export const newAccessToken = (phone: string) => buildToken(phone, newAccessCode());
 export const codeOfToken = (token: string) => token.split('-')[1] ?? '';
+
+/** A random 4-digit PIN. */
+export function newPin(): string {
+  return String(crypto.getRandomValues(new Uint32Array(1))[0] % 10000).padStart(4, '0');
+}
+
+/** client_pins/{phone}-{pin} points at the customer's access token, so phone + PIN can sign in. */
+const pinDocId = (phone: string, pin: string) => `${phoneKey(phone)}-${pin}`;
+
+/** The access token behind phone + PIN, or null if that pair does not exist. */
+export async function resolvePinToken(phone: string, pin: string): Promise<string | null> {
+  const snap = await getDoc(doc(requireDb(), CLIENT_PINS, pinDocId(phone, pin)));
+  const token = snap.data()?.token;
+  return typeof token === 'string' ? token : null;
+}
 
 /** The customer's portal link. */
 export const accessLink = (origin: string, token: string) => `${origin}/client?token=${token}`;
@@ -172,6 +189,7 @@ export interface ClientInput {
   /** Usual receiving hour, "HH:MM". */
   receivingTime: string;
   email: string;
+  pin: string;
   paymentMethod: PaymentMethod;
   taxRate: number;
   shippingFee: number;
@@ -203,6 +221,7 @@ const clientData = (c: ClientInput) => ({
   address: c.address.trim(),
   receivingTime: c.receivingTime,
   email: c.email.trim(),
+  pin: c.pin,
   paymentMethod: c.paymentMethod,
   taxRate: c.taxRate,
   shippingFee: c.shippingFee,
@@ -232,6 +251,7 @@ export async function createClient(input: ClientInput, level: PriceLevel): Promi
   const batch = writeBatch(firestore);
   batch.set(ref, { ...clientData(input), accessToken: token, createdAt: serverTimestamp() });
   batch.set(doc(firestore, CLIENT_ACCESS, token), accessData(ref.id, input, level));
+  if (input.pin) batch.set(doc(firestore, CLIENT_PINS, pinDocId(input.phone, input.pin)), { clientId: ref.id, token });
   await batch.commit();
   return token;
 }
@@ -252,6 +272,11 @@ export async function updateClient(client: Client, input: ClientInput, level: Pr
     batch.delete(doc(firestore, CLIENT_ACCESS, client.accessToken));
   }
   batch.update(doc(firestore, CLIENTS, client.id), { ...clientData(input), ...(renewed ? { accessToken: renewed } : {}) });
+  // The PIN entry follows the phone and the token: drop the old one, write the current one.
+  const oldPinId = client.pin ? pinDocId(client.phone, client.pin) : null;
+  const newPinId = input.pin ? pinDocId(input.phone, input.pin) : null;
+  if (oldPinId && oldPinId !== newPinId) batch.delete(doc(firestore, CLIENT_PINS, oldPinId));
+  if (newPinId) batch.set(doc(firestore, CLIENT_PINS, newPinId), { clientId: client.id, token });
   // merge: the customer's favorites live in this document and must survive an admin edit
   batch.set(doc(firestore, CLIENT_ACCESS, token), { ...accessData(client.id, input, level), ...(renewed ? { favorites } : {}) }, { merge: true });
   await batch.commit();
@@ -268,6 +293,7 @@ export async function resetClientAccess(client: Client, level: PriceLevel): Prom
   batch.delete(doc(firestore, CLIENT_ACCESS, client.accessToken));
   batch.set(doc(firestore, CLIENT_ACCESS, token), { ...accessData(client.id, input, level), favorites });
   batch.update(doc(firestore, CLIENTS, client.id), { accessToken: token });
+  if (client.pin) batch.set(doc(firestore, CLIENT_PINS, pinDocId(client.phone, client.pin)), { clientId: client.id, token });
   await batch.commit();
   return token;
 }
@@ -276,6 +302,7 @@ export async function deleteClient(client: Client): Promise<void> {
   const firestore = requireDb();
   const batch = writeBatch(firestore);
   batch.delete(doc(firestore, CLIENT_ACCESS, client.accessToken));
+  if (client.pin) batch.delete(doc(firestore, CLIENT_PINS, pinDocId(client.phone, client.pin)));
   batch.delete(doc(firestore, CLIENTS, client.id));
   await batch.commit();
 }

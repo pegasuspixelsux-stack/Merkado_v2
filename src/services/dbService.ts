@@ -252,7 +252,9 @@ export interface NewLeadInput {
 
 /** Public lead capture (no sign-in needed): the security rules allow creating, not reading. */
 export async function createLead(input: NewLeadInput): Promise<void> {
-  await addDoc(collection(requireDb(), LEADS), {
+  const ref = doc(collection(requireDb(), LEADS));
+  await setDoc(ref, {
+    orderId: ref.id,
     propertyId: input.propertyId,
     clientName: input.clientName.trim(),
     phone: input.phone.trim(),
@@ -286,6 +288,7 @@ function toLead(id: string, d: DocumentData): Lead {
     paymentMethod: ['house_account', 'card', 'cash'].includes(d.paymentMethod) ? d.paymentMethod : undefined,
     taxRate: typeof d.taxRate === 'number' ? d.taxRate : undefined,
     shipping: typeof d.shipping === 'number' ? d.shipping : undefined,
+    orderId: typeof d.orderId === 'string' && d.orderId ? d.orderId : undefined,
     clientId: d.clientId ?? undefined,
     createdAt: toMillis(d.createdAt),
   };

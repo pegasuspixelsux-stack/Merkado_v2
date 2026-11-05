@@ -4,7 +4,7 @@ import { toggleFavorite as toggleFavoriteInDb } from '@/src/services/favoritesSe
 import { createContext, useContext, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { buildToken, toClientAccess } from '../services/pricingService';
+import { buildToken, resolvePinToken, toClientAccess } from '../services/pricingService';
 import { PRICE_LEVEL_IDS, type ClientAccess, type PriceLevel } from '../types/firestore';
 
 const STORAGE_KEY = 'merkado-client-token';
@@ -108,7 +108,18 @@ export function ClientProvider({ children }: { children: ReactNode }) {
         : null,
       suspended: Boolean(suspended),
       openWithToken,
-      login: (phone: string, code: string) => openWithToken(buildToken(phone, code)),
+      login: async (phone: string, code: string) => {
+        // A 4-digit PIN points to the customer's access token; anything longer is the access code itself.
+        if (/^\d{4}$/.test(code.trim())) {
+          try {
+            const token = await resolvePinToken(phone, code.trim());
+            return token ? openWithToken(token) : 'invalid';
+          } catch {
+            return 'error';
+          }
+        }
+        return openWithToken(buildToken(phone, code));
+      },
       signOutClient: () => writeToken(null),
       favorites: active?.favorites ?? [],
       toggleFavorite: async (productId: string) => {

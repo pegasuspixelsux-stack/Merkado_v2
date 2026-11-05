@@ -5,7 +5,8 @@ import { Mail, MessageCircle, Phone, Printer } from 'lucide-react';
 import OrderModal, { orderStatusLabels } from './dashboard/OrderModal';
 import { getProperty, updateLeadStatus } from '../services/dbService';
 import type { Lead, LeadStatus } from '../types/firestore';
-import { timeAgo, whatsappUrl } from '../utils/format';
+import { formatMoney, timeAgo, whatsappUrl } from '../utils/format';
+import { groupOrders, orderNumberOf, orderTotal, type OrderGroup } from '../utils/orders';
 
 const statuses: { value: LeadStatus; label: string }[] = (['new', 'contacted', 'closed'] as const).map((value) => ({
   value,
@@ -48,22 +49,31 @@ interface LeadListProps {
   emptyText?: string;
 }
 
+/** The delivery lines the cart wrote (everything except the "[Tag] product - qty @ price" line). */
+const deliveryNotes = (message: string) =>
+  message
+    .split('\n')
+    .filter((l) => l && !l.startsWith('['))
+    .join(' · ');
+
+/** One row per ORDER; an order can have many product lines (up to 100 or more). */
 export default function LeadList({ leads, agentName, emptyText = 'Todavía no hay pedidos.' }: LeadListProps) {
   const titleFor = usePropertyTitles(leads.map((l) => l.propertyId));
   const [error, setError] = useState<string | null>(null);
-  const [openId, setOpenId] = useState<string | null>(null);
-  const openLead = leads.find((l) => l.id === openId) ?? null;
+  const [openKey, setOpenKey] = useState<string | null>(null);
+  const groups = groupOrders(leads);
+  const openGroup = groups.find((g) => g.key === openKey) ?? null;
 
-  const setStatus = async (lead: Lead, status: LeadStatus) => {
+  const setStatus = async (group: OrderGroup, status: LeadStatus) => {
     setError(null);
     try {
-      await updateLeadStatus(lead.id, status);
+      await Promise.all(group.lines.map((l) => updateLeadStatus(l.id, status)));
     } catch {
       setError('No se pudo actualizar el pedido.');
     }
   };
 
-  if (!leads.length) return <p className="p-6 text-sm text-[#515154]">{emptyText}</p>;
+  if (!groups.length) return <p className="p-6 text-sm text-[#515154]">{emptyText}</p>;
 
   return (
     <>
@@ -73,51 +83,62 @@ export default function LeadList({ leads, agentName, emptyText = 'Todavía no ha
         </p>
       )}
       <ul className="divide-y divide-[#000000]/5">
-        {leads.map((lead) => {
-          const property = titleFor(lead.propertyId);
+        {groups.map((group) => {
+          const lead = group.primary;
+          const names = group.lines.map((l) => titleFor(l.propertyId)).filter(Boolean);
+          const shown = names.slice(0, 3).join(', ');
+          const more = names.length > 3 ? ` y ${names.length - 3} más` : '';
+          const total = orderTotal(group.lines);
           const firstName = lead.clientName.split(' ')[0];
           const text =
             `Hola${firstName ? ` ${firstName}` : ''}, te escribe ${agentName || 'tu asesor/a'} de Merkado. ` +
-            (property
-              ? `Gracias por tu pedido de ${property}. `
-              : 'Gracias por contactarte. ') +
-            '¿Cuándo te queda bien que hablemos?';
+            `Gracias por tu pedido ${orderNumberOf(group)}. ¿Cuándo te queda bien que hablemos?`;
           const wa = lead.phone ? whatsappUrl(lead.phone, text) : null;
+          const notes = deliveryNotes(lead.message);
 
           return (
-            <li key={lead.id} className="p-5 space-y-3">
+            <li key={group.key} className="p-5 space-y-3">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="font-medium truncate">{lead.clientName || 'Sin nombre'}</p>
                   <p className="text-xs text-[#515154]">
-                    {timeAgo(lead.createdAt)} · {lead.channel}
+                    {timeAgo(group.createdAt)} · {lead.channel} · {orderNumberOf(group)}
                   </p>
                 </div>
                 <select
-                  value={lead.status}
-                  onChange={(e) => setStatus(lead, e.target.value as LeadStatus)}
-                  aria-label={`Estado de ${lead.clientName || lead.email}`}
+                  value={group.status}
+                  onChange={(e) => setStatus(group, e.target.value as LeadStatus)}
+                  aria-label={`Estado del pedido de ${lead.clientName || lead.email}`}
                   className={`shrink-0 rounded-full px-3 py-1.5 text-xs outline-none cursor-pointer ${
-                    lead.status === 'new' ? 'bg-[#1D1D1F] text-white' : 'bg-[#F5F5F7] text-[#1D1D1F]'
+                    group.status === 'new' ? 'bg-[#1D1D1F] text-white' : 'bg-[#F5F5F7] text-[#1D1D1F]'
                   }`}
                 >
-                  {statuses.map((s) => (
-                    <option key={s.value} value={s.value}>
-                      {s.label}
+                  {statuses.map((st) => (
+                    <option key={st.value} value={st.value}>
+                      {st.label}
                     </option>
                   ))}
                 </select>
               </div>
 
-              {property && (
-                <p className="text-xs uppercase tracking-wider text-[#515154] font-semibold">{property}</p>
+              <p className="text-sm">
+                <span className="font-semibold">
+                  {group.lines.length} {group.lines.length === 1 ? 'producto' : 'productos'}
+                </span>
+                {total > 0 && <span className="text-[#515154]"> · Total {formatMoney(total)}</span>}
+              </p>
+              {shown && (
+                <p className="text-xs uppercase tracking-wider text-[#515154] font-semibold">
+                  {shown}
+                  {more}
+                </p>
               )}
-              {lead.message && <p className="text-sm font-light whitespace-pre-line">{lead.message}</p>}
+              {notes && <p className="text-sm font-light">{notes}</p>}
 
               <div className="flex flex-wrap items-center gap-2 text-xs">
                 <button
                   type="button"
-                  onClick={() => setOpenId(lead.id)}
+                  onClick={() => setOpenKey(group.key)}
                   className="inline-flex items-center gap-1.5 border border-[#000000]/10 font-medium px-4 py-2 rounded-full hover:bg-[#F5F5F7] transition-colors"
                 >
                   <Printer className="w-3.5 h-3.5" /> Abrir pedido
@@ -160,20 +181,14 @@ export default function LeadList({ leads, agentName, emptyText = 'Todavía no ha
           );
         })}
       </ul>
-      {openLead && (
+      {openGroup && (
         <OrderModal
-          key={openLead.id}
-          lead={openLead}
-          siblings={leads.filter(
-            (l) =>
-              l.createdAt === openLead.createdAt &&
-              l.clientName === openLead.clientName &&
-              l.phone === openLead.phone &&
-              (l.clientId ?? '') === (openLead.clientId ?? '')
-          )}
+          key={openGroup.key}
+          lead={openGroup.primary}
+          siblings={openGroup.lines}
           titleFor={titleFor}
           agentName={agentName}
-          onClose={() => setOpenId(null)}
+          onClose={() => setOpenKey(null)}
         />
       )}
     </>

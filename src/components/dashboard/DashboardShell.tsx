@@ -20,6 +20,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { roleLabels } from '../../utils/format';
 import { useLeads } from '../../hooks/useLeads';
+import { groupOrders } from '../../utils/orders';
 import LeadInbox from '../LeadInbox';
 
 const nav = [
@@ -41,7 +42,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [inboxOpen, setInboxOpen] = useState(false);
 
-  const newLeads = leads.filter((l) => l.status === 'new').length;
+  const newLeads = groupOrders(leads).filter((g) => g.status === 'new').length; // new ORDERS, not product lines
   const isActive = (href: string, exact?: boolean) => {
     if (exact) return pathname === href;
     // "Properties" should not light up on the Add Listing page.

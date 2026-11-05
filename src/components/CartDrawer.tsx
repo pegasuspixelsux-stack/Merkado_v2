@@ -99,6 +99,8 @@ export default function CartDrawer({
     try {
       // One order per cart line, written together: either all of them are saved or none.
       const batch = writeBatch(db);
+      // Shared by every product line of this order, so the dashboard shows them as one order.
+      const orderId = doc(collection(db, 'leads')).id;
       const tag =
         client && level ? `Mayorista · ${level.name}` : buyerType === 'wholesale' ? 'Mayorista' : 'Minorista';
       const deliveryLines = [
@@ -110,6 +112,7 @@ export default function CartDrawer({
       for (const { item, qty } of lines) {
         const unit = unitPriceOf(item);
         batch.set(doc(collection(db, 'leads')), {
+          orderId,
           name: client ? `${client.businessName}${name !== client.businessName ? ` (${name})` : ''}` : name,
           phone,
           // The price the customer saw and accepted (their price level included), and who they are.
