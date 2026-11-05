@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { KeyRound, LogOut, X } from 'lucide-react';
 import { useClient, type TokenResult } from '@/src/context/ClientContext';
 
@@ -84,7 +85,7 @@ export default function WholesaleAccess() {
         <span className="sm:hidden">Mayoristas</span>
       </button>
 
-      {open && (
+      {open && createPortal(
         <div className="fixed inset-0 z-[70] flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} aria-hidden="true" />
           <div role="dialog" aria-modal="true" aria-label="Acceso mayoristas" className="relative w-full max-w-sm bg-white rounded-2xl shadow-xl p-6 md:p-8">
@@ -113,7 +114,8 @@ export default function WholesaleAccess() {
               ¿No tenés acceso? Registrate como mayorista desde “Mayoristas” en el inicio.
             </p>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
