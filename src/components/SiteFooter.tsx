@@ -109,7 +109,17 @@ export default function SiteFooter() {
       {/* Bottom Bar */}
       <div className="max-w-7xl mx-auto pt-8 border-t border-black/15 flex flex-col md:flex-row items-center justify-between text-sm md:text-base text-black/60 font-light">
         <p>&copy; {new Date().getFullYear()} Merkado Inc. Todos los derechos reservados.</p>
-        <p className="mt-4 md:mt-0">Diseñado con atención a cada detalle.</p>
+        <p className="mt-4 md:mt-0">
+          Sitio web por{' '}
+          <a
+            href="https://www.pegasuspixels.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-black underline underline-offset-2 hover:no-underline"
+          >
+            PegasusPixels
+          </a>
+        </p>
       </div>
     </footer>
   );
