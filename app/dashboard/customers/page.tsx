@@ -14,10 +14,10 @@ import {
   updateClient,
   type ClientInput,
 } from '@/src/services/pricingService';
-import type { Client } from '@/src/types/firestore';
+import { PAYMENT_METHODS, paymentMethodLabels, type Client, type PaymentMethod } from '@/src/types/firestore';
 import { PageHeader, cardClass, inputClass, labelClass } from '@/src/components/dashboard/ui';
 
-const emptyForm: ClientInput = { businessName: '', contactName: '', phone: '', address: '', receivingTime: '', priceLevelId: 'level_1', status: 'active' };
+const emptyForm: ClientInput = { businessName: '', contactName: '', phone: '', address: '', receivingTime: '', email: '', paymentMethod: 'house_account', taxRate: 0, shippingFee: 0, notes: '', priceLevelId: 'level_1', status: 'active' };
 
 /** International number for wa.me: Uruguayan numbers saved without the country code get 598. */
 const waNumber = (phone: string) => {
@@ -58,7 +58,7 @@ export default function CustomersPage() {
   const open = (c: Client | 'new') => {
     setEditing(c);
     setFormError(null);
-    setForm(c === 'new' ? emptyForm : { businessName: c.businessName, contactName: c.contactName, phone: c.phone, address: c.address, receivingTime: c.receivingTime, priceLevelId: c.priceLevelId, status: c.status });
+    setForm(c === 'new' ? emptyForm : { businessName: c.businessName, contactName: c.contactName, phone: c.phone, address: c.address, receivingTime: c.receivingTime, email: c.email, paymentMethod: c.paymentMethod, taxRate: c.taxRate, shippingFee: c.shippingFee, notes: c.notes, priceLevelId: c.priceLevelId, status: c.status });
   };
 
   const save = async (e: React.FormEvent) => {
@@ -257,9 +257,33 @@ export default function CustomersPage() {
               <textarea id="c-address" rows={2} className={`${inputClass} resize-none`} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
             </div>
             <div>
+              <label htmlFor="c-email" className={labelClass}>Correo electrónico</label>
+              <input id="c-email" type="email" className={inputClass} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="compras@restaurante.com" />
+            </div>
+            <div>
               <label htmlFor="c-time" className={labelClass}>Hora de recepción</label>
               <input id="c-time" type="time" className={inputClass} value={form.receivingTime} onChange={(e) => setForm({ ...form, receivingTime: e.target.value })} />
               <p className="text-xs text-[#86868B] mt-1">Hora en que el cliente recibe habitualmente los pedidos. Se completa sola en su carrito.</p>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="col-span-3 sm:col-span-1">
+                <label htmlFor="c-pay" className={labelClass}>Forma de pago</label>
+                <select id="c-pay" className={inputClass} value={form.paymentMethod} onChange={(e) => setForm({ ...form, paymentMethod: e.target.value as PaymentMethod })}>
+                  {PAYMENT_METHODS.map((m) => <option key={m} value={m}>{paymentMethodLabels[m]}</option>)}
+                </select>
+              </div>
+              <div className="col-span-3 sm:col-span-1">
+                <label htmlFor="c-tax" className={labelClass}>Impuesto (%)</label>
+                <input id="c-tax" inputMode="decimal" className={inputClass} value={form.taxRate || ''} onChange={(e) => setForm({ ...form, taxRate: Math.max(0, Number(e.target.value.replace(',', '.')) || 0) })} placeholder="0" />
+              </div>
+              <div className="col-span-3 sm:col-span-1">
+                <label htmlFor="c-ship" className={labelClass}>Envío ($)</label>
+                <input id="c-ship" inputMode="decimal" className={inputClass} value={form.shippingFee || ''} onChange={(e) => setForm({ ...form, shippingFee: Math.max(0, Number(e.target.value.replace(',', '.')) || 0) })} placeholder="0" />
+              </div>
+            </div>
+            <div>
+              <label htmlFor="c-notes" className={labelClass}>Notas o pedidos especiales</label>
+              <textarea id="c-notes" rows={2} maxLength={1000} className={`${inputClass} resize-none`} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Ej.: entrada de servicio, tomates verdes, sin bolsas de plástico…" />
             </div>
             <div>
               <label htmlFor="c-level" className={labelClass}>Nivel de precio</label>

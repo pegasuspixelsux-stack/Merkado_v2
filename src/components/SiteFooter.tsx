@@ -22,7 +22,7 @@ export default function SiteFooter() {
             </li>
             <li className="flex items-start gap-3">
               <Mail className="w-4 h-4 shrink-0 text-white/50" aria-hidden="true" />
-              <a href="mailto:concierge@coastalweb.estate" className={linkClass}>concierge@coastalweb.estate</a>
+              <a href="mailto:contacto@merkado.uy" className={linkClass}>contacto@merkado.uy</a>
             </li>
             <li className="flex items-start gap-3">
               <Phone className="w-4 h-4 shrink-0 text-white/50" aria-hidden="true" />

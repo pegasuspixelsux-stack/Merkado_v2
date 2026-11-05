@@ -8,6 +8,7 @@ import { useAuth } from '@/src/context/AuthContext';
 import { useProperties } from '@/src/hooks/useProperties';
 import { seedSampleProperties } from '@/src/services/dbService';
 import ImportItems from '@/src/components/dashboard/ImportItems';
+import RepairImages from '@/src/components/dashboard/RepairImages';
 import { PropertyGrid, PropertyTable } from '@/src/components/dashboard/PropertyViews';
 import { PageHeader, cardClass } from '@/src/components/dashboard/ui';
 import { useCategories } from '@/src/hooks/useCategories';
@@ -91,6 +92,7 @@ function PropertiesContent() {
       />
 
       <ImportItems onImported={reload} />
+      <RepairImages onDone={reload} />
 
       {/* Filters + view toggle */}
       <div className="flex flex-wrap items-center gap-3 mb-6">

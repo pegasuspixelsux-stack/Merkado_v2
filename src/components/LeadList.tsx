@@ -164,7 +164,14 @@ export default function LeadList({ leads, agentName, emptyText = 'Todavía no ha
         <OrderModal
           key={openLead.id}
           lead={openLead}
-          productTitle={titleFor(openLead.propertyId)}
+          siblings={leads.filter(
+            (l) =>
+              l.createdAt === openLead.createdAt &&
+              l.clientName === openLead.clientName &&
+              l.phone === openLead.phone &&
+              (l.clientId ?? '') === (openLead.clientId ?? '')
+          )}
+          titleFor={titleFor}
           agentName={agentName}
           onClose={() => setOpenId(null)}
         />

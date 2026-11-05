@@ -33,6 +33,7 @@ import type {
   Lead,
   LeadChannel,
   LeadStatus,
+  PaymentMethod,
   Property,
   PropertyInput,
   PropertyUpdate,
@@ -282,6 +283,9 @@ function toLead(id: string, d: DocumentData): Lead {
     unitPrice: typeof d.unitPrice === 'number' ? d.unitPrice : undefined,
     quantity: typeof d.quantity === 'number' ? d.quantity : undefined,
     priceLevelId: d.priceLevelId ?? undefined,
+    paymentMethod: ['house_account', 'card', 'cash'].includes(d.paymentMethod) ? d.paymentMethod : undefined,
+    taxRate: typeof d.taxRate === 'number' ? d.taxRate : undefined,
+    shipping: typeof d.shipping === 'number' ? d.shipping : undefined,
     clientId: d.clientId ?? undefined,
     createdAt: toMillis(d.createdAt),
   };
@@ -302,7 +306,15 @@ export async function updateLeadStatus(leadId: string, status: LeadStatus): Prom
 /** Agent corrections to an order: quantity, unit price, details text and internal notes. */
 export async function updateLeadDetails(
   leadId: string,
-  data: { quantity?: number; unitPrice?: number; message: string; notes: string }
+  data: {
+    quantity?: number;
+    unitPrice?: number;
+    message?: string;
+    notes?: string;
+    paymentMethod?: PaymentMethod;
+    taxRate?: number;
+    shipping?: number;
+  }
 ): Promise<void> {
   await updateDoc(doc(requireDb(), LEADS, leadId), clean(data));
 }

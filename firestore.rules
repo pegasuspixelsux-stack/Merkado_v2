@@ -139,7 +139,8 @@ service cloud.firestore {
 
       allow update: if isAgent()
         && request.resource.data.diff(resource.data).affectedKeys()
-             .hasOnly(['status', 'notes', 'assignedAgentId', 'quantity', 'unitPrice', 'message'])
+             .hasOnly(['status', 'notes', 'assignedAgentId', 'quantity', 'unitPrice', 'message',
+                       'paymentMethod', 'taxRate', 'shipping'])
         && request.resource.data.status in ['new', 'contacted', 'closed']
         // Agents can correct an order before confirming it: quantity, price and the order details text.
         && (!('quantity' in request.resource.data)
@@ -149,6 +150,14 @@ service cloud.firestore {
             || (request.resource.data.unitPrice is number
                 && request.resource.data.unitPrice >= 0 && request.resource.data.unitPrice < 1000000))
         && request.resource.data.message is string && request.resource.data.message.size() <= 5000
+        && (!('paymentMethod' in request.resource.data)
+            || request.resource.data.paymentMethod in ['house_account', 'card', 'cash'])
+        && (!('taxRate' in request.resource.data)
+            || (request.resource.data.taxRate is number
+                && request.resource.data.taxRate >= 0 && request.resource.data.taxRate <= 100))
+        && (!('shipping' in request.resource.data)
+            || (request.resource.data.shipping is number
+                && request.resource.data.shipping >= 0 && request.resource.data.shipping < 1000000))
         && (!('notes' in request.resource.data)
             || (request.resource.data.notes is string && request.resource.data.notes.size() <= 2000));
     }

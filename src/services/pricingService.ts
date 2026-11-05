@@ -1,6 +1,7 @@
 import {
   collection,
   doc,
+  getDoc,
   getDocs,
   onSnapshot,
   query,
@@ -11,7 +12,7 @@ import {
   type Unsubscribe,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { PRICE_LEVEL_IDS, type Client, type ClientAccess, type ClientStatus, type PriceLevel } from '../types/firestore';
+import { PAYMENT_METHODS, PRICE_LEVEL_IDS, type Client, type ClientAccess, type ClientStatus, type PaymentMethod, type PriceLevel } from '../types/firestore';
 
 const PRICE_LEVELS = 'price_levels';
 const CLIENTS = 'clients';
@@ -58,6 +59,11 @@ export function toClient(id: string, d: DocumentData): Client {
     phone: d.phone ?? '',
     address: d.address ?? '',
     receivingTime: d.receivingTime ?? '',
+    email: d.email ?? '',
+    paymentMethod: (PAYMENT_METHODS as readonly string[]).includes(d.paymentMethod) ? d.paymentMethod : 'house_account',
+    taxRate: typeof d.taxRate === 'number' ? d.taxRate : 0,
+    shippingFee: typeof d.shippingFee === 'number' ? d.shippingFee : 0,
+    notes: d.notes ?? '',
     priceLevelId: d.priceLevelId ?? 'level_1',
     status: d.status === 'suspended' ? 'suspended' : 'active',
     accessToken: d.accessToken ?? '',
@@ -74,6 +80,8 @@ export function toClientAccess(token: string, d: DocumentData): ClientAccess {
     phone: d.phone ?? '',
     address: d.address ?? '',
     receivingTime: d.receivingTime ?? '',
+    email: d.email ?? '',
+    notes: d.notes ?? '',
     priceLevelId: d.priceLevelId ?? '',
     levelName: d.levelName ?? '',
     categoryAdjustments: adjustmentsOf(d.categoryAdjustments),
@@ -162,6 +170,11 @@ export interface ClientInput {
   address: string;
   /** Usual receiving hour, "HH:MM". */
   receivingTime: string;
+  email: string;
+  paymentMethod: PaymentMethod;
+  taxRate: number;
+  shippingFee: number;
+  notes: string;
   priceLevelId: string;
   status?: ClientStatus;
 }
@@ -173,6 +186,8 @@ const accessData = (clientId: string, c: ClientInput, level: PriceLevel) => ({
   phone: c.phone.trim(),
   address: c.address.trim(),
   receivingTime: c.receivingTime,
+  email: c.email.trim(),
+  notes: c.notes.trim(),
   priceLevelId: level.id,
   levelName: level.name,
   categoryAdjustments: level.categoryAdjustments,
@@ -186,9 +201,20 @@ const clientData = (c: ClientInput) => ({
   phone: c.phone.trim(),
   address: c.address.trim(),
   receivingTime: c.receivingTime,
+  email: c.email.trim(),
+  paymentMethod: c.paymentMethod,
+  taxRate: c.taxRate,
+  shippingFee: c.shippingFee,
+  notes: c.notes.trim(),
   priceLevelId: c.priceLevelId,
   status: c.status ?? 'active',
 });
+
+/** One customer's profile (staff only), for billing details on the pick slip. */
+export async function getClient(id: string): Promise<Client | null> {
+  const snap = await getDoc(doc(requireDb(), CLIENTS, id));
+  return snap.exists() ? toClient(snap.id, snap.data()) : null;
+}
 
 /** Creates the customer and its access record together. Returns the portal token. */
 export async function createClient(input: ClientInput, level: PriceLevel): Promise<string> {

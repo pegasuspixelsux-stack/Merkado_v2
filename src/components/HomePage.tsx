@@ -186,7 +186,7 @@ const fallbackProperties: HomeProperty[] = [
 ];
 
 
-export default function CoastalWebHome({
+export default function MerkadoHome({
   initialProperties = [],
   initialSlides = [],
 }: {
@@ -616,7 +616,7 @@ export default function CoastalWebHome({
       </section>
 
       {/* --- WHO WE ARE --- */}
-      <section id="vision" className="pb-44 px-6 max-w-7xl mx-auto">
+      <section id="vision" className="pt-[75px] md:pt-[107px] pb-44 px-6 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
           <div className="space-y-6">
             <h2 className="text-xs uppercase tracking-widest text-[#515154] font-semibold">Quiénes somos</h2>

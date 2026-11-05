@@ -135,6 +135,14 @@ export type LeadChannel = 'WhatsApp' | 'Portal' | 'Direct';
 /** CRM pipeline stage. */
 export type LeadStatus = 'new' | 'contacted' | 'closed';
 
+export const PAYMENT_METHODS = ['house_account', 'card', 'cash'] as const;
+export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+export const paymentMethodLabels: Record<PaymentMethod, string> = {
+  house_account: 'Cuenta corriente',
+  card: 'Tarjeta',
+  cash: 'Efectivo',
+};
+
 export interface Lead {
   id: string;
   /** Property the client asked about; empty for general inquiries. */
@@ -153,6 +161,10 @@ export interface Lead {
   quantity?: number;
   /** Price level applied to the order ('list_price' = no level). */
   priceLevelId?: string;
+  /** Pick-slip extras the operator sets: payment form, tax % and shipping fee. */
+  paymentMethod?: PaymentMethod;
+  taxRate?: number;
+  shipping?: number;
   /** Firebase Auth uid of the client who placed the order, when signed in. */
   clientId?: string;
   createdAt: number;
@@ -193,6 +205,15 @@ export interface Client {
   address: string;
   /** Usual receiving hour, "HH:MM". */
   receivingTime: string;
+  email: string;
+  /** How the customer pays: house account, card or cash. */
+  paymentMethod: PaymentMethod;
+  /** Tax (IVA) percentage added to their orders; 0 = none. */
+  taxRate: number;
+  /** Usual shipping fee added to their orders; 0 = none. */
+  shippingFee: number;
+  /** Standing notes or special requests for their orders. */
+  notes: string;
   /** 'level_1'..'level_5' (price_levels/{id}). */
   priceLevelId: string;
   status: ClientStatus;
@@ -213,6 +234,8 @@ export interface ClientAccess {
   phone: string;
   address: string;
   receivingTime: string;
+  email: string;
+  notes: string;
   priceLevelId: string;
   levelName: string;
   categoryAdjustments: Record<string, number>;

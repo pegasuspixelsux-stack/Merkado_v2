@@ -65,6 +65,8 @@ export default function CartDrawer({
       phone: f.phone || client.phone,
       address: f.address || client.address,
       time: f.time || client.receivingTime,
+      email: f.email || client.email,
+      notes: f.notes || client.notes,
     }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profileToken]);
@@ -138,6 +140,8 @@ export default function CartDrawer({
         phone: client?.phone ?? '',
         address: client?.address ?? '',
         time: client?.receivingTime ?? '',
+        email: client?.email ?? '',
+        notes: client?.notes ?? '',
       });
       onPlaced();
     } catch {
