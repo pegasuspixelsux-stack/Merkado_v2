@@ -111,7 +111,7 @@ export default function WholesaleAccess() {
               </button>
             </form>
             <p className="text-xs text-[#86868B] mt-4">
-              ¿No tenés acceso? Registrate como mayorista desde “Mayoristas” en el inicio.
+              ¿No tenés acceso? Solicitalo desde “Mayoristas” en el inicio y te enviamos tu código.
             </p>
           </div>
         </div>,

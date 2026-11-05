@@ -659,12 +659,12 @@ export default function CoastalWebHome({
           <div>
             <h2 className="text-xs uppercase tracking-widest text-[#515154] font-semibold mb-3">Mayoristas</h2>
             <p className="text-3xl md:text-5xl font-semibold tracking-tight mb-6">
-              Comprá más, pagá menos. Abrí tu cuenta mayorista.
+              Comprá más, pagá menos. Pedí tu acceso mayorista.
             </p>
             <p className="text-[#515154] font-light leading-relaxed mb-12">
-              Restaurantes, almacenes, hoteles y servicios de catering: registrate como mayorista y
+              Restaurantes, almacenes, hoteles y servicios de catering: solicitá tu acceso mayorista y
               conseguí mejores precios por las cantidades que compra tu negocio. Contanos qué
-              necesitás cada semana y te armamos la cuenta y te pasamos tus precios mayoristas.
+              necesitás cada semana y te enviamos tu código de acceso para ver tus precios mayoristas y hacer tus pedidos.
             </p>
           </div>
 
@@ -712,12 +712,12 @@ export default function CoastalWebHome({
                 disabled={leadState === 'sending'}
                 className="w-full bg-[#1D1D1F] text-white py-3.5 rounded-xl text-sm font-medium hover:bg-[#333336] transition-all flex items-center justify-center space-x-2 shadow-sm disabled:opacity-50"
               >
-                <span>{leadState === 'sending' ? 'Enviando…' : 'Registrarme como mayorista'}</span>
+                <span>{leadState === 'sending' ? 'Enviando…' : 'Solicitar acceso mayorista'}</span>
                 <Send className="w-4 h-4" />
               </button>
               {leadState === 'sent' && (
                 <p role="status" className="text-sm text-green-700 text-center">
-                  ¡Gracias! Nos vamos a comunicar con vos en breve por tu cuenta mayorista.
+                  ¡Gracias! Nos vamos a comunicar con vos en breve para enviarte tu código de acceso.
                 </p>
               )}
               {leadState === 'error' && (
