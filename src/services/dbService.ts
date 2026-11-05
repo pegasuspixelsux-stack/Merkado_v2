@@ -299,6 +299,14 @@ export async function updateLeadStatus(leadId: string, status: LeadStatus): Prom
   await updateDoc(doc(requireDb(), LEADS, leadId), { status });
 }
 
+/** Agent corrections to an order: quantity, unit price, details text and internal notes. */
+export async function updateLeadDetails(
+  leadId: string,
+  data: { quantity?: number; unitPrice?: number; message: string; notes: string }
+): Promise<void> {
+  await updateDoc(doc(requireDb(), LEADS, leadId), clean(data));
+}
+
 /**
  * Real-time listener for incoming leads. Returns an unsubscribe function;
  * call it on unmount (the `useLeads` hook does this for you).

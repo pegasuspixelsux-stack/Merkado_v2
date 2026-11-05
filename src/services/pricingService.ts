@@ -57,6 +57,7 @@ export function toClient(id: string, d: DocumentData): Client {
     contactName: d.contactName ?? '',
     phone: d.phone ?? '',
     address: d.address ?? '',
+    receivingTime: d.receivingTime ?? '',
     priceLevelId: d.priceLevelId ?? 'level_1',
     status: d.status === 'suspended' ? 'suspended' : 'active',
     accessToken: d.accessToken ?? '',
@@ -71,6 +72,8 @@ export function toClientAccess(token: string, d: DocumentData): ClientAccess {
     businessName: d.businessName ?? '',
     contactName: d.contactName ?? '',
     phone: d.phone ?? '',
+    address: d.address ?? '',
+    receivingTime: d.receivingTime ?? '',
     priceLevelId: d.priceLevelId ?? '',
     levelName: d.levelName ?? '',
     categoryAdjustments: adjustmentsOf(d.categoryAdjustments),
@@ -157,6 +160,8 @@ export interface ClientInput {
   contactName: string;
   phone: string;
   address: string;
+  /** Usual receiving hour, "HH:MM". */
+  receivingTime: string;
   priceLevelId: string;
   status?: ClientStatus;
 }
@@ -166,6 +171,8 @@ const accessData = (clientId: string, c: ClientInput, level: PriceLevel) => ({
   businessName: c.businessName.trim(),
   contactName: c.contactName.trim(),
   phone: c.phone.trim(),
+  address: c.address.trim(),
+  receivingTime: c.receivingTime,
   priceLevelId: level.id,
   levelName: level.name,
   categoryAdjustments: level.categoryAdjustments,
@@ -178,6 +185,7 @@ const clientData = (c: ClientInput) => ({
   contactName: c.contactName.trim(),
   phone: c.phone.trim(),
   address: c.address.trim(),
+  receivingTime: c.receivingTime,
   priceLevelId: c.priceLevelId,
   status: c.status ?? 'active',
 });

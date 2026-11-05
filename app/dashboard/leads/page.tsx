@@ -11,8 +11,8 @@ import type { LeadStatus } from '@/src/types/firestore';
 const filters: { value: LeadStatus | 'all'; label: string }[] = [
   { value: 'all', label: 'Todos' },
   { value: 'new', label: 'Nuevos' },
-  { value: 'contacted', label: 'Contactados' },
-  { value: 'closed', label: 'Cerrados' },
+  { value: 'contacted', label: 'Aceptados' },
+  { value: 'closed', label: 'Confirmados' },
 ];
 
 export default function LeadsPage() {
@@ -28,7 +28,7 @@ export default function LeadsPage() {
       <PageHeader
         eyebrow="Clientes"
         title="Pedidos"
-        description="Pedidos del sitio y los que agregás vos, actualizados en vivo. Respondé por WhatsApp con un toque."
+        description="Pedidos del sitio y los que agregás vos, en vivo. Abrí un pedido para modificarlo, aceptarlo, confirmarlo o imprimirlo."
       />
 
       <AddOrder />

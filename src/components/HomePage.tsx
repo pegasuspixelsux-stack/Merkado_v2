@@ -664,7 +664,7 @@ export default function CoastalWebHome({
             <p className="text-[#515154] font-light leading-relaxed mb-12">
               Restaurantes, almacenes, hoteles y servicios de catering: solicitá tu acceso mayorista y
               conseguí mejores precios por las cantidades que compra tu negocio. Contanos qué
-              necesitás cada semana y te enviamos tu código de acceso para ver tus precios mayoristas y hacer tus pedidos.
+              necesitás cada semana y revisamos tu solicitud y, una vez aprobada y configurada la forma de pago, te enviamos tu código de acceso para ver tus precios y hacer tus pedidos.
             </p>
           </div>
 
@@ -717,7 +717,7 @@ export default function CoastalWebHome({
               </button>
               {leadState === 'sent' && (
                 <p role="status" className="text-sm text-green-700 text-center">
-                  ¡Gracias! Nos vamos a comunicar con vos en breve para enviarte tu código de acceso.
+                  ¡Gracias! Revisamos tu solicitud y nos comunicamos con vos para coordinar la aprobación y la forma de pago. Después te enviamos tu código de acceso.
                 </p>
               )}
               {leadState === 'error' && (

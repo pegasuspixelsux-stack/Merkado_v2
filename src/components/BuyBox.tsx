@@ -1,5 +1,6 @@
 'use client';
 
+import SignInNotice from '@/src/components/SignInNotice';
 import { useState } from 'react';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { Minus, Plus } from 'lucide-react';
@@ -50,7 +51,7 @@ export default function BuyBox({
 
   const buy = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inStock) return;
+    if (!inStock || !client) return;
     // A logged-in wholesale customer's business name and WhatsApp number fill in what they leave empty.
     const name = form.name.trim() || client?.businessName || '';
     const phone = form.phone.trim() || client?.phone || '';
@@ -89,6 +90,12 @@ export default function BuyBox({
       setState('error');
     }
   };
+
+  if (!client) {
+    return (
+      <SignInNotice />
+    );
+  }
 
   if (state === 'sent') {
     return (

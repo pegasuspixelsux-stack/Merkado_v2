@@ -1,5 +1,6 @@
 'use client';
 
+import SignInNotice from '@/src/components/SignInNotice';
 import { useEffect, useState } from 'react';
 import { collection, doc, serverTimestamp, writeBatch } from 'firebase/firestore';
 import { Minus, Plus, ShoppingCart, Trash2, X } from 'lucide-react';
@@ -53,6 +54,21 @@ export default function CartDrawer({
   const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [formError, setFormError] = useState<string | null>(null);
 
+  // A signed-in client's profile (contact, WhatsApp, address, receiving hour) fills in the order form.
+  const profileToken = client?.token;
+  useEffect(() => {
+    if (!client) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- prefill once per signed-in client
+    setForm((f) => ({
+      ...f,
+      name: f.name || client.contactName || client.businessName,
+      phone: f.phone || client.phone,
+      address: f.address || client.address,
+      time: f.time || client.receivingTime,
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profileToken]);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
@@ -64,7 +80,7 @@ export default function CartDrawer({
 
   const place = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!lines.length) return;
+    if (!lines.length || !client) return;
     // A logged-in wholesale customer's business name and WhatsApp number fill in what they leave empty.
     const name = form.name.trim() || client?.businessName || '';
     const phone = form.phone.trim() || client?.phone || '';
@@ -86,6 +102,7 @@ export default function CartDrawer({
       const deliveryLines = [
         form.fulfillment === 'delivery' ? `Entrega a domicilio: ${form.address.trim()}` : 'Retiro en local',
         `${form.fulfillment === 'delivery' ? 'Hora de recepción' : 'Hora de retiro'}: ${form.date ? `${form.date} ` : ''}${form.time}`,
+        `Contacto: ${name} · WhatsApp: ${phone || '—'}`,
         form.notes.trim() && `Instrucciones especiales: ${form.notes.trim()}`,
       ];
       for (const { item, qty } of lines) {
@@ -114,7 +131,14 @@ export default function CartDrawer({
       }
       await batch.commit();
       setState('sent');
-      setForm(emptyForm);
+      // Keep the profile data for the client's next order; clear only what belongs to this one.
+      setForm({
+        ...emptyForm,
+        name: client?.contactName || client?.businessName || '',
+        phone: client?.phone ?? '',
+        address: client?.address ?? '',
+        time: client?.receivingTime ?? '',
+      });
       onPlaced();
     } catch {
       setState('error');
@@ -182,7 +206,10 @@ export default function CartDrawer({
                 })}
               </ul>
 
-              <form id="cart-form" onSubmit={place} className="space-y-3 pt-4">
+              {!client && (
+                <SignInNotice />
+              )}
+              <form id="cart-form" onSubmit={place} className={`space-y-3 pt-4 ${client ? '' : 'hidden'}`}>
                 <input className={fieldClass} placeholder={client ? `Nombre de contacto (${client.businessName})` : 'Tu nombre'} aria-label="Tu nombre" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
                 <input className={fieldClass} placeholder={client?.phone ? `Teléfono (${client.phone})` : 'Teléfono'} aria-label="Teléfono" type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
                 <input className={fieldClass} placeholder="Correo electrónico (opcional)" aria-label="Correo electrónico" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
@@ -228,7 +255,7 @@ export default function CartDrawer({
             <button
               type="submit"
               form="cart-form"
-              disabled={state === 'sending'}
+              disabled={state === 'sending' || !client}
               className="w-full bg-[#1D1D1F] text-white text-sm font-medium px-6 py-3.5 rounded-full hover:bg-[#333336] transition-all disabled:opacity-50"
             >
               {state === 'sending' ? 'Enviando…' : 'Hacer pedido'}

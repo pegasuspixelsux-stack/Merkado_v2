@@ -191,6 +191,8 @@ export interface Client {
   phone: string;
   /** Delivery address / notes. */
   address: string;
+  /** Usual receiving hour, "HH:MM". */
+  receivingTime: string;
   /** 'level_1'..'level_5' (price_levels/{id}). */
   priceLevelId: string;
   status: ClientStatus;
@@ -209,6 +211,8 @@ export interface ClientAccess {
   businessName: string;
   contactName: string;
   phone: string;
+  address: string;
+  receivingTime: string;
   priceLevelId: string;
   levelName: string;
   categoryAdjustments: Record<string, number>;

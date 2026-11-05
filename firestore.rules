@@ -139,8 +139,18 @@ service cloud.firestore {
 
       allow update: if isAgent()
         && request.resource.data.diff(resource.data).affectedKeys()
-             .hasOnly(['status', 'notes', 'assignedAgentId'])
-        && request.resource.data.status in ['new', 'contacted', 'closed'];
+             .hasOnly(['status', 'notes', 'assignedAgentId', 'quantity', 'unitPrice', 'message'])
+        && request.resource.data.status in ['new', 'contacted', 'closed']
+        // Agents can correct an order before confirming it: quantity, price and the order details text.
+        && (!('quantity' in request.resource.data)
+            || (request.resource.data.quantity is int
+                && request.resource.data.quantity >= 1 && request.resource.data.quantity <= 99999))
+        && (!('unitPrice' in request.resource.data)
+            || (request.resource.data.unitPrice is number
+                && request.resource.data.unitPrice >= 0 && request.resource.data.unitPrice < 1000000))
+        && request.resource.data.message is string && request.resource.data.message.size() <= 5000
+        && (!('notes' in request.resource.data)
+            || (request.resource.data.notes is string && request.resource.data.notes.size() <= 2000));
     }
 
     // --------------------------------------------------------- price levels

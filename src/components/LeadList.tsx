@@ -1,16 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Mail, MessageCircle, Phone } from 'lucide-react';
+import { Mail, MessageCircle, Phone, Printer } from 'lucide-react';
+import OrderModal, { orderStatusLabels } from './dashboard/OrderModal';
 import { getProperty, updateLeadStatus } from '../services/dbService';
 import type { Lead, LeadStatus } from '../types/firestore';
 import { timeAgo, whatsappUrl } from '../utils/format';
 
-const statuses: { value: LeadStatus; label: string }[] = [
-  { value: 'new', label: 'Nuevo' },
-  { value: 'contacted', label: 'Contactado' },
-  { value: 'closed', label: 'Cerrado' },
-];
+const statuses: { value: LeadStatus; label: string }[] = (['new', 'contacted', 'closed'] as const).map((value) => ({
+  value,
+  label: orderStatusLabels[value],
+}));
 
 const FIRESTORE_ID = /^[A-Za-z0-9]{20}$/;
 
@@ -51,6 +51,8 @@ interface LeadListProps {
 export default function LeadList({ leads, agentName, emptyText = 'Todavía no hay pedidos.' }: LeadListProps) {
   const titleFor = usePropertyTitles(leads.map((l) => l.propertyId));
   const [error, setError] = useState<string | null>(null);
+  const [openId, setOpenId] = useState<string | null>(null);
+  const openLead = leads.find((l) => l.id === openId) ?? null;
 
   const setStatus = async (lead: Lead, status: LeadStatus) => {
     setError(null);
@@ -113,6 +115,13 @@ export default function LeadList({ leads, agentName, emptyText = 'Todavía no ha
               {lead.message && <p className="text-sm font-light whitespace-pre-line">{lead.message}</p>}
 
               <div className="flex flex-wrap items-center gap-2 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setOpenId(lead.id)}
+                  className="inline-flex items-center gap-1.5 border border-[#000000]/10 font-medium px-4 py-2 rounded-full hover:bg-[#F5F5F7] transition-colors"
+                >
+                  <Printer className="w-3.5 h-3.5" /> Abrir pedido
+                </button>
                 {wa ? (
                   <a
                     href={wa}
@@ -151,6 +160,15 @@ export default function LeadList({ leads, agentName, emptyText = 'Todavía no ha
           );
         })}
       </ul>
+      {openLead && (
+        <OrderModal
+          key={openLead.id}
+          lead={openLead}
+          productTitle={titleFor(openLead.propertyId)}
+          agentName={agentName}
+          onClose={() => setOpenId(null)}
+        />
+      )}
     </>
   );
 }

@@ -17,7 +17,7 @@ import {
 import type { Client } from '@/src/types/firestore';
 import { PageHeader, cardClass, inputClass, labelClass } from '@/src/components/dashboard/ui';
 
-const emptyForm: ClientInput = { businessName: '', contactName: '', phone: '', address: '', priceLevelId: 'level_1', status: 'active' };
+const emptyForm: ClientInput = { businessName: '', contactName: '', phone: '', address: '', receivingTime: '', priceLevelId: 'level_1', status: 'active' };
 
 /** International number for wa.me: Uruguayan numbers saved without the country code get 598. */
 const waNumber = (phone: string) => {
@@ -58,12 +58,15 @@ export default function CustomersPage() {
   const open = (c: Client | 'new') => {
     setEditing(c);
     setFormError(null);
-    setForm(c === 'new' ? emptyForm : { businessName: c.businessName, contactName: c.contactName, phone: c.phone, address: c.address, priceLevelId: c.priceLevelId, status: c.status });
+    setForm(c === 'new' ? emptyForm : { businessName: c.businessName, contactName: c.contactName, phone: c.phone, address: c.address, receivingTime: c.receivingTime, priceLevelId: c.priceLevelId, status: c.status });
   };
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.businessName.trim()) return setFormError('Ingresá el nombre del negocio.');
+    if (!form.contactName.trim()) return setFormError('Ingresá el nombre de contacto.');
+    if (!form.address.trim()) return setFormError('Ingresá la dirección de entrega.');
+    if (!form.receivingTime) return setFormError('Ingresá la hora de recepción.');
     if (phoneKey(form.phone).length < 8) return setFormError('Ingresá un teléfono de WhatsApp válido.');
     const level = levelOf(form.priceLevelId);
     if (!level) return setFormError('Elegí un nivel de precio.');
@@ -252,6 +255,11 @@ export default function CustomersPage() {
             <div>
               <label htmlFor="c-address" className={labelClass}>Dirección de entrega</label>
               <textarea id="c-address" rows={2} className={`${inputClass} resize-none`} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+            </div>
+            <div>
+              <label htmlFor="c-time" className={labelClass}>Hora de recepción</label>
+              <input id="c-time" type="time" className={inputClass} value={form.receivingTime} onChange={(e) => setForm({ ...form, receivingTime: e.target.value })} />
+              <p className="text-xs text-[#86868B] mt-1">Hora en que el cliente recibe habitualmente los pedidos. Se completa sola en su carrito.</p>
             </div>
             <div>
               <label htmlFor="c-level" className={labelClass}>Nivel de precio</label>

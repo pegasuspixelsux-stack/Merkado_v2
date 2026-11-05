@@ -53,10 +53,15 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
 
   const sidebar = (
     <div className="flex h-full flex-col">
-      <div className="px-6 h-16 flex items-center justify-between shrink-0">
-        <Link href="/dashboard" className="font-semibold text-lg tracking-tight">
-          Merkado.
-        </Link>
+      <div className="px-6 h-20 flex items-center justify-between shrink-0">
+        <div className="min-w-0">
+          <Link href="/dashboard" className="font-semibold text-lg tracking-tight block leading-tight">
+            Merkado.
+          </Link>
+          <p className="text-xs text-white/70 truncate max-w-44" aria-live="polite">
+            Bienvenido, <span className="text-white font-medium">{agent?.name || agent?.email || ''}</span>
+          </p>
+        </div>
         <button
           onClick={() => setMenuOpen(false)}
           aria-label="Cerrar menú"

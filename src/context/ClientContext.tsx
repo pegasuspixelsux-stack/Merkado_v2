@@ -39,7 +39,7 @@ export type TokenResult = 'ok' | 'invalid' | 'suspended' | 'error';
 
 interface ClientState {
   /** The customer identified by the token in their link; null for ordinary visitors. */
-  client: Pick<ClientAccess, 'clientId' | 'businessName' | 'contactName' | 'phone' | 'token'> | null;
+  client: Pick<ClientAccess, 'clientId' | 'businessName' | 'contactName' | 'phone' | 'address' | 'receivingTime' | 'token'> | null;
   /** Their price level, kept live: when an admin edits it, prices on the page change at once. */
   level: PriceLevel | null;
   /** The saved link belongs to a suspended customer. */
@@ -96,7 +96,7 @@ export function ClientProvider({ children }: { children: ReactNode }) {
   const value = useMemo<ClientState>(
     () => ({
       client: active
-        ? { clientId: active.clientId, businessName: active.businessName, contactName: active.contactName, phone: active.phone, token: active.token }
+        ? { clientId: active.clientId, businessName: active.businessName, contactName: active.contactName, phone: active.phone, address: active.address, receivingTime: active.receivingTime, token: active.token }
         : null,
       level: active
         ? { id: active.priceLevelId, name: active.levelName, description: '', categoryAdjustments: active.categoryAdjustments }

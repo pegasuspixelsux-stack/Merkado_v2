@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { KeyRound, LogOut, X } from 'lucide-react';
+import { OPEN_CLIENT_LOGIN } from '@/src/components/SignInNotice';
 import { useClient, type TokenResult } from '@/src/context/ClientContext';
 
 const fieldClass =
@@ -25,6 +26,15 @@ export default function WholesaleAccess() {
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const show = () => {
+      setError(null);
+      setOpen(true);
+    };
+    window.addEventListener(OPEN_CLIENT_LOGIN, show);
+    return () => window.removeEventListener(OPEN_CLIENT_LOGIN, show);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -110,7 +120,7 @@ export default function WholesaleAccess() {
               </button>
             </form>
             <p className="text-xs text-[#86868B] mt-4">
-              ¿No tenés acceso? Solicitalo desde “Mayoristas” en el inicio y te enviamos tu código.
+              ¿No tenés acceso? Solicitalo desde “Mayoristas” en el inicio. Tras la aprobación y la configuración del pago, te enviamos tu código.
             </p>
           </div>
         </div>,
