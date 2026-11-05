@@ -105,7 +105,16 @@ export const typeLabels: Record<string, string> = {
   vegetable: 'Verduras',
   leafy: 'Hojas verdes',
   tropical: 'Tropicales',
+  'melones-y-sandias': 'Melones y Sandías',
+  'aromaticas-y-hierbas': 'Aromáticas y Hierbas',
+  hongos: 'Hongos',
+  'tuberculos-y-raices': 'Tubérculos y Raíces',
+  'otros-vegetales': 'Otros vegetales',
 };
+
+/** Lower-case, no accents, letters and digits only: "Hojas verdes" -> "hojasverdes". */
+const normName = (v: string) =>
+  v.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
 
 /** Stored values (kept in English so existing data keeps working). */
 export const weightUnits = ['kg', 'g', 'lb', 'oz', 'each', 'dozen', 'bunch', 'case'] as const;
@@ -133,8 +142,10 @@ export function formatQuantity(weight?: number, unit?: string): string {
 /** Built-ins first, then the custom categories (A-Z). */
 export function mergeCategories(custom: { id: string; name: string }[]): Category[] {
   const builtin = Object.entries(typeLabels).map(([id, name]) => ({ id, name, builtin: true }));
+  const builtinNames = new Set(Object.values(typeLabels).map(normName));
   const extra = custom
-    .filter((c) => !(c.id in typeLabels))
+    // A custom category with the same name as a built-in one would show up twice.
+    .filter((c) => !(c.id in typeLabels) && !builtinNames.has(normName(c.name)))
     .sort((a, b) => a.name.localeCompare(b.name, LOCALE));
   return [...builtin, ...extra];
 }

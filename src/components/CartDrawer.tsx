@@ -39,7 +39,17 @@ export default function CartDrawer({
   buyerType: 'retail' | 'wholesale';
 }) {
   const { client, level } = useClient();
-  const [form, setForm] = useState({ name: '', phone: '', email: '', notes: '' });
+  const emptyForm = {
+    name: '',
+    phone: '',
+    email: '',
+    fulfillment: 'delivery' as 'delivery' | 'pickup',
+    address: '',
+    date: '',
+    time: '',
+    notes: '',
+  };
+  const [form, setForm] = useState(emptyForm);
   const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -60,6 +70,8 @@ export default function CartDrawer({
     const phone = form.phone.trim() || client?.phone || '';
     if (!name) return setFormError('Ingresá tu nombre.');
     if (!phone && !form.email.trim()) return setFormError('Ingresá un teléfono o un correo electrónico.');
+    if (form.fulfillment === 'delivery' && !form.address.trim()) return setFormError('Ingresá la dirección de entrega.');
+    if (!form.time) return setFormError('Elegí la hora en que vas a recibir o retirar el pedido.');
     if (!db) {
       setState('error');
       return;
@@ -71,6 +83,11 @@ export default function CartDrawer({
       const batch = writeBatch(db);
       const tag =
         client && level ? `Mayorista · ${level.name}` : buyerType === 'wholesale' ? 'Mayorista' : 'Minorista';
+      const deliveryLines = [
+        form.fulfillment === 'delivery' ? `Entrega a domicilio: ${form.address.trim()}` : 'Retiro en local',
+        `${form.fulfillment === 'delivery' ? 'Hora de recepción' : 'Hora de retiro'}: ${form.date ? `${form.date} ` : ''}${form.time}`,
+        form.notes.trim() && `Instrucciones especiales: ${form.notes.trim()}`,
+      ];
       for (const { item, qty } of lines) {
         const unit = unitPriceOf(item);
         batch.set(doc(collection(db, 'leads')), {
@@ -87,7 +104,7 @@ export default function CartDrawer({
           channel: 'Portal',
           message: [
             `[${tag}] ${item.title} - ${quantityLabel(qty, item.pricingMode)} @ ${priceWithShortUnit(unit, item.pricingMode)} · Subtotal: ${formatMoney(unit * qty)}`,
-            form.notes.trim(),
+            ...deliveryLines,
           ]
             .filter(Boolean)
             .join('\n'),
@@ -97,7 +114,7 @@ export default function CartDrawer({
       }
       await batch.commit();
       setState('sent');
-      setForm({ name: '', phone: '', email: '', notes: '' });
+      setForm(emptyForm);
       onPlaced();
     } catch {
       setState('error');
@@ -169,7 +186,29 @@ export default function CartDrawer({
                 <input className={fieldClass} placeholder={client ? `Nombre de contacto (${client.businessName})` : 'Tu nombre'} aria-label="Tu nombre" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
                 <input className={fieldClass} placeholder={client?.phone ? `Teléfono (${client.phone})` : 'Teléfono'} aria-label="Teléfono" type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
                 <input className={fieldClass} placeholder="Correo electrónico (opcional)" aria-label="Correo electrónico" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-                <textarea className={`${fieldClass} resize-none`} rows={2} placeholder="Dirección de entrega o notas (opcional)" aria-label="Notas" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+                <fieldset className="grid grid-cols-2 gap-2 pt-1">
+                  <legend className="sr-only">Entrega o retiro</legend>
+                  {([['delivery', 'Entrega a domicilio'], ['pickup', 'Retiro en local']] as const).map(([value, label]) => (
+                    <label key={value} className={`cursor-pointer rounded-xl border px-4 py-3 text-sm text-center transition-colors ${form.fulfillment === value ? 'border-[#1D1D1F] bg-[#1D1D1F] text-white' : 'border-[#000000]/10 bg-[#FBFBFD] hover:bg-[#F5F5F7]'}`}>
+                      <input type="radio" name="fulfillment" value={value} checked={form.fulfillment === value} onChange={() => setForm({ ...form, fulfillment: value })} className="sr-only" />
+                      {label}
+                    </label>
+                  ))}
+                </fieldset>
+                {form.fulfillment === 'delivery' && (
+                  <input className={fieldClass} placeholder="Dirección de entrega" aria-label="Dirección de entrega" autoComplete="street-address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+                )}
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="block">
+                    <span className="block text-xs text-[#515154] mb-1">Fecha (opcional)</span>
+                    <input className={fieldClass} type="date" min={new Date().toLocaleDateString('en-CA')} value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
+                  </label>
+                  <label className="block">
+                    <span className="block text-xs text-[#515154] mb-1">{form.fulfillment === 'delivery' ? 'Hora de recepción' : 'Hora de retiro'}</span>
+                    <input className={fieldClass} type="time" required value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} />
+                  </label>
+                </div>
+                <textarea className={`${fieldClass} resize-none`} rows={3} maxLength={1000} placeholder="Instrucciones especiales (opcional): cómo preparar, entrada de servicio, cómo llamar…" aria-label="Instrucciones especiales" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
               </form>
             </>
           )}

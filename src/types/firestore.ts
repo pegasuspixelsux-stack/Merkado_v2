@@ -42,7 +42,7 @@ export interface Agent {
 
 /**
  * Product category id (slug). The field keeps its old name, `type`, in Firestore.
- * Built-in ids: fruit, vegetable, leafy, tropical; more are added in the dashboard (categories/{id}).
+ * Built-in ids: fruit, vegetable, leafy, tropical, melones-y-sandias, aromaticas-y-hierbas, hongos, tuberculos-y-raices, otros-vegetales; more are added in the dashboard (categories/{id}).
  */
 export type PropertyType = string;
 
