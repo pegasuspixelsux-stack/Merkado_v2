@@ -60,12 +60,12 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
         <button
           onClick={() => setMenuOpen(false)}
           aria-label="Cerrar menú"
-          className="lg:hidden p-2 rounded-full hover:bg-[#F5F5F7]"
+          className="lg:hidden p-2 rounded-full hover:bg-white/10"
         >
           <X className="w-4 h-4" />
         </button>
       </div>
-      <p className="px-6 pt-4 pb-2 text-xs uppercase tracking-widest text-[#515154] font-semibold">Panel</p>
+      <p className="px-6 pt-4 pb-2 text-xs uppercase tracking-widest text-white/60 font-semibold">Panel</p>
       <nav className="px-3 space-y-1" aria-label="Panel">
         {nav.map(({ href, label, icon: Icon, exact }) => {
           const active = isActive(href, exact);
@@ -76,14 +76,14 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
               onClick={() => setMenuOpen(false)}
               aria-current={active ? 'page' : undefined}
               className={`flex items-center gap-3 px-4 py-2.5 rounded-full text-sm font-medium transition-colors ${
-                active ? 'bg-[#1D1D1F] text-white' : 'text-[#515154] hover:bg-[#F5F5F7] hover:text-[#1D1D1F]'
+                active ? 'bg-white text-black' : 'text-white/70 hover:bg-white/10 hover:text-white'
               }`}
             >
               <Icon className="w-4 h-4" /> {label}
               {href === '/dashboard/leads' && newLeads > 0 && (
                 <span
                   className={`ml-auto text-xs px-2 py-0.5 rounded-full ${
-                    active ? 'bg-white text-black' : 'bg-[#1D1D1F] text-white'
+                    active ? 'bg-black text-white' : 'bg-white text-black'
                   }`}
                 >
                   {newLeads}
@@ -94,10 +94,10 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
         })}
       </nav>
       <div className="mt-auto p-6">
-        <Link href="/" className="text-xs text-[#515154] hover:text-[#1D1D1F]">
+        <Link href="/" className="text-xs text-white/70 hover:text-white">
           ← Ver el sitio
         </Link>
-        <p className="mt-3 text-xs font-medium tracking-wide text-[#86868B]">Merkado v2.0</p>
+        <p className="mt-3 text-xs font-medium tracking-wide text-white/50">Merkado v2.0</p>
       </div>
     </div>
   );
@@ -105,7 +105,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-[#FBFBFD] text-[#1D1D1F] font-sans antialiased">
       {/* Desktop sidebar */}
-      <aside className="hidden lg:block fixed inset-y-0 left-0 w-64 bg-white border-r border-[#000000]/5">
+      <aside className="hidden lg:block fixed inset-y-0 left-0 w-64 bg-black text-white">
         {sidebar}
       </aside>
 
@@ -118,7 +118,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
           }`}
         />
         <aside
-          className={`absolute left-0 top-0 h-full w-72 bg-white shadow-2xl transition-transform duration-300 ${
+          className={`absolute left-0 top-0 h-full w-72 bg-black text-white shadow-2xl transition-transform duration-300 ${
             menuOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
         >
