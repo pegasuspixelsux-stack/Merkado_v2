@@ -36,9 +36,8 @@ export default function WholesaleAccess() {
   if (client && level) {
     return (
       <div className="flex items-center gap-1 rounded-full bg-[#F5F5F7] border border-[#000000]/5 pl-3 pr-1 py-1 text-xs min-w-0">
-        <span className="truncate max-w-28 sm:max-w-60 font-medium" title={`${client.businessName} · ${level.name}`}>
-          <span className="hidden sm:inline">{client.businessName} · </span>
-          {level.name}
+        <span className="truncate max-w-32 sm:max-w-60 font-medium" title={`${client.businessName} · ${level.name}`}>
+          {client.businessName}
         </span>
         <button
           type="button"
