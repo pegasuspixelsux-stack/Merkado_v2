@@ -402,7 +402,7 @@ export default function MerkadoHome({
           className="absolute inset-0 bg-gradient-to-b from-[#0B2E10]/90 via-[#0F3A15]/80 to-[#0F3A15]/75 md:bg-gradient-to-r md:from-[#0B2E10]/95 md:via-[#0F3A15]/80 md:to-[#0F3A15]/35"
         />
         <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#0B2E10]/60 to-transparent" />
-        <div className="relative w-full max-w-7xl mx-auto px-6 pt-28 pb-20 md:pt-44 md:pb-40 md:portrait:pt-32 md:portrait:pb-20">
+        <div className="relative w-full max-w-7xl mx-auto px-6 pt-28 pb-20 md:pt-44 md:pb-40 md:landscape:max-xl:pt-[158px] md:landscape:max-xl:pb-[142px] md:portrait:pt-32 md:portrait:pb-20">
           <span className="inline-block rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-[11px] sm:text-xs font-semibold tracking-[0.18em] uppercase">
             Distribución hortifrutícola B2B
           </span>
