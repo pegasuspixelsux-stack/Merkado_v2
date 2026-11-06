@@ -1,7 +1,7 @@
 'use client';
 
-import { toggleFavorite as toggleFavoriteInDb } from '@/src/services/favoritesService';
-import { createContext, useContext, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from 'react';
+import { seedSampleFavorites, toggleFavorite as toggleFavoriteInDb } from '@/src/services/favoritesService';
+import { createContext, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { buildToken, resolvePinToken, toClientAccess } from '../services/pricingService';
@@ -97,6 +97,17 @@ export function ClientProvider({ children }: { children: ReactNode }) {
   const access = token && accessDoc?.token === token ? accessDoc : null;
   const suspended = access?.status === 'suspended';
   const active = access && !suspended && (PRICE_LEVEL_IDS as readonly string[]).includes(access.priceLevelId) ? access : null;
+
+  // Demo: a customer whose record has no favorites yet gets the 15 sample products once.
+  const seeded = useRef<string | null>(null);
+  const seedToken = active && !active.favoritesSet ? active.token : null;
+  useEffect(() => {
+    if (!seedToken || seeded.current === seedToken) return;
+    seeded.current = seedToken;
+    seedSampleFavorites(seedToken).catch(() => {
+      seeded.current = null; // try again on the next visit
+    });
+  }, [seedToken]);
 
   const value = useMemo<ClientState>(
     () => ({

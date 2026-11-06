@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Heart, Minus, Plus, ShoppingCart } from 'lucide-react';
+import { Heart, Minus, Plus, ShoppingCart, Trash2 } from 'lucide-react';
 import { useClient } from '@/src/context/ClientContext';
 import { getCategories } from '@/src/services/dbService';
 import { getFavorites } from '@/src/services/favoritesService';
@@ -10,7 +10,6 @@ import { toHomeProperty, type HomeProperty } from '@/src/lib/homeData';
 import { applyBoxFirst, applyLevel } from '@/src/utils/pricing';
 import { formatMoney, mergeCategories, priceWithShortUnit, quantityLabel } from '@/src/utils/format';
 import CartDrawer, { unitPriceOf, type CartLine } from '@/src/components/CartDrawer';
-import FavoriteButton from '@/src/components/FavoriteButton';
 import PropertyImage from '@/src/components/PropertyImage';
 import SignInNotice from '@/src/components/SignInNotice';
 import SiteNavLinks from '@/src/components/SiteNavLinks';
@@ -23,8 +22,28 @@ import BrandName from '@/src/components/BrandName';
  * "Mis favoritos" / quick order: the customer's saved products with TODAY's price. Prices are never
  * stored in the favorites list; each product is fetched again here and priced with the customer's level.
  */
+/** Trash button: takes the product out of the customer's list in one click. */
+function RemoveButton({ title, onRemove }: { title: string; onRemove: () => Promise<void> }) {
+  const [busy, setBusy] = useState(false);
+  return (
+    <button
+      type="button"
+      disabled={busy}
+      onClick={() => {
+        setBusy(true);
+        onRemove().finally(() => setBusy(false));
+      }}
+      aria-label={`Quitar ${title} de favoritos`}
+      title="Quitar de favoritos"
+      className="w-9 h-9 shrink-0 rounded-full border border-[#000000]/5 flex items-center justify-center text-[#515154] hover:bg-[#F5F5F7] hover:text-red-600 disabled:opacity-50 transition-colors"
+    >
+      <Trash2 className="w-4 h-4" />
+    </button>
+  );
+}
+
 export default function FavoritesPage() {
-  const { client, level, favorites } = useClient();
+  const { client, level, favorites, toggleFavorite } = useClient();
   const [products, setProducts] = useState<HomeProperty[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -89,7 +108,7 @@ export default function FavoritesPage() {
           <Heart className="w-7 h-7 fill-red-500 text-red-500" /> Mis favoritos
         </h1>
         <p className="text-sm text-[#515154] font-light mt-2 mb-8">
-          Tu pedido habitual en un clic. Los precios se actualizan siempre: ves el precio de hoy, no el de la última vez.
+          Tu pedido habitual en un clic. Esta lista de muestra es editable: ajustá cantidades, quitá productos o sumá otros con el corazón del catálogo. Los precios se actualizan siempre: ves el precio de hoy.
         </p>
 
         {!client ? (
@@ -131,7 +150,7 @@ export default function FavoritesPage() {
                       </div>
                     </div>
                     <p className="text-sm font-semibold shrink-0">{formatMoney(unitPriceOf(item) * q)}</p>
-                    <FavoriteButton productId={id} title={item.title} className="w-9 h-9 border border-[#000000]/5 shrink-0" />
+                    <RemoveButton title={item.title} onRemove={() => toggleFavorite(id)} />
                   </li>
                 );
               })}
@@ -144,7 +163,7 @@ export default function FavoritesPage() {
                     <p className="text-sm font-medium truncate">{item.title}</p>
                     <p className="text-xs text-[#515154]">Sin stock hoy · no se agrega al pedido</p>
                   </div>
-                  <FavoriteButton productId={String(item.id)} title={item.title} className="w-9 h-9 border border-[#000000]/5 shrink-0" />
+                  <RemoveButton title={item.title} onRemove={() => toggleFavorite(String(item.id))} />
                 </li>
               ))}
             </ul>
@@ -163,7 +182,7 @@ export default function FavoritesPage() {
                 }}
                 className="inline-flex items-center gap-2 rounded-full bg-[#1D1D1F] text-white px-7 py-3.5 text-sm font-medium hover:bg-[#333336] disabled:opacity-40 transition-colors"
               >
-                <ShoppingCart className="w-4 h-4" /> Pedir favoritos
+                <ShoppingCart className="w-4 h-4" /> Cargar favoritos al carrito
               </button>
             </div>
           </>

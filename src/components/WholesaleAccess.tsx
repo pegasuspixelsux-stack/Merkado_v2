@@ -21,7 +21,7 @@ const errors: Record<Exclude<TokenResult, 'ok'>, string> = {
  * Logged out: "Acceso mayoristas" opens a phone + access-code login. Logged in: shows the price level and "Cerrar sesión".
  */
 export default function WholesaleAccess() {
-  const { client, level, login, signOutClient } = useClient();
+  const { client, level, login, signOutClient, favorites } = useClient();
   const [open, setOpen] = useState(false);
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
@@ -58,6 +58,11 @@ export default function WholesaleAccess() {
         >
           <Heart className="w-3.5 h-3.5" />
           <span className="hidden md:inline">Favoritos</span>
+          {favorites.length > 0 && (
+            <span className="min-w-4 h-4 px-1 rounded-full bg-[#2E7D32] text-white text-[10px] font-semibold flex items-center justify-center">
+              {favorites.length}
+            </span>
+          )}
         </Link>
         <button
           type="button"

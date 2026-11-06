@@ -347,7 +347,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
 
       {/* Page title */}
       <div className="max-w-[1440px] mx-auto px-3 md:px-6 pt-5 md:pt-8">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-semibold tracking-tight text-[#1D1D1F] whitespace-nowrap">Catálogo Mayorista</h1>
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-semibold tracking-tight text-[#1D1D1F] whitespace-nowrap text-center md:text-left">Catálogo Mayorista</h1>
       </div>
 
       {/* Category buttons (and, on phones, the layout selector) below the hero, like the homepage */}

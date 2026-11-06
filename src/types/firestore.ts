@@ -249,6 +249,8 @@ export interface ClientAccess {
   allowLoose: boolean;
   /** Product ids the customer marked as favorites (prices are never stored, always looked up). */
   favorites: string[];
+  /** The favorites field exists in the record (false until the demo list has been loaded or the customer saved one). */
+  favoritesSet: boolean;
   priceLevelId: string;
   levelName: string;
   categoryAdjustments: Record<string, number>;

@@ -87,6 +87,7 @@ export function toClientAccess(token: string, d: DocumentData): ClientAccess {
     notes: d.notes ?? '',
     allowLoose: d.allowLoose === true,
     favorites: Array.isArray(d.favorites) ? d.favorites.filter((x: unknown): x is string => typeof x === 'string') : [],
+    favoritesSet: Array.isArray(d.favorites),
     priceLevelId: d.priceLevelId ?? '',
     levelName: d.levelName ?? '',
     categoryAdjustments: adjustmentsOf(d.categoryAdjustments),
