@@ -16,6 +16,9 @@ export function toBusiness(d: Record<string, unknown> | undefined): BusinessSett
     rut: clip(d?.rut, 60),
     license: clip(d?.license, 120),
     hours: clip(d?.hours, 400),
+    instagram: clip(d?.instagram, 200),
+    facebook: clip(d?.facebook, 200),
+    youtube: clip(d?.youtube, 200),
   };
 }
 

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Clock, FileText, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
 import { useBusiness } from '@/src/context/BusinessContext';
 import { useCategories } from '@/src/hooks/useCategories';
+import { socialLinks } from '@/src/components/SocialIcons';
 import { whatsappUrl } from '@/src/utils/format';
 import BrandName from '@/src/components/BrandName';
 
@@ -12,6 +13,7 @@ const linkClass = 'hover:text-white hover:underline underline-offset-2 transitio
 /** The four-column site footer, shared by the homepage and the item pages. */
 export default function SiteFooter() {
   const business = useBusiness();
+  const socials = socialLinks(business);
   const { categories } = useCategories();
   const wa = business.whatsapp ? whatsappUrl(business.whatsapp, 'Hola, quiero consultar por el catálogo.') : null;
   const hasContact = Boolean(
@@ -70,6 +72,23 @@ export default function SiteFooter() {
                 </li>
               )}
             </ul>
+          )}
+          {socials.length > 0 && (
+            <div className="flex items-center gap-2 pt-2" aria-label="Redes sociales">
+              {socials.map(({ key, label, href, Icon }) => (
+                <a
+                  key={key}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  title={label}
+                  className="w-11 h-11 rounded-full border border-white/30 flex items-center justify-center text-white hover:bg-white/15 transition-colors"
+                >
+                  <Icon className="w-5 h-5" />
+                </a>
+              ))}
+            </div>
           )}
         </div>
 

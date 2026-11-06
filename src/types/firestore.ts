@@ -272,6 +272,10 @@ export interface BusinessSettings {
   license: string;
   /** Hours of operation, free text. */
   hours: string;
+  /** Social media: a full link or just the account name (Instagram / Facebook). */
+  instagram: string;
+  facebook: string;
+  youtube: string;
 }
 
 export const emptyBusiness: BusinessSettings = {
@@ -283,4 +287,7 @@ export const emptyBusiness: BusinessSettings = {
   rut: '',
   license: '',
   hours: '',
+  instagram: '',
+  facebook: '',
+  youtube: '',
 };

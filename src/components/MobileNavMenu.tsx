@@ -4,11 +4,15 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 import { navLinks } from '@/src/components/SiteNavLinks';
+import { useBusiness } from '@/src/context/BusinessContext';
+import { socialLinks } from '@/src/components/SocialIcons';
 
 /** Burger button for phones: opens a dropdown with the top-navigation links. Hidden from md up. */
 export default function MobileNavMenu() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const socials = socialLinks(useBusiness());
+  const linkClass = 'block px-5 py-3 text-sm font-medium text-[#1D1D1F] hover:bg-[#F5F5F7]';
 
   useEffect(() => {
     if (!open) return;
@@ -41,16 +45,31 @@ export default function MobileNavMenu() {
           aria-label="Menú principal"
           className="absolute right-0 top-full mt-2 w-56 rounded-2xl bg-white border border-[#000000]/5 shadow-lg py-2 z-50"
         >
-          {navLinks.map((l) => (
-            <Link
-              key={l.label}
-              href={l.href}
-              onClick={() => setOpen(false)}
-              className="block px-5 py-3 text-sm font-medium text-[#1D1D1F] hover:bg-[#F5F5F7]"
-            >
+          {[{ href: '/', label: 'Inicio' }, ...navLinks, { href: '/dashboard', label: 'Administración' }].map((l) => (
+            <Link key={l.label} href={l.href} onClick={() => setOpen(false)} className={linkClass}>
               {l.label}
             </Link>
           ))}
+          {socials.length > 0 && (
+            <>
+              <hr className="my-2 mx-5 border-0 border-t border-[#000000]/10" />
+              <div className="flex items-center gap-1 px-3 pt-1 pb-2">
+                {socials.map(({ key, label, href, Icon }) => (
+                  <a
+                    key={key}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    title={label}
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-[#515154] hover:bg-[#F5F5F7] hover:text-[#1D1D1F] transition-colors"
+                  >
+                    <Icon className="w-5 h-5" />
+                  </a>
+                ))}
+              </div>
+            </>
+          )}
         </nav>
       )}
     </div>

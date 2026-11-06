@@ -91,6 +91,16 @@ export default function BusinessForm() {
         <textarea id="b-hours" rows={3} className={`${inputClass} resize-none`} value={form.hours} disabled={!canEdit} maxLength={400} onChange={(e) => set('hours', e.target.value)} placeholder={'Lunes a sábado de 5:00 a 14:00\nDomingos cerrado'} />
       </div>
 
+      <div>
+        <p className={labelClass}>Redes sociales</p>
+        <div className="space-y-3">
+          <input aria-label="Instagram" className={inputClass} value={form.instagram} disabled={!canEdit} maxLength={200} onChange={(e) => set('instagram', e.target.value)} placeholder="Instagram: @tuempresa o el enlace" />
+          <input aria-label="Facebook" className={inputClass} value={form.facebook} disabled={!canEdit} maxLength={200} onChange={(e) => set('facebook', e.target.value)} placeholder="Facebook: nombre de la página o el enlace" />
+          <input aria-label="YouTube" className={inputClass} value={form.youtube} disabled={!canEdit} maxLength={200} onChange={(e) => set('youtube', e.target.value)} placeholder="YouTube: enlace del canal" />
+        </div>
+        <p className="text-xs text-[#86868B] mt-1.5">Salen como íconos en el menú del celular. El WhatsApp de arriba también aparece. Lo que dejes vacío no se muestra.</p>
+      </div>
+
       {message && (
         <p role={message.ok ? 'status' : 'alert'} className={`text-sm ${message.ok ? 'text-green-700' : 'text-red-600'}`}>
           {message.text}
