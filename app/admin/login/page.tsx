@@ -89,9 +89,9 @@ export default function AdminLoginPage() {
         Merkado v2.0
       </p>
 
-      {/* Two-column overlay: left transparent, right 50% black */}
-      <div className="relative min-h-screen grid grid-cols-1 md:grid-cols-2">
-        <div aria-hidden="true" className="hidden md:block" />
+      {/* Wide screens held landscape: two columns (left transparent, right 50% black). Phones and portrait tablets: one column. */}
+      <div className="relative min-h-screen grid grid-cols-1 md:landscape:grid-cols-2">
+        <div aria-hidden="true" className="hidden md:landscape:block" />
 
         <div className="bg-black/50 flex items-center justify-center px-6 py-24">
           <div className="w-full max-w-sm bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-2xl">
