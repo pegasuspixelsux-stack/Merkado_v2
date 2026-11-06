@@ -30,7 +30,8 @@ import {
   LayoutGrid,
   List,
 } from 'lucide-react';
-import BrandName from '@/src/components/BrandName';
+import BrandName, { DEFAULT_LOGO } from '@/src/components/BrandName';
+import { useBusiness } from '@/src/context/BusinessContext';
 
 const PAGE_SIZE = 12;
 
@@ -221,6 +222,7 @@ export default function MerkadoHome({
   );
   // A customer who logged in with Acceso mayoristas sees their price level; everyone else sees list prices.
   const { client, level } = useClient();
+  const { logo } = useBusiness();
   const allowLoose = client?.allowLoose ?? false;
   const properties = useMemo(() => applyBoxFirst(applyLevel(baseProperties, level), level, allowLoose), [baseProperties, level, allowLoose]);
   const [query, setQuery] = useState('');
@@ -456,6 +458,11 @@ export default function MerkadoHome({
             aria-hidden="true"
             className="absolute inset-0 bg-[#2E7D32] md:bg-transparent md:bg-gradient-to-r md:from-[#2E7D32] md:from-[55%] md:via-[#2E7D32]/55 md:via-[80%] md:to-transparent"
           />
+          {/* Desktop only: the logo on the right column, over the overlay */}
+          <div aria-hidden="true" className="hidden xl:flex absolute inset-y-0 right-10 w-[16%] min-[1400px]:w-[20.8%] items-center justify-center pointer-events-none">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={logo || DEFAULT_LOGO} alt="" className="w-full max-h-[100%] object-contain drop-shadow-lg" />
+          </div>
             <div className="relative w-full px-6 md:px-10 pt-5 pb-5 md:pt-9 md:pb-9 md:landscape:max-xl:pt-7 md:landscape:max-xl:pb-7 md:portrait:pt-7 md:portrait:pb-7">
             <span className="inline-block rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-[11px] sm:text-xs font-semibold tracking-[0.18em] uppercase">
               Distribución hortifrutícola B2B
