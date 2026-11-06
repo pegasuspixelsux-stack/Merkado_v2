@@ -20,11 +20,11 @@ export default function SiteFooter() {
     business.address || business.email || business.whatsapp || business.phone || business.hours || business.rut || business.license,
   );
   return (
-    <footer className="bg-[#2E7D32] text-white py-32 px-6">
+    <footer className="bg-[#2E7D32] text-white pt-12 pb-32 md:pt-32 px-6">
       <div className="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-12 mb-16">
         {/* Column 1: Brand (tablets, portrait and landscape: its own full-width row) */}
         <div className="space-y-4 md:col-span-2 xl:col-span-1">
-          <span className="text-xl md:text-2xl font-semibold tracking-tight text-white"><BrandName /></span>
+          <span className="text-sm min-[420px]:text-base sm:text-lg md:text-2xl font-semibold tracking-tight text-white"><BrandName /></span>
           <p className="text-sm md:text-base text-white/80 leading-relaxed font-light">
             Frutas y verduras frescas, directo del productor a tu negocio o a tu mesa.
           </p>
