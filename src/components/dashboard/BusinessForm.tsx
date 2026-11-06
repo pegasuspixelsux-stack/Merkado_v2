@@ -6,6 +6,8 @@ import { useBusiness } from '@/src/context/BusinessContext';
 import { saveBusinessSettings } from '@/src/services/businessService';
 import type { BusinessSettings } from '@/src/types/firestore';
 import { cardClass, inputClass, labelClass } from '@/src/components/dashboard/ui';
+import ImageUpload from '@/src/components/ImageUpload';
+import { DEFAULT_LOGO } from '@/src/components/BrandName';
 
 /**
  * "Datos del negocio": the operator's name (title of the catalogue), address, contact, RUT / license and hours.
@@ -59,6 +61,24 @@ export default function BusinessForm() {
         <label htmlFor="b-name" className={labelClass}>Nombre del operador (título del catálogo)</label>
         <input id="b-name" className={inputClass} value={form.businessName} disabled={!canEdit} maxLength={120} onChange={(e) => set('businessName', e.target.value)} placeholder="Merkado para Mayoristas" />
         <p className="text-xs text-[#86868B] mt-1">Si lo dejás vacío se usa “Merkado para Mayoristas”.</p>
+      </div>
+      <div>
+        <span className={labelClass}>Logo</span>
+        <div className="flex items-center gap-4">
+          <span className="shrink-0 rounded-xl border border-[#000000]/10 bg-white p-1.5">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={form.logo || DEFAULT_LOGO} alt="Logo actual" className="h-14 w-14 object-contain" />
+          </span>
+          <div className="min-w-0 flex-1 space-y-2">
+            {canEdit && <ImageUpload folder="/Merkado-v2/branding" onUploaded={({ url }) => set('logo', url)} onError={(text) => setMessage({ ok: false, text })} />}
+            {canEdit && form.logo && (
+              <button type="button" onClick={() => set('logo', '')} className="text-xs underline underline-offset-2 text-[#515154] hover:text-[#1D1D1F]">
+                Quitar y usar el logo de Merkado
+              </button>
+            )}
+          </div>
+        </div>
+        <p className="text-xs text-[#86868B] mt-1.5">Sale al lado del nombre, arriba y en el pie del sitio. Mejor una imagen cuadrada con fondo transparente (PNG).</p>
       </div>
       <div>
         <label htmlFor="b-address" className={labelClass}>Dirección</label>

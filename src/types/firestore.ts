@@ -276,6 +276,8 @@ export interface BusinessSettings {
   instagram: string;
   facebook: string;
   youtube: string;
+  /** Logo shown next to the name in the header and footer (image URL); empty = the default Merkado logo. */
+  logo: string;
 }
 
 export const emptyBusiness: BusinessSettings = {
@@ -290,4 +292,5 @@ export const emptyBusiness: BusinessSettings = {
   instagram: '',
   facebook: '',
   youtube: '',
+  logo: '',
 };

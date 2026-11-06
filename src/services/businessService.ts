@@ -19,6 +19,7 @@ export function toBusiness(d: Record<string, unknown> | undefined): BusinessSett
     instagram: clip(d?.instagram, 200),
     facebook: clip(d?.facebook, 200),
     youtube: clip(d?.youtube, 200),
+    logo: clip(d?.logo, 500),
   };
 }
 

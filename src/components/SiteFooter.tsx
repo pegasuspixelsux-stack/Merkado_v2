@@ -96,7 +96,7 @@ export default function SiteFooter() {
         <div className="space-y-4">
           <p className="text-sm uppercase tracking-widest text-white/80 font-semibold">Catálogo</p>
           <ul className="space-y-3 text-sm md:text-base text-white/90 font-light">
-            {categories.map((c) => (
+            {categories.slice(0, 4).map((c) => (
               <li key={c.id}><Link href={`/items?category=${encodeURIComponent(c.id)}`} className={linkClass}>{c.name}</Link></li>
             ))}
             <li><Link href="/items" className={`${linkClass} font-medium`}>Ver todo el catálogo →</Link></li>
