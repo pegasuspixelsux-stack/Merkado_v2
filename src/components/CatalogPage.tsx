@@ -572,7 +572,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
 
       {/* --- MÁS VENDIDOS: just above the footer (hidden while filtering) --- */}
       {activeFilters === 0 && bestSellers.length > 0 && (
-        <div className="pb-20 md:pb-28 [&>section]:px-3 md:[&>section]:px-6 [&>section>ul]:-mx-3 [&>section>ul]:px-3 md:[&>section>ul]:mx-0 md:[&>section>ul]:px-0">
+        <div className="pt-12 md:pt-20 pb-6 md:pb-8 [&>section]:pb-0 [&>section]:px-3 md:[&>section]:px-6 [&>section>ul]:-mx-3 [&>section>ul]:px-3 md:[&>section>ul]:mx-0 md:[&>section>ul]:px-0">
           <SimilarItems title="Más vendidos" items={bestSellers} />
         </div>
       )}
