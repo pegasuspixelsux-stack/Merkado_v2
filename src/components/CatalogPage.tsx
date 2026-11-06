@@ -367,7 +367,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
                   onClick={() => change(setCategory)(c.id)}
                   aria-pressed={active}
                   className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-colors ${
-                    active ? 'bg-[#1D1D1F] text-white' : 'bg-[#F5F5F7] text-[#1D1D1F] hover:bg-[#E8E8ED]'
+                    active ? 'bg-[#2E7D32] text-white' : 'bg-[#F5F5F7] text-[#1D1D1F] hover:bg-[#E8E8ED]'
                   }`}
                 >
                   {c.label}
@@ -389,7 +389,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
                 aria-label={label}
                 title={label}
                 className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-                  layout === value ? 'bg-[#1D1D1F] text-white' : 'text-[#515154] hover:bg-[#E8E8ED]'
+                  layout === value ? 'bg-[#2E7D32] text-white' : 'text-[#515154] hover:bg-[#E8E8ED]'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -444,7 +444,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
                   onClick={() => addToCart(String(prop.id))}
                   disabled={prop.inStock === false}
                   aria-label={prop.inStock === false ? `${prop.title} está sin stock` : `Agregar ${prop.title} al carrito`}
-                  className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center shadow-sm hover:bg-[#F5F5F7] active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-8 h-8 rounded-full bg-[#2E7D32] text-white flex items-center justify-center shadow-sm hover:bg-[#256628] active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
@@ -508,7 +508,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
                     onClick={() => addToCart(String(prop.id))}
                     disabled={soldOut}
                     aria-label={soldOut ? `${prop.title} está sin stock` : `Agregar ${prop.title} al carrito`}
-                    className="w-8 h-8 rounded-full bg-[#1D1D1F] text-white flex items-center justify-center hover:bg-[#333336] active:scale-95 transition disabled:opacity-40"
+                    className="w-8 h-8 rounded-full bg-[#2E7D32] text-white flex items-center justify-center hover:bg-[#256628] active:scale-95 transition disabled:opacity-40"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
@@ -546,7 +546,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
                     aria-label={`Página ${n}`}
                     aria-current={n === currentPage ? 'page' : undefined}
                     className={`w-9 h-9 rounded-full text-xs font-medium transition-colors ${
-                      n === currentPage ? 'bg-[#1D1D1F] text-white' : 'hover:bg-[#F5F5F7]'
+                      n === currentPage ? 'bg-[#2E7D32] text-white' : 'hover:bg-[#F5F5F7]'
                     }`}
                   >
                     {n}
