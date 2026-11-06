@@ -75,7 +75,7 @@ export default function FavoritesPage() {
     <div className="min-h-screen bg-[#FBFBFD] text-[#1D1D1F] font-sans antialiased flex flex-col">
       <header className="border-b border-[#000000]/5 bg-[#FBFBFD]">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="font-semibold text-lg tracking-tight"><BrandName /></Link>
+          <Link href="/" className="font-semibold text-sm min-[420px]:text-base sm:text-lg tracking-tight"><BrandName /></Link>
           <SiteNavLinks />
           <div className="flex items-center gap-3">
             <WholesaleAccess />

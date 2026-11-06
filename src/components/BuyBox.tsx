@@ -45,18 +45,16 @@ export default function BuyBox({
   // Logged-out visitors pay the list (or sale) price; a wholesale customer pays their level's price.
   const unitPrice = optionPrice(active, categoryId, wholesale ? level : null).unit;
 
-  const [form, setForm] = useState({ instructions: '', name: '', phone: '', email: '' });
+  const [form, setForm] = useState({ instructions: '' });
   const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [formError, setFormError] = useState<string | null>(null);
 
   const buy = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inStock || !client) return;
-    // A logged-in wholesale customer's business name and WhatsApp number fill in what they leave empty.
-    const name = form.name.trim() || client?.businessName || '';
-    const phone = form.phone.trim() || client?.phone || '';
-    if (!name) return setFormError('Ingresá tu nombre.');
-    if (!phone && !form.email.trim()) return setFormError('Ingresá un teléfono o un correo electrónico.');
+    // The customer's own profile (contact, WhatsApp, email) goes with the order; nothing to type here.
+    const name = client.contactName || client.businessName;
+    const phone = client.phone;
     if (!db) {
       setState('error');
       return;
@@ -69,7 +67,7 @@ export default function BuyBox({
         orderId: ref.id,
         name: client ? `${client.businessName}${name !== client.businessName ? ` (${name})` : ''}` : name,
         phone,
-        email: form.email.trim(),
+        email: client.email,
         property: title,
         ...(itemId ? { propertyId: itemId } : {}),
         // The price the customer saw (their price level included), and who they are.
@@ -164,21 +162,6 @@ export default function BuyBox({
           placeholder="ej. maduros para el viernes, entregar antes del mediodía, dejar en la puerta de atrás"
           className={`${fieldClass} resize-none`}
         />
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label htmlFor="b-name" className={labelClass}>Tu nombre</label>
-          <input id="b-name" className={fieldClass} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-        </div>
-        <div>
-          <label htmlFor="b-phone" className={labelClass}>Teléfono</label>
-          <input id="b-phone" type="tel" className={fieldClass} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-        </div>
-      </div>
-      <div>
-        <label htmlFor="b-email" className={labelClass}>Correo electrónico (opcional)</label>
-        <input id="b-email" type="email" className={fieldClass} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
       </div>
 
       {(formError || state === 'error') && (

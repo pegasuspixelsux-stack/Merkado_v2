@@ -12,10 +12,10 @@ export const DEFAULT_LOGO = '/Merkado_L.png';
 export default function BrandName() {
   const { businessName, logo } = useBusiness();
   return (
-    <span className="inline-flex items-center gap-2.5 align-middle">
+    <span className="inline-flex items-center gap-2 sm:gap-2.5 align-middle whitespace-nowrap">
       <span className="shrink-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={logo || DEFAULT_LOGO} alt="" className="h-9 w-9 object-contain" />
+        <img src={logo || DEFAULT_LOGO} alt="" className="h-8 w-8 sm:h-9 sm:w-9 object-contain" />
       </span>
       <span>
         {businessName ? (

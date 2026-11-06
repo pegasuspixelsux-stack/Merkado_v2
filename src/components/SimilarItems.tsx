@@ -42,7 +42,7 @@ export default function SimilarItems({ title, items }: { title: string; items: S
 
       <ul
         ref={track}
-        className="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth -mx-6 px-6 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth -mx-6 px-6 scroll-pl-6 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {items.map((item) => (
           <li key={item.id} className="snap-start shrink-0 w-[60%] sm:w-[40%] md:w-[28%] lg:w-[22%]">
@@ -57,9 +57,6 @@ export default function SimilarItems({ title, items }: { title: string; items: S
                 />
                 {!item.inStock && (
                   <span className="absolute top-3 left-3 bg-black/80 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full">Sin stock</span>
-                )}
-                {item.salePrice && item.inStock && (
-                  <span className="absolute top-3 left-3 bg-white text-black text-[10px] font-semibold px-2.5 py-1 rounded-full">Oferta</span>
                 )}
               </div>
               <h3 className="mt-3 text-sm font-medium tracking-tight truncate">{item.title}</h3>

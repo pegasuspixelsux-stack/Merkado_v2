@@ -97,11 +97,12 @@ export default function WholesaleAccess() {
           setError(null);
           setOpen(true);
         }}
+        aria-label="Acceso mayoristas"
         className="inline-flex items-center gap-2 rounded-full bg-[#F5F5F7] border border-[#000000]/5 px-3 md:px-4 py-2 text-xs font-medium text-[#1D1D1F] hover:bg-[#E8E8ED] transition-colors"
       >
         <KeyRound className="w-3.5 h-3.5" />
         <span className="hidden sm:inline">Acceso mayoristas</span>
-        <span className="sm:hidden">Mayoristas</span>
+        <span className="hidden min-[400px]:inline sm:hidden">Mayoristas</span>
       </button>
 
       {open && createPortal(

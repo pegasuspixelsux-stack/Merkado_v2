@@ -38,7 +38,7 @@ export default function ClientPortal() {
   return (
     <main className="min-h-screen bg-[#FBFBFD] text-[#1D1D1F] font-sans antialiased flex items-center justify-center px-6">
       <div className="max-w-sm text-center space-y-4">
-        <p className="font-semibold text-lg tracking-tight"><BrandName /></p>
+        <p className="font-semibold text-sm min-[420px]:text-base sm:text-lg tracking-tight"><BrandName /></p>
         {text ? (
           <>
             <p role="alert" className="text-sm text-[#515154]">{text}</p>

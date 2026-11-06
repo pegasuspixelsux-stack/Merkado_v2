@@ -1,5 +1,6 @@
 import { cache } from 'react';
 import type { Metadata } from 'next';
+import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getActiveProperties, getCategories, getProperty } from '@/src/services/dbService';
@@ -69,13 +70,13 @@ export default async function ItemPage({ params }: Props) {
     looseAllowed: item.looseAllowed,
   };
 
-  // Other items to browse: same category first, then the rest (at most 10).
+  // "Más vendidos": the items marked as featured first (they are the best sellers), then the rest (at most 10).
   // Which items customers order together can't be shown here: orders are private to staff.
   const pool: Property[] = isSample
     ? sampleProperties.map((p, i) => ({ ...p, id: `sample-${i + 1}`, agentId: '', createdAt: 0, updatedAt: 0 }))
     : await getActiveProperties().catch(() => []);
   const others = pool.filter((p) => p.id !== item.id);
-  const similar: SimilarItem[] = [...others.filter((p) => p.type === item.type), ...others.filter((p) => p.type !== item.type)]
+  const similar: SimilarItem[] = [...others.filter((p) => p.featured), ...others.filter((p) => !p.featured)]
     .slice(0, 10)
     .map((p) => ({
       id: p.id,
@@ -91,7 +92,7 @@ export default async function ItemPage({ params }: Props) {
     <div className="min-h-screen bg-[#FBFBFD] text-[#1D1D1F] font-sans antialiased">
       <header className="border-b border-[#000000]/5 bg-[#FBFBFD]">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="font-semibold text-lg tracking-tight"><BrandName /></Link>
+          <Link href="/" className="font-semibold text-sm min-[420px]:text-base sm:text-lg tracking-tight"><BrandName /></Link>
           <SiteNavLinks />
           <div className="flex items-center gap-3">
             <WholesaleAccess />
@@ -101,6 +102,12 @@ export default async function ItemPage({ params }: Props) {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-10 md:py-16 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start">
+        <Link
+          href="/items"
+          className="md:col-span-2 justify-self-start -mb-6 md:-mb-10 inline-flex items-center gap-2 text-sm font-medium text-[#515154] hover:text-[#1D1D1F] transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Volver al Catálogo
+        </Link>
         <div className="relative aspect-square rounded-2xl overflow-hidden bg-[#E5E5EA]">
           {photo && (
             <PropertyImage
@@ -149,7 +156,7 @@ export default async function ItemPage({ params }: Props) {
         </div>
       </main>
 
-      <SimilarItems title="También te puede gustar" items={similar} />
+      <SimilarItems title="Más vendidos" items={similar} />
 
       <SiteFooter />
     </div>

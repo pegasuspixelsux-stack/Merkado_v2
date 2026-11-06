@@ -19,11 +19,11 @@ export default function ItemPriceView({ pricing, categoryId }: { pricing: SaleSo
   const boxOption = options.find((o) => o.mode === 'por_caja');
 
   return (
-    <dl className="grid grid-cols-2 gap-3 max-w-md">
+    <dl className="grid grid-cols-2 gap-3 w-full max-w-2xl">
       {options.map((o) => {
         const { unit, was } = optionPrice(o, categoryId, wholesale ? level : null);
         return (
-          <div key={o.mode} className="rounded-2xl bg-white border border-[#000000]/5 p-4">
+          <div key={o.mode} className={`${options.length === 1 ? 'col-span-2' : ''} rounded-2xl bg-white border border-[#000000]/5 p-4 md:p-5`}>
             <dt className="text-xs uppercase tracking-wider text-[#515154] font-semibold">
               {wholesale ? 'Tu precio' : 'Minorista'} · {pricingModeLabels[o.mode]}
             </dt>
