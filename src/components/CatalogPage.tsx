@@ -191,7 +191,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
       </header>
 
       {/* --- HERO WITH ADVANCED SEARCH --- */}
-      <section className="relative w-full overflow-hidden">
+      <section className="relative w-full">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
@@ -202,149 +202,153 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/45 to-black/35" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-3 md:px-6 pt-32 md:pt-40 pb-8 md:pb-12 text-white">
-          <div className="px-3 md:px-0 mb-8 md:mb-10 max-w-2xl">
-            <h1 className="text-4xl md:text-6xl font-semibold tracking-tight mb-3">Todos los productos</h1>
+        <div className="relative max-w-7xl mx-auto px-3 md:px-6 flex flex-col justify-center min-h-[373px] pt-[106px] pb-[49px] md:block md:min-h-0 md:pt-32 md:pb-[148px] text-white">
+          <div className="px-3 md:px-0 max-w-2xl">
+            <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mb-3">Todos los productos</h1>
             <p className="text-base md:text-xl text-white/90 font-light">
               Buscá, filtrá y ordená todo el catálogo: frutas, verduras y hojas verdes frescas.
             </p>
           </div>
 
-          <form
-            role="search"
-            aria-label="Búsqueda avanzada"
-            onSubmit={(e) => {
-              e.preventDefault();
-              goToPage(1);
-            }}
-            className="bg-white text-[#1D1D1F] rounded-2xl shadow-lg border border-[#000000]/5 p-3 md:p-4"
-          >
-            <div className="flex items-center gap-2">
-              <Search className="hidden md:block ml-2 w-5 h-5 text-[#515154] shrink-0" />
-              <input
-                type="search"
-                value={query}
-                onChange={(e) => change(setQuery)(e.target.value)}
-                placeholder="Buscá por nombre, categoría o precio…"
-                aria-label="Buscar artículos por nombre, categoría o precio"
-                className="min-w-0 flex-1 bg-transparent px-3 md:px-2 py-3 text-sm placeholder:text-[#86868B] outline-none"
-              />
-              <button
-                type="button"
-                onClick={() => setFiltersOpen((o) => !o)}
-                aria-expanded={filtersOpen}
-                aria-controls="advanced-filters"
-                className="md:hidden shrink-0 relative w-11 h-11 rounded-full bg-[#F5F5F7] flex items-center justify-center"
-                aria-label="Mostrar filtros"
-              >
-                <SlidersHorizontal className="w-4 h-4" />
-                {activeFilters > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-5 h-5 px-1 rounded-full bg-[#1D1D1F] text-white text-[10px] font-semibold flex items-center justify-center">
-                    {activeFilters}
-                  </span>
-                )}
-              </button>
-              <button
-                type="submit"
-                aria-label="Buscar"
-                className="shrink-0 bg-[#1D1D1F] text-white text-xs font-medium w-11 h-11 md:w-auto md:h-auto md:px-6 md:py-3 rounded-full hover:bg-[#333336] transition-all flex items-center justify-center"
-              >
-                <Search className="w-4 h-4 md:hidden" />
-                <span className="hidden md:inline">Buscar</span>
-              </button>
-            </div>
-
-            <div
-              id="advanced-filters"
-              className={`${filtersOpen ? 'grid' : 'hidden'} md:grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4 mt-3 pt-3 md:mt-4 md:pt-4 border-t border-[#000000]/5`}
-            >
-              <div>
-                <label htmlFor="f-category" className={labelClass}>Categoría</label>
-                <select
-                  id="f-category"
-                  value={category}
-                  onChange={(e) => change(setCategory)(e.target.value)}
-                  className={fieldClass}
-                >
-                  <option value="all">Todas</option>
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>{c.label}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label htmlFor="f-availability" className={labelClass}>Disponibilidad</label>
-                <select
-                  id="f-availability"
-                  value={availability}
-                  onChange={(e) => change(setAvailability)(e.target.value as Availability)}
-                  className={fieldClass}
-                >
-                  {(Object.keys(availabilityLabels) as Availability[]).map((a) => (
-                    <option key={a} value={a}>{availabilityLabels[a]}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label htmlFor="f-min" className={labelClass}>Precio mínimo (US$)</label>
-                <input
-                  id="f-min"
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  inputMode="decimal"
-                  value={minPrice}
-                  onChange={(e) => change(setMinPrice)(e.target.value)}
-                  placeholder="0"
-                  className={fieldClass}
-                />
-              </div>
-              <div>
-                <label htmlFor="f-max" className={labelClass}>Precio máximo (US$)</label>
-                <input
-                  id="f-max"
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  inputMode="decimal"
-                  value={maxPrice}
-                  onChange={(e) => change(setMaxPrice)(e.target.value)}
-                  placeholder="Sin límite"
-                  className={fieldClass}
-                />
-              </div>
-              <div className="col-span-2 md:col-span-1">
-                <label htmlFor="f-sort" className={labelClass}>Ordenar por</label>
-                <select
-                  id="f-sort"
-                  value={sort}
-                  onChange={(e) => change(setSort)(e.target.value as Sort)}
-                  className={fieldClass}
-                >
-                  {(Object.keys(sortLabels) as Sort[]).map((s) => (
-                    <option key={s} value={s}>{sortLabels[s]}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between gap-3 mt-3 md:mt-4 px-1 text-xs text-[#515154]">
-              <p aria-live="polite">
-                {filtered.length} {filtered.length === 1 ? 'artículo' : 'artículos'}
-              </p>
-              {(activeFilters > 0 || sort !== 'relevance') && (
-                <button
-                  type="button"
-                  onClick={reset}
-                  className="inline-flex items-center gap-1 font-medium text-[#1D1D1F] hover:text-[#515154]"
-                >
-                  <X className="w-3.5 h-3.5" /> Borrar filtros
-                </button>
-              )}
-            </div>
-          </form>
         </div>
       </section>
+
+      {/* Search box: half over the hero, half over the list */}
+      <div className="relative z-10 max-w-7xl mx-auto px-3 md:px-6 -mt-[49px] md:-mt-[103px]">
+        <form
+          role="search"
+          aria-label="Búsqueda avanzada"
+          onSubmit={(e) => {
+            e.preventDefault();
+            goToPage(1);
+          }}
+          className="bg-white text-[#1D1D1F] rounded-2xl shadow-xl border border-[#000000]/5 p-3 md:p-4"
+        >
+          <div className="flex items-center gap-2">
+            <Search className="hidden md:block ml-2 w-5 h-5 text-[#515154] shrink-0" />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => change(setQuery)(e.target.value)}
+              placeholder="Buscá por nombre, categoría o precio…"
+              aria-label="Buscar artículos por nombre, categoría o precio"
+              className="min-w-0 flex-1 bg-transparent px-3 md:px-2 py-3 text-sm placeholder:text-[#86868B] outline-none"
+            />
+            <button
+              type="button"
+              onClick={() => setFiltersOpen((o) => !o)}
+              aria-expanded={filtersOpen}
+              aria-controls="advanced-filters"
+              className="md:hidden shrink-0 relative w-11 h-11 rounded-full bg-[#F5F5F7] flex items-center justify-center"
+              aria-label="Mostrar filtros"
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+              {activeFilters > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-5 h-5 px-1 rounded-full bg-[#1D1D1F] text-white text-[10px] font-semibold flex items-center justify-center">
+                  {activeFilters}
+                </span>
+              )}
+            </button>
+            <button
+              type="submit"
+              aria-label="Buscar"
+              className="shrink-0 bg-[#1D1D1F] text-white text-xs font-medium w-11 h-11 md:w-auto md:h-auto md:px-6 md:py-3 rounded-full hover:bg-[#333336] transition-all flex items-center justify-center"
+            >
+              <Search className="w-4 h-4 md:hidden" />
+              <span className="hidden md:inline">Buscar</span>
+            </button>
+          </div>
+
+          <div
+            id="advanced-filters"
+            className={`${filtersOpen ? 'grid' : 'hidden'} md:grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4 mt-3 pt-3 md:mt-4 md:pt-4 border-t border-[#000000]/5`}
+          >
+            <div>
+              <label htmlFor="f-category" className={labelClass}>Categoría</label>
+              <select
+                id="f-category"
+                value={category}
+                onChange={(e) => change(setCategory)(e.target.value)}
+                className={fieldClass}
+              >
+                <option value="all">Todas</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>{c.label}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="f-availability" className={labelClass}>Disponibilidad</label>
+              <select
+                id="f-availability"
+                value={availability}
+                onChange={(e) => change(setAvailability)(e.target.value as Availability)}
+                className={fieldClass}
+              >
+                {(Object.keys(availabilityLabels) as Availability[]).map((a) => (
+                  <option key={a} value={a}>{availabilityLabels[a]}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="f-min" className={labelClass}>Precio mínimo (US$)</label>
+              <input
+                id="f-min"
+                type="number"
+                min={0}
+                step="0.01"
+                inputMode="decimal"
+                value={minPrice}
+                onChange={(e) => change(setMinPrice)(e.target.value)}
+                placeholder="0"
+                className={fieldClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="f-max" className={labelClass}>Precio máximo (US$)</label>
+              <input
+                id="f-max"
+                type="number"
+                min={0}
+                step="0.01"
+                inputMode="decimal"
+                value={maxPrice}
+                onChange={(e) => change(setMaxPrice)(e.target.value)}
+                placeholder="Sin límite"
+                className={fieldClass}
+              />
+            </div>
+            <div className="col-span-2 md:col-span-1">
+              <label htmlFor="f-sort" className={labelClass}>Ordenar por</label>
+              <select
+                id="f-sort"
+                value={sort}
+                onChange={(e) => change(setSort)(e.target.value as Sort)}
+                className={fieldClass}
+              >
+                {(Object.keys(sortLabels) as Sort[]).map((s) => (
+                  <option key={s} value={s}>{sortLabels[s]}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-3 mt-3 md:mt-4 px-1 text-xs text-[#515154]">
+            <p aria-live="polite">
+              {filtered.length} {filtered.length === 1 ? 'artículo' : 'artículos'}
+            </p>
+            {(activeFilters > 0 || sort !== 'relevance') && (
+              <button
+                type="button"
+                onClick={reset}
+                className="inline-flex items-center gap-1 font-medium text-[#1D1D1F] hover:text-[#515154]"
+              >
+                <X className="w-3.5 h-3.5" /> Borrar filtros
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
 
       {/* --- ALL PRODUCTS: 4-column grid --- */}
       <section id="catalog" className={`pt-8 md:pt-12 ${activeFilters === 0 && bestSellers.length > 0 ? 'pb-8 md:pb-12' : 'pb-32'} px-3 md:px-6 max-w-7xl mx-auto scroll-mt-32`}>
