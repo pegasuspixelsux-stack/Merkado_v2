@@ -130,7 +130,7 @@ export default function SiteFooter() {
       <div className="max-w-[1440px] mx-auto pt-8 border-t border-white/20 flex flex-col md:flex-row items-center justify-between text-sm md:text-base text-white/80 font-light">
         <p>&copy; {new Date().getFullYear()} Merkado Inc. Todos los derechos reservados.</p>
         <p className="mt-4 md:mt-0">
-          Sitio web por{' '}
+          Plataforma creada por{' '}
           <a
             href="https://www.pegasuspixels.com/"
             target="_blank"
