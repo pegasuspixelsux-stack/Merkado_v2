@@ -387,7 +387,7 @@ export default function MerkadoHome({
       </header>
 
       {/* --- HERO: one fixed unit (no carousel) --- */}
-      <section className="relative w-full overflow-hidden bg-[#14451A] text-white md:flex md:items-center md:portrait:h-[60svh] md:portrait:min-h-[500px] lg:landscape:block">
+      <section className="relative w-full overflow-hidden bg-[#14451A] text-white md:flex md:items-center md:portrait:h-[55svh] md:portrait:min-h-[500px] lg:landscape:block">
         {/* Background photo + green gradient overlay (stronger behind the text so it always reads well) */}
         <div
           aria-hidden="true"
