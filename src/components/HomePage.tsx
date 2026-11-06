@@ -23,6 +23,7 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   ShoppingCart,
   Square,
   LayoutGrid,
@@ -31,6 +32,49 @@ import {
 import BrandName from '@/src/components/BrandName';
 
 const PAGE_SIZE = 12;
+
+const FAQ: { q: string; a: string }[] = [
+  {
+    q: '¿Quiénes pueden comprar en Merkado?',
+    a: 'Vendemos solo a empresas: restaurantes, hoteles, pizzerías, almacenes, comercios y servicios de catering. Para ver tus precios y hacer pedidos necesitás una cuenta aprobada.',
+  },
+  {
+    q: '¿Cómo solicito mi acceso?',
+    a: 'Completá el formulario de "Solicite su Acceso Mayorista". Revisamos tu solicitud, coordinamos la aprobación y la forma de pago y te enviamos tu contraseña de acceso.',
+  },
+  {
+    q: '¿Cómo ingreso y qué es el PIN?',
+    a: 'Entrás desde "Acceso mayoristas" con tu teléfono y tu contraseña. Si te asignamos un PIN de 4 números, también podés entrar con tu teléfono y ese PIN.',
+  },
+  {
+    q: '¿Los precios son fijos?',
+    a: 'Los precios de mercado son válidos por el día. Si el pedido es para otro día, pueden cambiar: antes del envío te confirmamos el pedido con los precios ajustados.',
+  },
+  {
+    q: '¿Se compra por caja o por unidad?',
+    a: 'Los clientes piden por caja. Algunos productos, o algunos clientes, tienen una excepción para pedir suelto (por unidad o por atado). En cada producto ves lo que trae la caja y el precio por unidad.',
+  },
+  {
+    q: '¿Cómo hago un pedido?',
+    a: 'Agregá productos con "Pedido rápido" o desde la ficha del producto. En el carrito indicás si es entrega o retiro, la hora de recepción y tus instrucciones. Podés cambiar el carrito hasta enviarlo; una vez enviado, los cambios se hacen con un pedido nuevo.',
+  },
+  {
+    q: '¿Qué es "Mis favoritos"?',
+    a: 'Es tu lista de productos habituales. Con "Pedir favoritos" los cargás al carrito de una vez, siempre con el precio de hoy y solo los que tienen stock.',
+  },
+  {
+    q: '¿A qué zonas y en qué horarios entregan?',
+    a: 'Hacemos entregas en el día o en 24 horas. Las zonas de entrega figuran en cada producto (Maldonado, Montevideo y Canelones) y vos elegís la hora de recepción al hacer el pedido.',
+  },
+  {
+    q: '¿Qué formas de pago hay?',
+    a: 'Cuenta corriente, tarjeta o efectivo. Acordamos la que corresponde cuando aprobamos tu cuenta.',
+  },
+  {
+    q: '¿Cómo garantizan la frescura y el peso?',
+    a: 'Seleccionamos frutas, verduras y hojas verdes directamente en el mercado, pesamos cada pedido con exactitud y te mostramos el precio claro. Si algo no llega como esperabas, avisanos por WhatsApp o por correo.',
+  },
+];
 
 const fallbackProperties: HomeProperty[] = [
   {
@@ -217,6 +261,38 @@ export default function MerkadoHome({
       /* private mode: the choice just is not remembered */
     }
   }, []);
+  // Phones: "Quiénes somos" and "Solicite su Acceso Mayorista" start collapsed.
+  const [openVision, setOpenVision] = useState(false);
+  const [openContact, setOpenContact] = useState(false);
+  const [openFaqSection, setOpenFaqSection] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  useEffect(() => {
+    // Any link to #vision / #contact (menu, footer, hero button, URL) opens that section and scrolls to it.
+    const reveal = (id: string) => {
+      if (id === 'vision') setOpenVision(true);
+      if (id === 'contact') setOpenContact(true);
+      if (id === 'faq') setOpenFaqSection(true);
+      setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }), 80);
+    };
+    const idOf = (href: string) =>
+      href.endsWith('#contact') ? 'contact' : href.endsWith('#vision') ? 'vision' : href.endsWith('#faq') ? 'faq' : null;
+    const onClick = (e: MouseEvent) => {
+      const href = (e.target as Element | null)?.closest?.('a')?.getAttribute('href') ?? '';
+      const id = idOf(href);
+      if (id) reveal(id);
+    };
+    const onHash = () => {
+      const id = idOf(window.location.hash);
+      if (id) reveal(id);
+    };
+    onHash();
+    document.addEventListener('click', onClick);
+    window.addEventListener('hashchange', onHash);
+    return () => {
+      document.removeEventListener('click', onClick);
+      window.removeEventListener('hashchange', onHash);
+    };
+  }, []);
   const chooseLayout = (v: 'one' | 'two' | 'list') => {
     setLayout(v);
     try {
@@ -393,7 +469,7 @@ export default function MerkadoHome({
       </section>
 
       {/* --- BODY: PROPERTY BENTO GRID --- */}
-      <section id="properties" className="pt-14 md:pt-20 pb-44 px-3 md:px-6 max-w-7xl mx-auto">
+      <section id="properties" className="pt-14 md:pt-20 pb-8 md:pb-44 px-3 md:px-6 max-w-7xl mx-auto">
         <div className="flex items-center gap-2 mb-6">
         {categories.length > 0 ? (
           <div
@@ -629,10 +705,21 @@ export default function MerkadoHome({
       </section>
 
       {/* --- WHO WE ARE --- */}
-      <section id="vision" className="pt-[75px] md:pt-[107px] pb-44 px-6 max-w-7xl mx-auto">
+      <section id="vision" className={`pt-0 ${openVision ? 'pb-16' : 'pb-0'} md:pt-[107px] md:pb-44 px-6 max-w-7xl mx-auto`}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
-          <div className="space-y-6">
-            <h2 className="text-xs uppercase tracking-widest text-[#515154] font-semibold">Quiénes somos</h2>
+          <div className="md:space-y-6">
+            <h2 className="hidden md:block text-xs uppercase tracking-widest text-[#515154] font-semibold">Quiénes somos</h2>
+            <button
+              type="button"
+              onClick={() => setOpenVision((o) => !o)}
+              aria-expanded={openVision}
+              aria-controls="vision-body"
+              className="md:hidden -mx-6 w-[calc(100%+3rem)] flex items-center justify-between gap-3 border-b border-[#000000]/10 px-6 py-4 text-left text-lg font-semibold tracking-tight"
+            >
+              <span>Quiénes somos</span>
+              <ChevronDown className={`w-5 h-5 shrink-0 transition-transform ${openVision ? 'rotate-180' : ''}`} />
+            </button>
+            <div id="vision-body" className={`${openVision ? 'block mt-6' : 'hidden'} md:block md:mt-0 space-y-6`}>
             <p className="text-3xl md:text-4xl font-semibold tracking-tight">
               Insumos frescos para tu cocina, todos los días.
             </p>
@@ -654,9 +741,10 @@ export default function MerkadoHome({
               <span>Contactanos</span>
               <ArrowUpRight className="w-4 h-4" />
             </a>
+            </div>
           </div>
           <div
-            className="aspect-[4/3] rounded-2xl bg-cover bg-center bg-[#E5E5EA]"
+            className={`${openVision ? '' : 'hidden'} md:block aspect-[4/3] rounded-2xl bg-cover bg-center bg-[#E5E5EA]`}
             style={{
               backgroundImage:
                 'url(https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?q=80&w=1200&auto=format&fit=crop)',
@@ -665,13 +753,66 @@ export default function MerkadoHome({
         </div>
       </section>
 
+      {/* --- FAQ: 10 questions. Phones: the whole section collapses, and each answer opens on tap --- */}
+      <section id="faq" className={`${openFaqSection ? 'pt-0 pb-12' : 'pb-0'} md:pt-0 md:pb-44 px-6 max-w-7xl mx-auto`}>
+        <button
+          type="button"
+          onClick={() => setOpenFaqSection((o) => !o)}
+          aria-expanded={openFaqSection}
+          aria-controls="faq-body"
+          className="md:hidden -mx-6 w-[calc(100%+3rem)] flex items-center justify-between gap-3 border-b border-[#000000]/10 px-6 py-4 text-left text-lg font-semibold tracking-tight"
+        >
+          <span>Preguntas frecuentes</span>
+          <ChevronDown className={`w-5 h-5 shrink-0 transition-transform ${openFaqSection ? 'rotate-180' : ''}`} />
+        </button>
+        <div id="faq-body" className={`${openFaqSection ? 'block mt-6' : 'hidden'} md:block md:mt-0`}>
+          <div className="mb-8 md:mb-14 space-y-4">
+            <h2 className="hidden md:block text-xs uppercase tracking-widest text-[#515154] font-semibold">Preguntas frecuentes</h2>
+            <p className="text-3xl md:text-4xl font-semibold tracking-tight max-w-2xl">Todo lo que necesitás saber para pedir.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 md:gap-x-16">
+            {FAQ.map((item, i) => {
+              const open = openFaq === i;
+              return (
+                <div key={item.q} className="border-b border-[#000000]/10 py-1 md:py-4">
+                  <button
+                    type="button"
+                    onClick={() => setOpenFaq(open ? null : i)}
+                    aria-expanded={open}
+                    aria-controls={`faq-a-${i}`}
+                    className="w-full flex items-center justify-between gap-4 py-3 text-left text-base md:text-lg font-semibold tracking-tight md:pointer-events-none md:cursor-default"
+                  >
+                    <span>{item.q}</span>
+                    <ChevronDown className={`w-5 h-5 shrink-0 md:hidden transition-transform ${open ? 'rotate-180' : ''}`} />
+                  </button>
+                  <p id={`faq-a-${i}`} className={`${open ? 'block' : 'hidden'} md:block pb-3 md:pb-0 text-[#515154] font-light leading-relaxed`}>
+                    {item.a}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
       {/* --- CALL TO ACTION & CONTACT FORM --- */}
-      <section id="contact" className="py-44 px-6 bg-[#F2F2F7] border-t border-b border-[#000000]/5">
+      <section id="contact" className={`${openContact ? 'pt-0 pb-12' : 'py-0'} md:py-44 px-6 bg-[#F2F2F7] border-t border-b border-[#000000]/5`}>
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
 
           {/* Left Column: wholesale pitch + company data */}
           <div>
-            <h2 className="text-xs uppercase tracking-widest text-[#515154] font-semibold mb-3">Mayoristas</h2>
+            <h2 className="hidden md:block text-xs uppercase tracking-widest text-[#515154] font-semibold mb-3">Solicite su Acceso Mayorista</h2>
+            <button
+              type="button"
+              onClick={() => setOpenContact((o) => !o)}
+              aria-expanded={openContact}
+              aria-controls="contact-body"
+              className="md:hidden -mx-6 w-[calc(100%+3rem)] flex items-center justify-between gap-3 border-b border-[#000000]/10 px-6 py-4 text-left text-lg font-semibold tracking-tight"
+            >
+              <span>Solicite su Acceso Mayorista</span>
+              <ChevronDown className={`w-5 h-5 shrink-0 transition-transform ${openContact ? 'rotate-180' : ''}`} />
+            </button>
+            <div id="contact-body" className={`${openContact ? 'block' : 'hidden'} md:block mt-6 md:mt-0`}>
             <p className="text-3xl md:text-5xl font-semibold tracking-tight mb-6">
               Comprá más, pagá menos. Pedí tu acceso mayorista.
             </p>
@@ -680,10 +821,11 @@ export default function MerkadoHome({
               conseguí mejores precios por las cantidades que compra tu negocio. Contanos qué
               necesitás cada semana y revisamos tu solicitud y, una vez aprobada y configurada la forma de pago, te enviamos tu contraseña de acceso para ver tus precios y hacer tus pedidos.
             </p>
+            </div>
           </div>
 
           {/* Right Column: wholesale enrollment form */}
-          <div className="bg-white p-8 md:p-10 rounded-2xl shadow-sm border border-[#000000]/5">
+          <div className={`${openContact ? '' : 'hidden'} md:block bg-white p-8 md:p-10 rounded-2xl shadow-sm border border-[#000000]/5`}>
             <form onSubmit={submitWholesale} className="space-y-5">
               <div>
                 <label htmlFor="w-business" className="block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2">Nombre del negocio</label>

@@ -89,6 +89,7 @@ export default function SiteFooter() {
           <p className="text-sm uppercase tracking-widest text-white/80 font-semibold">Empresa</p>
           <ul className="space-y-3 text-sm md:text-base text-white/90 font-light">
             <li><Link href="/#vision" className={linkClass}>Quiénes somos</Link></li>
+            <li><Link href="/#faq" className={linkClass}>Preguntas frecuentes</Link></li>
             <li><Link href="/#contact" className={linkClass}>Mayoristas</Link></li>
             <li><Link href="/#contact" className={linkClass}>Contacto</Link></li>
           </ul>
