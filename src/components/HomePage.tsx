@@ -360,8 +360,8 @@ export default function MerkadoHome({
       {/* --- NAVIGATION --- */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-[#FBFBFD]/80 backdrop-blur-md border-b border-[#000000]/5">
         <div className="bg-[#2E7D32] text-white text-center text-[11px] sm:text-xs font-medium tracking-wide py-1.5 px-4 sm:px-6 leading-snug">
-          <span className="sm:hidden">Precios de mercado válidos por el día</span>
-          <span className="hidden sm:inline">Precios de mercado válidos por el día. Si el pedido es para otro día, pueden cambiar: te lo confirmamos con precios ajustados antes del envío.</span>
+          <span className="lg:hidden">Precios de mercado válidos por el día</span>
+          <span className="hidden lg:inline">Precios de mercado válidos por el día. Si el pedido es para otro día, pueden cambiar: te lo confirmamos con precios ajustados antes del envío.</span>
         </div>
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <span className="font-semibold text-lg tracking-tight"><BrandName /></span>
@@ -522,7 +522,7 @@ export default function MerkadoHome({
             ))}
           </div>
         </div>
-        <div className={`grid ${layout === 'two' ? 'grid-cols-2' : 'grid-cols-1'} md:grid-cols-4 gap-3 md:gap-6`}>
+        <div className={`grid ${layout === 'two' ? 'grid-cols-2' : 'grid-cols-1'} md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6`}>
           {filteredProperties.length === 0 && (
             <p className="col-span-full text-center text-[#515154] text-sm">
               No hay artículos que coincidan con tu búsqueda.
@@ -578,7 +578,7 @@ export default function MerkadoHome({
                 <h3 className={`${layout === 'one' ? 'text-2xl mb-3' : 'text-sm mb-2'} md:text-lg md:mb-3 font-semibold tracking-tight leading-tight`}>{prop.title}</h3>
                 <div className={`flex flex-wrap items-end justify-between gap-x-2 ${layout === 'one' ? 'text-lg' : 'text-xs'} md:text-base font-medium`}>
                   <span className="text-white/80 truncate">{prop.stats ? prop.stats[1] : prop.area}</span>
-                  <span className="shrink-0 font-semibold">
+                  <span className="max-w-full font-semibold">
                     {prop.salePrice ? (
                       <>
                         <s className="text-white/60 font-normal mr-1.5">{prop.price}</s>

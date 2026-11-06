@@ -7,7 +7,7 @@ import { navLinks } from '@/src/components/SiteNavLinks';
 import { useBusiness } from '@/src/context/BusinessContext';
 import { socialLinks } from '@/src/components/SocialIcons';
 
-/** Burger button for phones: opens a dropdown with the top-navigation links. Hidden from md up. */
+/** Burger button for phones and tablets: opens a dropdown with the top-navigation links. Hidden from lg up. */
 export default function MobileNavMenu() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -29,7 +29,7 @@ export default function MobileNavMenu() {
   }, [open]);
 
   return (
-    <div ref={ref} className="relative md:hidden">
+    <div ref={ref} className="relative lg:hidden">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
