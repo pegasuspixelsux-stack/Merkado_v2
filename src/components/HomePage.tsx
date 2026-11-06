@@ -705,7 +705,7 @@ export default function MerkadoHome({
       </section>
 
       {/* --- WHO WE ARE --- */}
-      <section id="vision" className={`pt-0 ${openVision ? 'pb-10' : 'pb-0'} md:pt-16 md:pb-24 px-6 max-w-7xl mx-auto`}>
+      <section id="vision" className={`pt-0 ${openVision ? 'pb-14' : 'pb-0'} md:pt-8 md:pb-36 px-6 max-w-7xl mx-auto`}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
           <div className="md:space-y-6">
             <h2 className="hidden md:block text-xs uppercase tracking-widest text-[#515154] font-semibold">Quiénes somos</h2>
