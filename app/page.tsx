@@ -6,6 +6,6 @@ import { loadHomeData } from '@/src/lib/homeData';
 export const revalidate = 60;
 
 export default async function Page() {
-  const { properties, slides } = await loadHomeData();
-  return <HomePage initialProperties={properties} initialSlides={slides} />;
+  const { properties } = await loadHomeData();
+  return <HomePage initialProperties={properties} />;
 }

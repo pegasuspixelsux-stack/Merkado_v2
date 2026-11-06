@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import type { HeroSlide, HomeProperty } from '@/src/lib/homeData';
+import type { HomeProperty } from '@/src/lib/homeData';
 import type { PropertyType } from '@/src/types/firestore';
 import { typeLabels } from '@/src/utils/format';
 import SiteFooter from '@/src/components/SiteFooter';
@@ -18,63 +18,20 @@ import { useClient } from '@/src/context/ClientContext';
 import { applyBoxFirst, applyLevel } from '@/src/utils/pricing';
 import {
   ArrowUpRight,
-  MapPin,
+  KeyRound,
   Send,
   Search,
   ChevronLeft,
   ChevronRight,
   ShoppingCart,
+  Square,
+  LayoutGrid,
+  List,
 } from 'lucide-react';
 import BrandName from '@/src/components/BrandName';
 
 const PAGE_SIZE = 12;
 
-// --- HERO SLIDES DATA ---
-// Se muestran hasta que haya artículos destacados (o si todavía no hay ninguno).
-const fallbackSlides: HeroSlide[] = [
-  {
-    id: 1,
-    title: "Tomates perita",
-    location: "Canelones, UY",
-    price: "US$ 4,50 / lb",
-    tagline: "Madurados al sol y cosechados al amanecer.",
-    image: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?q=80&w=2000&auto=format&fit=crop",
-  },
-  {
-    id: 2,
-    title: "Sandía sin semillas",
-    location: "Salto, UY",
-    price: "US$ 6,90 c/u",
-    tagline: "Crocante, dulce y bien fría.",
-    image: "https://images.unsplash.com/photo-1587049352846-4a222e784d38?q=80&w=2000&auto=format&fit=crop",
-  },
-  {
-    id: 3,
-    title: "Mangos Ataulfo",
-    location: "Rivera, UY",
-    price: "US$ 18,00 / cajón",
-    tagline: "Pulpa cremosa y sin fibras, en plena temporada.",
-    image: "https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?q=80&w=2000&auto=format&fit=crop",
-  },
-  {
-    id: 4,
-    title: "Caja de la feria",
-    location: "Montevideo, UY",
-    price: "US$ 32,00 / caja",
-    tagline: "Una semana de verduras de estación en un solo cajón.",
-    image: "https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?q=80&w=2000&auto=format&fit=crop",
-  },
-  {
-    id: 5,
-    title: "Mix de frutas tropicales",
-    location: "Paysandú, UY",
-    price: "US$ 24,00 / caja",
-    tagline: "Papaya, kiwi, uvas y cítricos, listos para comer.",
-    image: "https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=2000&auto=format&fit=crop",
-  },
-];
-
-// --- HARDCODED PROPERTIES (Bento Grid) ---
 const fallbackProperties: HomeProperty[] = [
   {
     id: 1,
@@ -189,14 +146,10 @@ const fallbackProperties: HomeProperty[] = [
 
 export default function MerkadoHome({
   initialProperties = [],
-  initialSlides = [],
 }: {
   /** Active properties loaded on the server; the built-in samples show if there are none. */
   initialProperties?: HomeProperty[];
-  initialSlides?: HeroSlide[];
 }) {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [slides] = useState<HeroSlide[]>(initialSlides.length ? initialSlides : fallbackSlides);
   // The built-in samples open /items/sample-N, which the item page fills from the same sample data.
   const [baseProperties] = useState<HomeProperty[]>(
     initialProperties.length
@@ -253,6 +206,25 @@ export default function MerkadoHome({
 
   const [category, setCategory] = useState<PropertyType | 'all'>('all');
   const [page, setPage] = useState(1);
+  // Phones only: one big card per row, two per row (default) or a compact list.
+  const [layout, setLayout] = useState<'one' | 'two' | 'list'>('two');
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('merkado-grid-layout');
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- restore the visitor's choice
+      if (saved === 'one' || saved === 'two' || saved === 'list') setLayout(saved);
+    } catch {
+      /* private mode: the choice just is not remembered */
+    }
+  }, []);
+  const chooseLayout = (v: 'one' | 'two' | 'list') => {
+    setLayout(v);
+    try {
+      localStorage.setItem('merkado-grid-layout', v);
+    } catch {
+      /* ignore */
+    }
+  };
   // Minorista (retail) / Mayorista (wholesale); sent along with the order.
   // Cart: item id -> quantity.
   const [cart, setCart] = useState<Record<string, number>>({});
@@ -304,14 +276,6 @@ export default function MerkadoHome({
     .filter((n) => n === 1 || n === totalPages || Math.abs(n - currentPage) <= 1)
     .flatMap((n, i, arr) => (i > 0 && n - arr[i - 1] > 1 ? ['gap' as const, n] : [n]));
 
-  // Auto-advance slideshow every 6 seconds
-  useEffect(() => {
-    if (slides.length < 2) return;
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 6000);
-    return () => clearInterval(timer);
-  }, [slides.length]);
 
 
   return (
@@ -346,86 +310,50 @@ export default function MerkadoHome({
         </div>
       </header>
 
-      {/* --- HERO SLIDESHOW (5-slide full-width) --- */}
-      <section className="relative w-full h-[60vh] overflow-hidden">
-        {slides.map((slide, index) => (
-          <div
-            key={slide.id}
-            className={`absolute inset-0 transition-opacity duration-1000 ease-out ${
-              index === currentSlide ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-            }`}
-          >
-            {/* Background Image with subtle zoom */}
-            <div
-              className={`absolute inset-0 bg-cover bg-center transition-transform duration-[7000ms] ease-out ${
-                index === currentSlide ? 'scale-105' : 'scale-100'
-              }`}
-              style={{ backgroundImage: `url(${slide.image})` }}
+      {/* --- HERO: one fixed unit (no carousel) --- */}
+      <section className="relative w-full overflow-hidden bg-[#14451A] text-white">
+        {/* Background photo + green gradient overlay (stronger behind the text so it always reads well) */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage:
+              'url(https://images.unsplash.com/photo-1488459716781-31db52582fe9?q=80&w=2000&auto=format&fit=crop)',
+          }}
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-gradient-to-b from-[#0B2E10]/90 via-[#0F3A15]/80 to-[#0F3A15]/75 md:bg-gradient-to-r md:from-[#0B2E10]/95 md:via-[#0F3A15]/80 md:to-[#0F3A15]/35"
+        />
+        <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#0B2E10]/60 to-transparent" />
+        <div className="relative max-w-7xl mx-auto px-6 pt-28 pb-20 md:pt-44 md:pb-40">
+          <span className="inline-block rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-[11px] sm:text-xs font-semibold tracking-[0.18em] uppercase">
+            Distribución hortifrutícola B2B
+          </span>
+          <h1 className="mt-6 max-w-6xl text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-semibold tracking-tight leading-[1.1]">
+            El distribuidor hortifrutícola para
+            <br className="hidden md:block" /> la gastronomía de Punta del Este.
+          </h1>
+          <p className="mt-6 max-w-2xl text-base sm:text-lg md:text-xl text-white/90 font-light leading-relaxed">
+            Abastecemos a restaurantes, hoteles y comercios con frutas, verduras y hojas verdes seleccionadas en el
+            mercado central. Logística integrada, precios mayoristas por volumen y entregas diarias en tu establecimiento.
+          </p>
+          <div className="mt-10 flex flex-col sm:flex-row gap-3">
+            <Link
+              href="/items"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-white text-[#1D1D1F] px-7 py-3.5 text-sm md:text-base font-semibold hover:bg-white/90 active:scale-95 transition-all"
             >
-              {/* Gradient Overlay for legibility */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/30" />
-            </div>
-
-            {/* Content Container */}
-            <div className="relative max-w-7xl mx-auto h-full px-6 flex flex-col justify-end md:flex-row md:items-end gap-8 pb-20 md:pb-28 text-white">
-              <div className="max-w-2xl md:mr-auto transform transition-all duration-700 translate-y-0">
-                <div className="flex items-center space-x-2 text-white/80 text-sm font-medium tracking-wide mb-3 uppercase">
-                  <MapPin className="w-4 h-4" />
-                  <span>{slide.location}</span>
-                  <span aria-hidden="true" className="text-white/40">·</span>
-                  <span className="text-white">{slide.price}</span>
-                </div>
-                <h1 className="text-4xl md:text-6xl font-semibold tracking-tight mb-4">
-                  {slide.title}
-                </h1>
-                <p className="text-lg md:text-xl text-white/90 font-light">
-                  {slide.tagline}
-                </p>
-              </div>
-              <div className="md:pr-16">
-                <button
-                  type="button"
-                  onClick={() => {
-                    addToCart(String(slide.id));
-                    setCartOpen(true);
-                  }}
-                  aria-label={`Pedido rápido: ${slide.title}`}
-                  className="inline-flex items-center space-x-2 bg-white text-black px-6 py-3 rounded-full text-sm font-medium hover:bg-white/90 active:scale-95 transition-all"
-                >
-                  <span>Pedido rápido</span>
-                  <ShoppingCart className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
+              <span>Ver Catálogo Mayorista</span>
+              <ArrowUpRight className="w-4 h-4" />
+            </Link>
+            <a
+              href="#contact"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-white/50 bg-white/10 px-7 py-3.5 text-sm md:text-base font-semibold text-white hover:bg-white/20 active:scale-95 transition-all"
+            >
+              <KeyRound className="w-4 h-4" />
+              <span>Solicitar acceso mayorista</span>
+            </a>
           </div>
-        ))}
-
-        {/* Slideshow indicator: 3 vertical dots (first / middle / last slide) */}
-        <div className={`absolute top-1/2 -translate-y-1/2 right-6 z-20 flex flex-col items-center gap-3 ${slides.length < 2 ? 'hidden' : ''}`}>
-          {Array.from(new Set([0, Math.floor((slides.length - 1) / 2), slides.length - 1])).map((slideIndex, dot, arr) => {
-            // The active dot is the one whose slide index is closest to the current slide.
-            const active =
-              arr.reduce((best, v, i) => (Math.abs(v - currentSlide) < Math.abs(arr[best] - currentSlide) ? i : best), 0) === dot;
-            return (
-              <button
-                key={slideIndex}
-                onClick={() => setCurrentSlide(slideIndex)}
-                aria-label={`Ir a la diapositiva ${slideIndex + 1}`}
-                aria-current={active ? 'true' : undefined}
-                className={`w-2.5 h-2.5 rounded-full transition-all ${
-                  active ? 'bg-white scale-125' : 'bg-white/40 hover:bg-white/70'
-                }`}
-              />
-            );
-          })}
-        </div>
-
-        {/* Slide Indicators Progress Bar */}
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 z-20">
-          <div
-            className="h-full bg-white transition-all duration-500 ease-out"
-            style={{ width: `${((currentSlide + 1) / slides.length) * 100}%` }}
-          />
         </div>
       </section>
 
@@ -466,11 +394,12 @@ export default function MerkadoHome({
 
       {/* --- BODY: PROPERTY BENTO GRID --- */}
       <section id="properties" className="pt-14 md:pt-20 pb-44 px-3 md:px-6 max-w-7xl mx-auto">
-        {categories.length > 0 && (
+        <div className="flex items-center gap-2 mb-6">
+        {categories.length > 0 ? (
           <div
             role="group"
             aria-label="Categorías"
-            className="flex flex-nowrap items-center gap-2 mb-6 overflow-x-auto -mx-3 px-3 md:mx-0 md:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="flex flex-1 min-w-0 flex-nowrap items-center gap-2 overflow-x-auto -ml-3 pl-3 md:mx-0 md:pl-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             {[{ id: 'all', label: 'Todas' }, ...categories].map((c) => {
               const active = category === c.id;
@@ -492,8 +421,32 @@ export default function MerkadoHome({
               );
             })}
           </div>
+        ) : (
+          <div className="flex-1" />
         )}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+          <div role="group" aria-label="Diseño de la lista" className="md:hidden shrink-0 inline-flex rounded-full bg-[#F5F5F7] p-0.5">
+            {([
+              ['one', Square, '1 columna'],
+              ['two', LayoutGrid, '2 columnas'],
+              ['list', List, 'Lista'],
+            ] as const).map(([value, Icon, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => chooseLayout(value)}
+                aria-pressed={layout === value}
+                aria-label={label}
+                title={label}
+                className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                  layout === value ? 'bg-[#1D1D1F] text-white' : 'text-[#515154] hover:bg-[#E8E8ED]'
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className={`grid ${layout === 'two' ? 'grid-cols-2' : 'grid-cols-1'} md:grid-cols-4 gap-3 md:gap-6`}>
           {filteredProperties.length === 0 && (
             <p className="col-span-full text-center text-[#515154] text-sm">
               No hay artículos que coincidan con tu búsqueda.
@@ -501,7 +454,7 @@ export default function MerkadoHome({
           )}
           {visibleProperties.map((prop) => {
             const cardClass =
-              'group relative aspect-square rounded-2xl overflow-hidden bg-[#E5E5EA] flex flex-col justify-end p-3 md:p-5 transition-transform duration-500 hover:-translate-y-1';
+              `group relative ${layout === 'one' ? 'aspect-[4/3] md:aspect-square' : 'aspect-square'} rounded-2xl overflow-hidden bg-[#E5E5EA] flex flex-col justify-end p-3 md:p-5 transition-transform duration-500 hover:-translate-y-1`;
             const content = (
               <>
               {/* Background Image */}
@@ -521,12 +474,9 @@ export default function MerkadoHome({
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
               {/* Stock / sale badges */}
-              <div className="absolute top-3 left-3 md:top-5 md:left-5 z-10 flex flex-wrap gap-1.5">
+              <div className={`absolute ${layout === 'two' ? 'top-14' : 'top-3'} left-3 md:top-5 md:left-5 z-10 flex flex-wrap gap-1.5`}>
                 {prop.inStock === false && (
-                  <span className="bg-black/80 text-white text-[10px] md:text-xs font-semibold px-2 md:px-3 py-1 rounded-full">Sin stock</span>
-                )}
-                {prop.salePrice && prop.inStock !== false && (
-                  <span className="bg-white text-black text-[10px] md:text-xs font-semibold px-2 md:px-3 py-1 rounded-full">Oferta</span>
+                  <span className={`bg-black/80 text-white ${layout === 'one' ? 'text-sm px-3 py-1.5' : 'text-[10px] px-2 py-1'} md:text-xs md:px-3 md:py-1 font-semibold rounded-full`}>Sin stock</span>
                 )}
               </div>
 
@@ -541,7 +491,7 @@ export default function MerkadoHome({
                   }}
                   disabled={prop.inStock === false}
                   aria-label={prop.inStock === false ? `${prop.title} está sin stock` : `Pedido rápido: ${prop.title}`}
-                  className="h-8 px-3 rounded-full bg-white text-black text-[10px] md:text-xs font-semibold whitespace-nowrap flex items-center justify-center shadow-sm hover:bg-[#F5F5F7] active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                  className={`${layout === 'one' ? 'h-10 px-4 text-sm' : 'h-8 px-3 text-[10px]'} md:h-8 md:px-3 md:text-xs rounded-full bg-white text-black font-semibold whitespace-nowrap flex items-center justify-center shadow-sm hover:bg-[#F5F5F7] active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed`}
                 >
                   Pedido rápido
                 </button>
@@ -549,8 +499,8 @@ export default function MerkadoHome({
 
               {/* Bottom Details: row 1 title, row 2 quantity + price */}
               <div className="relative z-10 text-white pointer-events-none">
-                <h3 className="text-sm md:text-lg font-semibold tracking-tight mb-2 md:mb-3 leading-tight">{prop.title}</h3>
-                <div className="flex items-center justify-between gap-2 text-[10px] md:text-sm font-medium">
+                <h3 className={`${layout === 'one' ? 'text-2xl mb-3' : 'text-sm mb-2'} md:text-lg md:mb-3 font-semibold tracking-tight leading-tight`}>{prop.title}</h3>
+                <div className={`flex flex-wrap items-end justify-between gap-x-2 ${layout === 'one' ? 'text-lg' : 'text-xs'} md:text-base font-medium`}>
                   <span className="text-white/80 truncate">{prop.stats ? prop.stats[1] : prop.area}</span>
                   <span className="shrink-0 font-semibold">
                     {prop.salePrice ? (
@@ -566,9 +516,58 @@ export default function MerkadoHome({
               </div>
               </>
             );
+            const soldOut = prop.inStock === false;
+            const Thumb = prop.href ? 'a' : 'div';
             return (
-              <div key={prop.id} className={cardClass}>
-                {content}
+              <div key={prop.id}>
+                {/* Grid card: hidden on phones in list mode */}
+                <div className={layout === 'list' ? 'hidden md:block' : ''}>
+                  <div className={cardClass}>{content}</div>
+                </div>
+                {/* Compact list row: phones only */}
+                {layout === 'list' && (
+                  <div className="md:hidden flex items-center gap-3 rounded-2xl bg-white border border-[#000000]/5 p-2.5">
+                    <Thumb
+                      {...(prop.href ? { href: prop.href, 'aria-label': `Ver ${prop.title}` } : {})}
+                      className={`relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-[#E5E5EA] ${soldOut ? 'opacity-50 grayscale' : ''}`}
+                    >
+                      <PropertyImage src={prop.image} alt={prop.title} variant="thumb" sizes="96px" />
+                    </Thumb>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold leading-tight line-clamp-2">{prop.href ? <a href={prop.href}>{prop.title}</a> : prop.title}</p>
+                      <p className="text-xs text-[#515154] mt-0.5 truncate">{prop.stats ? prop.stats[1] : prop.area}</p>
+                      <p className="text-base font-semibold mt-1">
+                        {soldOut ? (
+                          <span className="text-xs font-semibold text-[#515154]">Sin stock</span>
+                        ) : prop.salePrice ? (
+                          <>
+                            <s className="text-[#86868B] font-normal mr-1.5">{prop.price}</s>
+                            {prop.salePrice}
+                          </>
+                        ) : (
+                          prop.price
+                        )}
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-end gap-1.5 shrink-0">
+                      {typeof prop.id === 'string' && (
+                        <FavoriteButton productId={prop.id} title={prop.title} className="w-8 h-8 border border-[#000000]/5" />
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          addToCart(String(prop.id));
+                          setCartOpen(true);
+                        }}
+                        disabled={soldOut}
+                        aria-label={soldOut ? `${prop.title} está sin stock` : `Pedido rápido: ${prop.title}`}
+                        className="h-8 px-3 rounded-full bg-[#1D1D1F] text-white text-[10px] font-semibold whitespace-nowrap hover:bg-[#333336] active:scale-95 transition disabled:opacity-40"
+                      >
+                        Pedido rápido
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}

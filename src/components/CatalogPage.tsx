@@ -379,9 +379,6 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
                 {prop.inStock === false && (
                   <span className="bg-black/80 text-white text-[10px] md:text-xs font-semibold px-2 md:px-3 py-1 rounded-full">Sin stock</span>
                 )}
-                {prop.salePrice && prop.inStock !== false && (
-                  <span className="bg-white text-black text-[10px] md:text-xs font-semibold px-2 md:px-3 py-1 rounded-full">Oferta</span>
-                )}
               </div>
 
               <div className="absolute top-3 right-3 md:top-5 md:right-5 z-10 flex items-center gap-1.5">
