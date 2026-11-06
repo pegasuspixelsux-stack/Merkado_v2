@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, Plus, Search, ShoppingCart, SlidersHorizontal, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LayoutGrid, List, Plus, Search, ShoppingCart, SlidersHorizontal, Square, X } from 'lucide-react';
 import type { HomeProperty } from '@/src/lib/homeData';
 import { typeLabels } from '@/src/utils/format';
 import PropertyImage from '@/src/components/PropertyImage';
@@ -140,6 +140,26 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
   };
 
   // A filter change goes back to page 1; the page never exceeds the last one.
+  // Phones only: one big card per row, two per row (default) or a compact list; remembered with the homepage's choice.
+  const [layout, setLayout] = useState<'one' | 'two' | 'list'>('two');
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('merkado-grid-layout');
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- restore the visitor's choice
+      if (saved === 'one' || saved === 'two' || saved === 'list') setLayout(saved);
+    } catch {
+      /* private mode: the choice just is not remembered */
+    }
+  }, []);
+  const chooseLayout = (v: 'one' | 'two' | 'list') => {
+    setLayout(v);
+    try {
+      localStorage.setItem('merkado-grid-layout', v);
+    } catch {
+      /* ignore */
+    }
+  };
+
   const change =
     <T,>(set: (v: T) => void) =>
     (v: T) => {
@@ -162,13 +182,13 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
   return (
     <div className="min-h-screen bg-[#FBFBFD] text-[#1D1D1F] selection:bg-[#000000] selection:text-[#FFFFFF] font-sans antialiased">
       {/* --- NAVIGATION --- */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#FBFBFD]/80 backdrop-blur-md border-b border-[#000000]/5">
+      <header className="sticky top-0 z-50 bg-[#FBFBFD]/80 backdrop-blur-md">
         <div className="bg-[#2E7D32] text-white text-center text-[11px] sm:text-xs font-medium tracking-wide py-1.5 px-4 sm:px-6 leading-snug">
           <span className="md:hidden">Precios de mercado válidos por el día</span>
           <span className="hidden md:inline lg:hidden">Precios de mercado válidos por el día. Pueden cambiar en pedidos para el día siguiente.</span>
           <span className="hidden lg:inline">Precios de mercado válidos por el día. Si el pedido es para otro día, pueden cambiar: te lo confirmamos con precios ajustados antes del envío.</span>
         </div>
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="font-semibold text-sm min-[420px]:text-base sm:text-lg tracking-tight"><BrandName /></Link>
           <SiteNavLinks />
           <div className="flex items-center gap-1">
@@ -191,31 +211,8 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
         </div>
       </header>
 
-      {/* --- HERO WITH ADVANCED SEARCH --- */}
-      <section className="relative w-full">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage:
-              'url(https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?q=80&w=2000&auto=format&fit=crop)',
-          }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/45 to-black/35" />
-        </div>
-
-        <div className="relative max-w-7xl mx-auto px-3 md:px-6 flex flex-col justify-center min-h-[373px] pt-[106px] pb-[49px] md:block md:min-h-0 md:pt-32 md:pb-[148px] text-white">
-          <div className="px-3 md:px-0 max-w-2xl">
-            <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mb-3">Catálogo Mayorista</h1>
-            <p className="text-base md:text-xl text-white/90 font-light">
-              Buscá, filtrá y ordená todo el catálogo: frutas, verduras y hojas verdes frescas.
-            </p>
-          </div>
-
-        </div>
-      </section>
-
-      {/* Search box: half over the hero, half over the list */}
-      <div className="relative z-10 max-w-7xl mx-auto px-3 md:px-6 -mt-[49px] md:-mt-[103px]">
+      {/* Search bar (with the filters) above the hero, like the homepage */}
+      <section id="search" className="px-3 md:px-6 pt-0 md:pt-2 max-w-[1440px] mx-auto">
         <form
           role="search"
           aria-label="Búsqueda avanzada"
@@ -223,7 +220,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
             e.preventDefault();
             goToPage(1);
           }}
-          className="bg-white text-[#1D1D1F] rounded-2xl shadow-xl border border-[#000000]/5 p-3 md:p-4"
+          className="w-full bg-white text-[#1D1D1F] rounded-2xl shadow-lg border border-[#000000]/5 p-3 md:p-4"
         >
           <div className="flex items-center gap-2">
             <Search className="hidden md:block ml-2 w-5 h-5 text-[#515154] shrink-0" />
@@ -253,7 +250,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
             <button
               type="submit"
               aria-label="Buscar"
-              className="shrink-0 bg-[#1D1D1F] text-white text-xs font-medium w-11 h-11 md:w-auto md:h-auto md:px-6 md:py-3 rounded-full hover:bg-[#333336] transition-all flex items-center justify-center"
+              className="shrink-0 bg-[#2E7D32] text-white text-xs font-medium w-11 h-11 md:w-auto md:h-auto md:px-6 md:py-3 rounded-full hover:bg-[#2E7D32]/85 transition-all flex items-center justify-center"
             >
               <Search className="w-4 h-4 md:hidden" />
               <span className="hidden md:inline">Buscar</span>
@@ -334,11 +331,8 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
             </div>
           </div>
 
-          <div className="flex items-center justify-between gap-3 mt-3 md:mt-4 px-1 text-xs text-[#515154]">
-            <p aria-live="polite">
-              {filtered.length} {filtered.length === 1 ? 'artículo' : 'artículos'}
-            </p>
-            {(activeFilters > 0 || sort !== 'relevance') && (
+          {(activeFilters > 0 || sort !== 'relevance') && (
+            <div className="flex justify-end mt-3 md:mt-4 px-1 text-xs">
               <button
                 type="button"
                 onClick={reset}
@@ -346,14 +340,68 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
               >
                 <X className="w-3.5 h-3.5" /> Borrar filtros
               </button>
-            )}
-          </div>
+            </div>
+          )}
         </form>
+      </section>
+
+      {/* Page title */}
+      <div className="max-w-[1440px] mx-auto px-3 md:px-6 pt-5 md:pt-8">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-semibold tracking-tight text-[#1D1D1F] whitespace-nowrap">Catálogo Mayorista</h1>
+      </div>
+
+      {/* Category buttons (and, on phones, the layout selector) below the hero, like the homepage */}
+      <div className="max-w-[1440px] mx-auto px-3 md:px-6 mt-3 md:mt-4">
+        <div className="flex items-center gap-2">
+          <div
+            role="group"
+            aria-label="Categorías"
+            className="flex flex-1 min-w-0 flex-nowrap items-center gap-2 overflow-x-auto -ml-3 pl-3 md:mx-0 md:pl-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {[{ id: 'all', label: 'Todas' }, ...categories].map((c) => {
+              const active = category === c.id;
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => change(setCategory)(c.id)}
+                  aria-pressed={active}
+                  className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-colors ${
+                    active ? 'bg-[#1D1D1F] text-white' : 'bg-[#F5F5F7] text-[#1D1D1F] hover:bg-[#E8E8ED]'
+                  }`}
+                >
+                  {c.label}
+                </button>
+              );
+            })}
+          </div>
+          <div role="group" aria-label="Diseño de la lista" className="md:hidden shrink-0 inline-flex rounded-full bg-[#F5F5F7] p-0.5">
+            {([
+              ['one', Square, '1 columna'],
+              ['two', LayoutGrid, '2 columnas'],
+              ['list', List, 'Lista'],
+            ] as const).map(([value, Icon, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => chooseLayout(value)}
+                aria-pressed={layout === value}
+                aria-label={label}
+                title={label}
+                className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                  layout === value ? 'bg-[#1D1D1F] text-white' : 'text-[#515154] hover:bg-[#E8E8ED]'
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* --- ALL PRODUCTS: 4-column grid --- */}
-      <section id="catalog" className={`pt-8 md:pt-12 ${activeFilters === 0 && bestSellers.length > 0 ? 'pb-8 md:pb-12' : 'pb-32'} px-3 md:px-6 max-w-7xl mx-auto scroll-mt-32`}>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
+      <section id="catalog" className={`pt-4 md:pt-6 ${activeFilters === 0 && bestSellers.length > 0 ? 'pb-8 md:pb-12' : 'pb-32'} px-3 md:px-6 max-w-[1440px] mx-auto scroll-mt-32`}>
+        <div className={`grid ${layout === 'two' ? 'grid-cols-2' : 'grid-cols-1'} md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6`}>
           {filtered.length === 0 && (
             <div className="col-span-full text-center text-[#515154] text-sm py-16">
               <p>No hay artículos que coincidan con tu búsqueda.</p>
@@ -362,10 +410,13 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
               </button>
             </div>
           )}
-          {visible.map((prop) => (
+          {visible.map((prop) => {
+            const soldOut = prop.inStock === false;
+            return (
+            <div key={prop.id}>
+            <div className={layout === 'list' ? 'hidden md:block' : ''}>
             <div
-              key={prop.id}
-              className="group relative aspect-square rounded-2xl overflow-hidden bg-[#E5E5EA] flex flex-col justify-end p-3 md:p-5 transition-transform duration-500 hover:-translate-y-1"
+              className={`group relative ${layout === 'one' ? 'aspect-[4/3] md:aspect-square' : 'aspect-square'} rounded-2xl overflow-hidden bg-[#E5E5EA] flex flex-col justify-end p-3 md:p-5 transition-transform duration-500 hover:-translate-y-1`}
             >
               <div className={`absolute inset-0 transition-transform duration-700 group-hover:scale-105 ${prop.inStock === false ? 'opacity-50 grayscale' : ''}`}>
                 <PropertyImage
@@ -400,10 +451,10 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
               </div>
 
               <div className="relative z-10 text-white pointer-events-none">
-                <h2 className="text-sm md:text-lg font-semibold tracking-tight mb-2 md:mb-3 leading-tight">{prop.title}</h2>
-                <div className="flex items-center justify-between gap-2 text-[10px] md:text-sm font-medium">
+                <h2 className={`${layout === 'one' ? 'text-2xl mb-3' : 'text-sm mb-2'} md:text-lg md:mb-3 font-semibold tracking-tight leading-tight`}>{prop.title}</h2>
+                <div className={`flex flex-wrap items-end justify-between gap-x-2 ${layout === 'one' ? 'text-lg' : 'text-xs'} md:text-sm font-medium`}>
                   <span className="text-white/80 truncate">{prop.area}</span>
-                  <span className="shrink-0 font-semibold">
+                  <span className="max-w-full font-semibold">
                     {prop.salePrice ? (
                       <>
                         <s className="text-white/60 font-normal mr-1.5">{prop.price}</s>
@@ -416,7 +467,57 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
                 </div>
               </div>
             </div>
-          ))}
+            </div>
+            {layout === 'list' && (
+              <div className="md:hidden flex items-center gap-3 rounded-2xl bg-white border border-[#000000]/5 p-2.5">
+                {prop.href ? (
+                  <Link
+                    href={prop.href}
+                    aria-label={`Ver ${prop.title}`}
+                    className={`relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-[#E5E5EA] ${soldOut ? 'opacity-50 grayscale' : ''}`}
+                  >
+                    <PropertyImage src={prop.image} alt={prop.title} variant="thumb" sizes="96px" />
+                  </Link>
+                ) : (
+                  <div className={`relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-[#E5E5EA] ${soldOut ? 'opacity-50 grayscale' : ''}`}>
+                    <PropertyImage src={prop.image} alt={prop.title} variant="thumb" sizes="96px" />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold leading-tight line-clamp-2">{prop.href ? <Link href={prop.href}>{prop.title}</Link> : prop.title}</p>
+                  <p className="text-xs text-[#515154] mt-0.5 truncate">{prop.area}</p>
+                  <p className="text-base font-semibold mt-1">
+                    {soldOut ? (
+                      <span className="text-xs font-semibold text-[#515154]">Sin stock</span>
+                    ) : prop.salePrice ? (
+                      <>
+                        <s className="text-[#86868B] font-normal mr-1.5">{prop.price}</s>
+                        {prop.salePrice}
+                      </>
+                    ) : (
+                      prop.price
+                    )}
+                  </p>
+                </div>
+                <div className="flex flex-col items-end gap-1.5 shrink-0">
+                  {typeof prop.id === 'string' && (
+                    <FavoriteButton productId={prop.id} title={prop.title} className="w-8 h-8 border border-[#000000]/5" />
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => addToCart(String(prop.id))}
+                    disabled={soldOut}
+                    aria-label={soldOut ? `${prop.title} está sin stock` : `Agregar ${prop.title} al carrito`}
+                    className="w-8 h-8 rounded-full bg-[#1D1D1F] text-white flex items-center justify-center hover:bg-[#333336] active:scale-95 transition disabled:opacity-40"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+            </div>
+            );
+          })}
         </div>
 
         {filtered.length > 0 && (

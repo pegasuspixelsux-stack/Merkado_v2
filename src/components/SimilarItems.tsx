@@ -27,7 +27,7 @@ export default function SimilarItems({ title, items }: { title: string; items: S
     track.current?.scrollBy({ left: dir * track.current.clientWidth * 0.8, behavior: 'smooth' });
 
   return (
-    <section aria-label={title} className="max-w-7xl mx-auto px-6 pb-24">
+    <section aria-label={title} className="max-w-[1440px] mx-auto px-6 pb-24">
       <div className="flex items-end justify-between mb-6">
         <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">{title}</h2>
         <div className="hidden md:flex gap-2">
@@ -46,33 +46,35 @@ export default function SimilarItems({ title, items }: { title: string; items: S
       >
         {items.map((item) => (
           <li key={item.id} className="snap-start shrink-0 w-[60%] sm:w-[40%] md:w-[28%] lg:w-[22%]">
-            <Link href={`/items/${item.id}`} className="group block">
-              <div className="relative aspect-square rounded-2xl overflow-hidden bg-[#E5E5EA]">
-                <PropertyImage
-                  src={item.image}
-                  alt={item.title}
-                  variant="card"
-                  sizes="(min-width: 1024px) 22vw, (min-width: 768px) 28vw, 60vw"
-                  className={`object-cover transition-transform duration-500 group-hover:scale-105 ${item.inStock ? '' : 'opacity-50 grayscale'}`}
-                />
-                {!item.inStock && (
-                  <span className="absolute top-3 left-3 bg-black/80 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full">Sin stock</span>
-                )}
+            <Link href={`/items/${item.id}`} className="group relative block aspect-square rounded-2xl overflow-hidden bg-[#E5E5EA]">
+              <PropertyImage
+                src={item.image}
+                alt={item.title}
+                variant="card"
+                sizes="(min-width: 1024px) 22vw, (min-width: 768px) 28vw, 60vw"
+                className={`object-cover transition-transform duration-500 group-hover:scale-105 ${item.inStock ? '' : 'opacity-50 grayscale'}`}
+              />
+              <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+              {!item.inStock && (
+                <span className="absolute top-3 left-3 bg-black/80 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full">Sin stock</span>
+              )}
+              {/* Text inside the card, over the photo */}
+              <div className="absolute inset-x-0 bottom-0 p-3 md:p-4 text-white">
+                <h3 className="text-sm md:text-base font-semibold tracking-tight leading-tight line-clamp-2">{item.title}</h3>
+                <p className="mt-1.5 text-xs md:text-sm flex flex-wrap items-end justify-between gap-x-2">
+                  <span className="text-white/80 truncate">{item.quantity}</span>
+                  <span className="max-w-full font-semibold">
+                    {item.salePrice ? (
+                      <>
+                        <s className="font-normal text-white/60 mr-1.5">{item.price}</s>
+                        {item.salePrice}
+                      </>
+                    ) : (
+                      item.price
+                    )}
+                  </span>
+                </p>
               </div>
-              <h3 className="mt-3 text-sm font-medium tracking-tight truncate">{item.title}</h3>
-              <p className="text-xs text-[#515154] flex items-center gap-2">
-                <span className="truncate">{item.quantity}</span>
-                <span className="ml-auto shrink-0 font-semibold text-[#1D1D1F]">
-                  {item.salePrice ? (
-                    <>
-                      <s className="font-normal text-[#86868B] mr-1.5">{item.price}</s>
-                      {item.salePrice}
-                    </>
-                  ) : (
-                    item.price
-                  )}
-                </span>
-              </p>
             </Link>
           </li>
         ))}

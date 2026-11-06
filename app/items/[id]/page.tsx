@@ -91,7 +91,7 @@ export default async function ItemPage({ params }: Props) {
   return (
     <div className="min-h-screen bg-[#FBFBFD] text-[#1D1D1F] font-sans antialiased">
       <header className="border-b border-[#000000]/5 bg-[#FBFBFD]">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="font-semibold text-sm min-[420px]:text-base sm:text-lg tracking-tight"><BrandName /></Link>
           <SiteNavLinks />
           <div className="flex items-center gap-3">
@@ -101,7 +101,7 @@ export default async function ItemPage({ params }: Props) {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-10 md:py-16 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start">
+      <main className="max-w-[1440px] mx-auto px-6 py-10 md:py-16 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start">
         <Link
           href="/items"
           className="md:col-span-2 justify-self-start -mb-6 md:-mb-10 inline-flex items-center gap-2 text-sm font-medium text-[#515154] hover:text-[#1D1D1F] transition-colors"

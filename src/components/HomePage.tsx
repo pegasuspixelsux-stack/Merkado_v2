@@ -24,6 +24,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
+  Check,
   ShoppingCart,
   Square,
   LayoutGrid,
@@ -32,6 +33,24 @@ import {
 import BrandName from '@/src/components/BrandName';
 
 const PAGE_SIZE = 12;
+
+const ORDER_BENEFITS: { title: string; who: string; text: string }[] = [
+  {
+    title: 'Reordenamiento en 1 clic',
+    who: 'Para el restaurante',
+    text: 'Cargá tus favoritos y armá tu pedido diario en segundos, con los precios de lista actualizados al día y sin empezar desde cero.',
+  },
+  {
+    title: 'Cero errores operativos',
+    who: 'Para la logística',
+    text: 'Adiós a los audios y mensajes confusos de WhatsApp. Las órdenes entran estructuradas, con cantidades y códigos exactos, listas para armar.',
+  },
+  {
+    title: 'Abastecimiento ágil y seguro',
+    who: 'Beneficio mutuo',
+    text: 'Acelera el proceso de compra y preparación para garantizar entregas puntuales (same day / next day) y mantener tu cocina siempre abastecida.',
+  },
+];
 
 const FAQ: { q: string; a: string }[] = [
   {
@@ -358,13 +377,13 @@ export default function MerkadoHome({
     <div className="min-h-screen bg-[#FBFBFD] text-[#1D1D1F] selection:bg-[#000000] selection:text-[#FFFFFF] font-sans antialiased">
 
       {/* --- NAVIGATION --- */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#FBFBFD]/80 backdrop-blur-md border-b border-[#000000]/5">
+      <header className="sticky top-0 z-50 bg-[#FBFBFD]/80 backdrop-blur-md">
         <div className="bg-[#2E7D32] text-white text-center text-[11px] sm:text-xs font-medium tracking-wide py-1.5 px-4 sm:px-6 leading-snug">
           <span className="md:hidden">Precios de mercado válidos por el día</span>
           <span className="hidden md:inline lg:hidden">Precios de mercado válidos por el día. Pueden cambiar en pedidos para el día siguiente.</span>
           <span className="hidden lg:inline">Precios de mercado válidos por el día. Si el pedido es para otro día, pueden cambiar: te lo confirmamos con precios ajustados antes del envío.</span>
         </div>
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
           <span className="font-semibold text-sm min-[420px]:text-base sm:text-lg tracking-tight"><BrandName /></span>
           <SiteNavLinks />
           <div className="flex items-center gap-1">
@@ -388,61 +407,14 @@ export default function MerkadoHome({
       </header>
 
       {/* --- HERO: one fixed unit (no carousel) --- */}
-      <section className="relative w-full overflow-hidden bg-[#14451A] text-white md:flex md:items-center md:portrait:h-[55svh] md:portrait:min-h-[500px] lg:landscape:block">
-        {/* Background photo + green gradient overlay (stronger behind the text so it always reads well) */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage:
-              'url(https://images.unsplash.com/photo-1488459716781-31db52582fe9?q=80&w=2000&auto=format&fit=crop)',
-          }}
-        />
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-gradient-to-b from-[#0B2E10]/90 via-[#0F3A15]/80 to-[#0F3A15]/75 md:bg-gradient-to-r md:from-[#0B2E10]/95 md:via-[#0F3A15]/80 md:to-[#0F3A15]/35"
-        />
-        <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#0B2E10]/60 to-transparent" />
-        <div className="relative w-full max-w-7xl mx-auto px-6 pt-28 pb-20 md:pt-44 md:pb-40 md:landscape:max-xl:pt-[158px] md:landscape:max-xl:pb-[142px] md:portrait:pt-32 md:portrait:pb-20">
-          <span className="inline-block rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-[11px] sm:text-xs font-semibold tracking-[0.18em] uppercase">
-            Distribución hortifrutícola B2B
-          </span>
-          <h1 className="mt-6 max-w-6xl text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-semibold tracking-tight leading-[1.1]">
-            El distribuidor hortifrutícola para
-            <br className="hidden md:block" /> la gastronomía de Punta del Este.
-          </h1>
-          <p className="mt-6 max-w-2xl text-base sm:text-lg md:text-xl text-white/90 font-light leading-relaxed">
-            Abastecemos a restaurantes, hoteles y comercios con frutas, verduras y hojas verdes seleccionadas en el
-            mercado central. Logística integrada, precios mayoristas por volumen y entregas diarias en tu establecimiento.
-          </p>
-          <div className="mt-10 flex flex-col sm:flex-row gap-3">
-            <Link
-              href="/items"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-white text-[#1D1D1F] px-7 py-3.5 text-sm md:text-base font-semibold hover:bg-white/90 active:scale-95 transition-all"
-            >
-              <span>Ver Catálogo Mayorista</span>
-              <ArrowUpRight className="w-4 h-4" />
-            </Link>
-            <a
-              href="#contact"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-white/50 bg-white/10 px-7 py-3.5 text-sm md:text-base font-semibold text-white hover:bg-white/20 active:scale-95 transition-all"
-            >
-              <KeyRound className="w-4 h-4" />
-              <span>Solicitar acceso mayorista</span>
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* --- SEARCH BAR --- */}
-      <section id="search" className="px-3 md:px-6 max-w-7xl mx-auto h-0 relative z-30">
+      <section id="search" className="px-3 md:px-6 pt-0 md:pt-2 max-w-[1440px] mx-auto">
         <form
           role="search"
           onSubmit={(e) => {
             e.preventDefault();
             document.getElementById('properties')?.scrollIntoView({ behavior: 'smooth' });
           }}
-          className="-translate-y-1/2 bg-white rounded-2xl shadow-lg border border-[#000000]/5 p-3 flex flex-col gap-3"
+          className="w-full md:w-3/4 mx-auto bg-white rounded-2xl shadow-lg border border-[#000000]/5 p-3 flex flex-col gap-3"
         >
           <div className="flex items-center gap-2 pl-3">
             <Search className="hidden md:block w-5 h-5 text-[#515154] shrink-0" />
@@ -460,7 +432,7 @@ export default function MerkadoHome({
             <button
               type="submit"
               aria-label="Buscar"
-              className="shrink-0 bg-[#1D1D1F] text-white text-xs font-medium w-11 h-11 md:w-auto md:h-auto md:px-6 md:py-3 rounded-full hover:bg-[#333336] transition-all flex items-center justify-center"
+              className="shrink-0 bg-[#2E7D32] text-white text-xs font-medium w-11 h-11 md:w-auto md:h-auto md:px-6 md:py-3 rounded-full hover:bg-[#2E7D32]/85 transition-all flex items-center justify-center"
             >
               <Search className="w-4 h-4 md:hidden" />
               <span className="hidden md:inline">Buscar</span>
@@ -469,8 +441,57 @@ export default function MerkadoHome({
         </form>
       </section>
 
+      <div className="max-w-[1440px] mx-auto px-3 md:px-6 pt-3 md:pt-4">
+        <section className="relative w-full overflow-hidden rounded-3xl border border-[#2E7D32] bg-[#2E7D32] text-white md:flex md:items-center md:portrait:h-[38.5svh] md:portrait:min-h-[360px] lg:landscape:block">
+          {/* Background photo + green overlay: phones get one flat, fully opaque green layer; wider screens get a gradient, solid on the left (behind the text) and more transparent to the right */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage:
+                'url(https://images.unsplash.com/photo-1488459716781-31db52582fe9?q=80&w=2000&auto=format&fit=crop)',
+            }}
+          />
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-[#2E7D32] md:bg-transparent md:bg-gradient-to-r md:from-[#2E7D32] md:from-[55%] md:via-[#2E7D32]/55 md:via-[80%] md:to-transparent"
+          />
+            <div className="relative w-full px-6 md:px-10 pt-5 pb-5 md:pt-9 md:pb-9 md:landscape:max-xl:pt-7 md:landscape:max-xl:pb-7 md:portrait:pt-7 md:portrait:pb-7">
+            <span className="inline-block rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-[11px] sm:text-xs font-semibold tracking-[0.18em] uppercase">
+              Distribución hortifrutícola B2B
+            </span>
+            <h1 className="mt-4 max-w-6xl text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-semibold tracking-tight leading-[1.1]">
+              El distribuidor hortifrutícola para
+              <br className="hidden md:block" /> la gastronomía de Punta del Este.
+            </h1>
+            <p className="mt-3 max-w-2xl text-xs sm:text-sm md:text-base text-white/95 font-normal leading-relaxed">
+              Abastecemos a restaurantes, hoteles y comercios con frutas, verduras y hojas verdes seleccionadas en el
+              mercado central. Logística integrada, precios mayoristas por volumen y entregas diarias en tu establecimiento.
+            </p>
+            <div className="mt-5 md:mt-6 flex flex-col sm:flex-row gap-2.5">
+              <Link
+                href="/items"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-white text-[#1D1D1F] px-6 py-2.5 text-sm font-semibold hover:bg-white/90 active:scale-95 transition-all"
+              >
+                <span>Acceso al Catálogo Mayorista</span>
+                <ArrowUpRight className="w-4 h-4" />
+              </Link>
+              <a
+                href="#contact"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-white/50 bg-white/10 px-6 py-2.5 text-sm font-semibold text-white hover:bg-white/20 active:scale-95 transition-all"
+              >
+                <KeyRound className="w-4 h-4" />
+                <span>Solicitar acceso mayorista</span>
+              </a>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      {/* --- SEARCH BAR --- */}
+
       {/* --- BODY: PROPERTY BENTO GRID --- */}
-      <section id="properties" className="pt-14 md:pt-20 pb-8 md:pb-44 px-3 md:px-6 max-w-7xl mx-auto">
+      <section id="properties" className="pt-5 md:pt-8 pb-8 md:pb-44 px-3 md:px-6 max-w-[1440px] mx-auto">
         <div className="flex items-center gap-2 mb-6">
         {categories.length > 0 ? (
           <div
@@ -706,9 +727,9 @@ export default function MerkadoHome({
       </section>
 
       {/* --- WHO WE ARE --- */}
-      <section id="vision" className={`pt-0 ${openVision ? 'pb-14' : 'pb-0'} md:pt-8 md:pb-36 px-6 max-w-7xl mx-auto`}>
+      <section id="vision" className={`pt-0 ${openVision ? 'pb-14' : 'pb-0'} md:pt-8 md:pb-36 px-6 max-w-[1440px] mx-auto`}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
-          <div className="md:space-y-6">
+          <div className="md:space-y-6 [container-type:inline-size]">
             <h2 className="hidden md:block text-xs uppercase tracking-widest text-[#515154] font-semibold">Quiénes somos</h2>
             <button
               type="button"
@@ -721,7 +742,8 @@ export default function MerkadoHome({
               <ChevronDown className={`w-5 h-5 shrink-0 transition-transform ${openVision ? 'rotate-180' : ''}`} />
             </button>
             <div id="vision-body" className={`${openVision ? 'block mt-6' : 'hidden'} md:block md:mt-0 space-y-6`}>
-            <p className="text-3xl md:text-4xl font-semibold tracking-tight">
+            {/* The heading scales with the column (cqw) and balances its lines, so it spans the same width as the paragraph below */}
+            <p className="text-3xl font-semibold tracking-tight leading-[1.1] [font-size:clamp(1.75rem,8.9cqw,3.75rem)] [text-wrap:balance]">
               Insumos frescos para tu cocina, todos los días.
             </p>
             <p className="text-[#515154] font-light leading-relaxed">
@@ -750,7 +772,7 @@ export default function MerkadoHome({
       </section>
 
       {/* --- FAQ: 10 questions. Phones: the whole section collapses, and each answer opens on tap --- */}
-      <section id="faq" className={`${openFaqSection ? 'pt-0 pb-12' : 'pb-0'} md:pt-0 md:pb-44 px-6 max-w-7xl mx-auto`}>
+      <section id="faq" className={`${openFaqSection ? 'pt-0 pb-12' : 'pb-0'} md:pt-0 md:pb-44 px-6 max-w-[1440px] mx-auto`}>
         <button
           type="button"
           onClick={() => setOpenFaqSection((o) => !o)}
@@ -793,7 +815,7 @@ export default function MerkadoHome({
 
       {/* --- CALL TO ACTION & CONTACT FORM --- */}
       <section id="contact" className={`${openContact ? 'pt-0 pb-12' : 'py-0'} md:py-44 px-6 bg-[#F2F2F7] border-t border-b border-[#000000]/5`}>
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+        <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
 
           {/* Left Column: wholesale pitch + company data */}
           <div>
@@ -817,6 +839,24 @@ export default function MerkadoHome({
               conseguí mejores precios por las cantidades que compra tu negocio. Contanos qué
               necesitás cada semana y revisamos tu solicitud y, una vez aprobada y configurada la forma de pago, te enviamos tu contraseña de acceso para ver tus precios y hacer tus pedidos.
             </p>
+            <div className="mt-10 pt-8 border-t border-[#000000]/10">
+              <h3 className="text-lg font-semibold tracking-tight mb-5">Por qué usar el sistema de pedidos de Merkado</h3>
+              <ul className="space-y-5">
+                {ORDER_BENEFITS.map((b) => (
+                  <li key={b.title} className="flex gap-3.5">
+                    <span className="mt-0.5 w-6 h-6 shrink-0 rounded-full bg-[#2E7D32] text-white flex items-center justify-center">
+                      <Check className="w-3.5 h-3.5" aria-hidden="true" />
+                    </span>
+                    <div>
+                      <p className="font-semibold tracking-tight">
+                        {b.title} <span className="font-normal text-[#515154]">· {b.who}</span>
+                      </p>
+                      <p className="mt-1 text-sm text-[#515154] font-light leading-relaxed">{b.text}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
             </div>
           </div>
 
