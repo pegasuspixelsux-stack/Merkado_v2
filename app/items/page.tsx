@@ -5,7 +5,7 @@ import { sampleProperties } from '@/src/data/sampleProperties';
 import { formatMoney, formatQuantity, typeLabels, withUnitSuffix } from '@/src/utils/format';
 
 export const metadata: Metadata = {
-  title: 'Todos los productos | Merkado',
+  title: 'Catálogo Mayorista | Merkado',
   description: 'Buscá y filtrá todo el catálogo de frutas, verduras y hojas verdes de Merkado.',
 };
 

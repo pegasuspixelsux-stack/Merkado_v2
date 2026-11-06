@@ -21,9 +21,9 @@ export default function SiteFooter() {
   );
   return (
     <footer className="bg-[#2E7D32] text-white py-32 px-6">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-        {/* Column 1: Brand (tablet: its own full-width row) */}
-        <div className="space-y-4 md:col-span-2 lg:col-span-1">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-12 mb-16">
+        {/* Column 1: Brand (tablets, portrait and landscape: its own full-width row) */}
+        <div className="space-y-4 md:col-span-2 xl:col-span-1">
           <span className="text-xl md:text-2xl font-semibold tracking-tight text-white"><BrandName /></span>
           <p className="text-sm md:text-base text-white/80 leading-relaxed font-light">
             Frutas y verduras frescas, directo del productor a tu negocio o a tu mesa.

@@ -204,7 +204,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
 
         <div className="relative max-w-7xl mx-auto px-3 md:px-6 flex flex-col justify-center min-h-[373px] pt-[106px] pb-[49px] md:block md:min-h-0 md:pt-32 md:pb-[148px] text-white">
           <div className="px-3 md:px-0 max-w-2xl">
-            <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mb-3">Todos los productos</h1>
+            <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mb-3">Catálogo Mayorista</h1>
             <p className="text-base md:text-xl text-white/90 font-light">
               Buscá, filtrá y ordená todo el catálogo: frutas, verduras y hojas verdes frescas.
             </p>
