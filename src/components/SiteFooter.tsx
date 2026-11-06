@@ -20,17 +20,17 @@ export default function SiteFooter() {
     business.address || business.email || business.whatsapp || business.phone || business.hours || business.rut || business.license,
   );
   return (
-    <footer className="bg-[#2E7D32] text-white pt-12 pb-32 md:pt-32 px-6">
-      <div className="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-12 mb-16">
+    <footer className="bg-[#2E7D32] text-white p-6 pt-[75px]">
+      <div className="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-12 mb-[75px]">
         {/* Column 1: Brand (tablets, portrait and landscape: its own full-width row) */}
         <div className="space-y-4 md:col-span-2 xl:col-span-1">
           <span className="text-sm min-[420px]:text-base sm:text-lg md:text-2xl font-semibold tracking-tight text-white"><BrandName /></span>
-          <p className="text-sm md:text-base text-white/80 leading-relaxed font-light">
+          <p className="text-sm text-white/80 leading-relaxed font-light">
             Frutas y verduras frescas, directo del productor a tu negocio o a tu mesa.
           </p>
 
           {hasContact && (
-            <ul className="space-y-3 pt-2 text-sm md:text-base text-white/90 font-light" aria-label="Contacto">
+            <ul className="space-y-3 pt-2 text-sm text-white/90 font-light" aria-label="Contacto">
               {business.address && (
                 <li className="flex items-start gap-3">
                   <MapPin className="w-5 h-5 shrink-0 text-white/80" aria-hidden="true" />
@@ -94,8 +94,8 @@ export default function SiteFooter() {
 
         {/* Column 2: Inventory */}
         <div className="space-y-4">
-          <p className="text-sm uppercase tracking-widest text-white/80 font-semibold">Catálogo</p>
-          <ul className="space-y-3 text-sm md:text-base text-white/90 font-light">
+          <p className="text-sm md:text-xs uppercase tracking-widest text-white/80 font-semibold">Catálogo</p>
+          <ul className="space-y-3 text-sm text-white/90 font-light">
             {categories.slice(0, 4).map((c) => (
               <li key={c.id}><Link href={`/items?category=${encodeURIComponent(c.id)}`} className={linkClass}>{c.name}</Link></li>
             ))}
@@ -105,8 +105,8 @@ export default function SiteFooter() {
 
         {/* Column 3: Company */}
         <div className="space-y-4">
-          <p className="text-sm uppercase tracking-widest text-white/80 font-semibold">Empresa</p>
-          <ul className="space-y-3 text-sm md:text-base text-white/90 font-light">
+          <p className="text-sm md:text-xs uppercase tracking-widest text-white/80 font-semibold">Empresa</p>
+          <ul className="space-y-3 text-sm text-white/90 font-light">
             <li><Link href="/#vision" className={linkClass}>Quiénes somos</Link></li>
             <li><Link href="/#faq" className={linkClass}>Preguntas frecuentes</Link></li>
             <li><Link href="/#contact" className={linkClass}>Mayoristas</Link></li>
@@ -116,8 +116,8 @@ export default function SiteFooter() {
 
         {/* Column 4: Legal & Notice */}
         <div className="space-y-4">
-          <p className="text-sm uppercase tracking-widest text-white/80 font-semibold">Legal</p>
-          <ul className="space-y-3 text-sm md:text-base text-white/90 font-light">
+          <p className="text-sm md:text-xs uppercase tracking-widest text-white/80 font-semibold">Legal</p>
+          <ul className="space-y-3 text-sm text-white/90 font-light">
             <li><Link href="/privacidad" className={linkClass}>Política de privacidad</Link></li>
             <li><Link href="/creditos" className={linkClass}>Créditos de fotos</Link></li>
             <li><a href="#" className={linkClass}>Términos del servicio</a></li>
@@ -127,7 +127,7 @@ export default function SiteFooter() {
       </div>
 
       {/* Bottom Bar */}
-      <div className="max-w-[1440px] mx-auto pt-8 border-t border-white/20 flex flex-col md:flex-row items-center justify-between text-sm md:text-base text-white/80 font-light">
+      <div className="max-w-[1440px] mx-auto pt-6 border-t border-white/20 flex flex-col md:flex-row items-center justify-between text-sm md:text-xs text-white/80 font-light">
         <p>&copy; {new Date().getFullYear()} Merkado Inc. Todos los derechos reservados.</p>
         <p className="mt-4 md:mt-0">
           Plataforma creada por{' '}

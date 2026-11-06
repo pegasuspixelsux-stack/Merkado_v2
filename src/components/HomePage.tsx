@@ -821,8 +821,8 @@ export default function MerkadoHome({
       </section>
 
       {/* --- CALL TO ACTION & CONTACT FORM --- */}
-      <section id="contact" className={`${openContact ? 'pt-0 pb-12' : 'py-0'} md:py-44 px-6 bg-[#F2F2F7] border-t border-b border-[#000000]/5`}>
-        <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+      <section id="contact" className={`${openContact ? 'pt-0 pb-12' : 'py-0'} md:py-44 bg-[#F2F2F7] border-t border-b border-[#000000]/5`}>
+        <div className="max-w-[1440px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
 
           {/* Left Column: wholesale pitch + company data */}
           <div>
