@@ -348,7 +348,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
 
       {/* --- ALL PRODUCTS: 4-column grid --- */}
       <section id="catalog" className={`pt-8 md:pt-12 ${activeFilters === 0 && bestSellers.length > 0 ? 'pb-8 md:pb-12' : 'pb-32'} px-3 md:px-6 max-w-7xl mx-auto scroll-mt-32`}>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
           {filtered.length === 0 && (
             <div className="col-span-full text-center text-[#515154] text-sm py-16">
               <p>No hay artículos que coincidan con tu búsqueda.</p>

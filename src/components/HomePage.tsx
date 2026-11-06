@@ -744,7 +744,7 @@ export default function MerkadoHome({
             </div>
           </div>
           <div
-            className={`${openVision ? '' : 'hidden'} md:block aspect-[4/3] rounded-2xl bg-cover bg-center bg-[#E5E5EA]`}
+            className={`${openVision ? '' : 'hidden'} md:block aspect-[4/3] md:aspect-square lg:aspect-[4/3] rounded-2xl bg-cover bg-center bg-[#E5E5EA]`}
             style={{
               backgroundImage:
                 'url(https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?q=80&w=1200&auto=format&fit=crop)',
@@ -813,7 +813,7 @@ export default function MerkadoHome({
               <ChevronDown className={`w-5 h-5 shrink-0 transition-transform ${openContact ? 'rotate-180' : ''}`} />
             </button>
             <div id="contact-body" className={`${openContact ? 'block' : 'hidden'} md:block mt-6 md:mt-0`}>
-            <p className="text-3xl md:text-5xl font-semibold tracking-tight mb-6">
+            <p className="text-3xl md:text-4xl font-semibold tracking-tight mb-6">
               Comprá más, pagá menos. Pedí tu acceso mayorista.
             </p>
             <p className="text-[#515154] font-light leading-relaxed mb-12">
