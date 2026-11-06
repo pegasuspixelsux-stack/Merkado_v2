@@ -743,7 +743,7 @@ export default function MerkadoHome({
             </button>
             <div id="vision-body" className={`${openVision ? 'block mt-6' : 'hidden'} md:block md:mt-0 space-y-6`}>
             {/* The heading scales with the column (cqw) and balances its lines, so it spans the same width as the paragraph below */}
-            <p className="text-3xl font-semibold tracking-tight leading-[1.1] [font-size:clamp(1.75rem,8.9cqw,3.75rem)] [text-wrap:balance]">
+            <p className="text-2xl md:text-3xl xl:text-4xl font-semibold tracking-tight leading-[1.15] [text-wrap:balance]">
               Insumos frescos para tu cocina, todos los días.
             </p>
             <p className="text-[#515154] font-light leading-relaxed">
@@ -786,7 +786,7 @@ export default function MerkadoHome({
         <div id="faq-body" className={`${openFaqSection ? 'block mt-6' : 'hidden'} md:block md:mt-0`}>
           <div className="mb-8 md:mb-14 space-y-4">
             <h2 className="hidden md:block text-xs uppercase tracking-widest text-[#515154] font-semibold">Preguntas frecuentes</h2>
-            <p className="text-3xl md:text-4xl font-semibold tracking-tight max-w-2xl">Todo lo que necesitás saber para pedir.</p>
+            <p className="text-2xl md:text-3xl xl:text-4xl font-semibold tracking-tight leading-[1.15] [text-wrap:balance]">Todo lo que necesitás saber para pedir.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 md:gap-x-16">
             {FAQ.map((item, i) => {
@@ -830,8 +830,8 @@ export default function MerkadoHome({
               <span>Solicite su Acceso Mayorista</span>
               <ChevronDown className={`w-5 h-5 shrink-0 transition-transform ${openContact ? 'rotate-180' : ''}`} />
             </button>
-            <div id="contact-body" className={`${openContact ? 'block' : 'hidden'} md:block mt-6 md:mt-0`}>
-            <p className="text-3xl md:text-4xl font-semibold tracking-tight mb-6">
+            <div id="contact-body" className={`${openContact ? 'block' : 'hidden'} md:block mt-6 md:mt-0 [container-type:inline-size]`}>
+            <p className="text-2xl md:text-3xl xl:text-4xl font-semibold tracking-tight leading-[1.15] [text-wrap:balance] mb-6">
               Comprá más, pagá menos. Pedí tu acceso mayorista.
             </p>
             <p className="text-[#515154] font-light leading-relaxed mb-12">
