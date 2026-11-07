@@ -1,4 +1,4 @@
-import HomePage from '@/src/components/HomePage';
+import HomeSwitch from '@/src/components/HomeSwitch';
 import { loadHomeData } from '@/src/lib/homeData';
 
 // Rebuilt at most once a minute, so new or featured listings appear quickly
@@ -7,5 +7,5 @@ export const revalidate = 60;
 
 export default async function Page() {
   const { properties } = await loadHomeData();
-  return <HomePage initialProperties={properties} />;
+  return <HomeSwitch initialProperties={properties} />;
 }

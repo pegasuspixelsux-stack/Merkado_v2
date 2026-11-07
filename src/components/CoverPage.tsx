@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import BrandName, { DEFAULT_LOGO } from '@/src/components/BrandName';
 import { useBusiness } from '@/src/context/BusinessContext';
 import SiteNavLinks from '@/src/components/SiteNavLinks';
@@ -52,6 +53,17 @@ function CountUp({ to, suffix = '', duration = 4000 }: { to: number; suffix?: st
 /** Cover: a full-screen hero with the headline and the two entry buttons (working name, to be renamed). */
 export default function CoverPage() {
   const { logo } = useBusiness();
+  const router = useRouter();
+  // The homepage sections (Quiénes somos, FAQ, Contacto) live in the catalog for phones: send those links there.
+  useEffect(() => {
+    const go = () => {
+      const h = window.location.hash;
+      if (h === '#vision' || h === '#faq' || h === '#contact') router.replace(`/items${h}`);
+    };
+    go();
+    window.addEventListener('hashchange', go);
+    return () => window.removeEventListener('hashchange', go);
+  }, [router]);
   return (
     <div className="min-h-svh bg-[#FBFBFD] text-[#1D1D1F] font-sans antialiased flex flex-col">
       <header className="sticky top-0 z-50 bg-[#FBFBFD]/80 backdrop-blur-md">
@@ -79,7 +91,7 @@ export default function CoverPage() {
             aria-hidden="true"
             className="absolute inset-0 bg-gradient-to-b from-transparent via-[#2E7D32]/95 via-[35%] to-[#2E7D32]"
           />
-          <div className="relative w-full px-6 md:px-14 pt-12 pb-10 md:pb-14">
+          <div className="relative w-full px-6 md:px-14 pt-12 pb-12 md:pb-16">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={logo || DEFAULT_LOGO} alt="" aria-hidden="true" className="-mt-8 md:-mt-12 -mb-3 md:-mb-4 mx-auto md:mx-0 h-48 w-48 md:h-[269px] md:w-[269px] max-w-full object-contain drop-shadow-lg" />
             <span className="inline-block rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-[11px] sm:text-xs font-semibold tracking-[0.18em] uppercase">
@@ -96,7 +108,7 @@ export default function CoverPage() {
                 Acceder al Catálogo Mayorista
               </Link>
               <Link
-                href="/#contact"
+                href="/items#contact"
                 className="inline-flex items-center justify-center rounded-full border border-white/70 text-white px-7 py-3.5 text-sm font-semibold hover:bg-white/10 active:scale-95 transition-all"
               >
                 Solicitar acceso mayorista
@@ -114,6 +126,12 @@ export default function CoverPage() {
               ))}
             </div>
           </div>
+          <Link
+            href="/"
+            className="absolute bottom-3 inset-x-0 text-center text-xs text-white/70 hover:text-white transition-colors"
+          >
+            Merkado v 2.0
+          </Link>
         </section>
       </main>
     </div>

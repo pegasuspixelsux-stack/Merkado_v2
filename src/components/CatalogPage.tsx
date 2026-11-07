@@ -14,6 +14,7 @@ import SiteNavLinks from '@/src/components/SiteNavLinks';
 import MobileNavMenu from '@/src/components/MobileNavMenu';
 import { useClient } from '@/src/context/ClientContext';
 import { applyBoxFirst, applyLevel } from '@/src/utils/pricing';
+import InfoSections from '@/src/components/InfoSections';
 import SimilarItems, { type SimilarItem } from '@/src/components/SimilarItems';
 import BrandName from '@/src/components/BrandName';
 
@@ -576,6 +577,8 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
           <SimilarItems title="Más vendidos" items={bestSellers} />
         </div>
       )}
+
+      <InfoSections />
 
       <CartDrawer
         open={cartOpen}
