@@ -81,19 +81,20 @@ export default function CoverPage() {
         <section className="relative flex-1 w-full max-w-[1440px] mx-auto overflow-hidden rounded-3xl border border-[#2E7D32] bg-[#2E7D32] text-white flex items-end">
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-cover bg-center"
+            className="absolute inset-0 bg-cover bg-center hidden md:block"
             style={{
               backgroundImage:
                 'url(https://images.unsplash.com/photo-1488459716781-31db52582fe9?q=80&w=2000&auto=format&fit=crop)',
             }}
           />
+          <div aria-hidden="true" className="absolute inset-0 bg-cover bg-center md:hidden" style={{ backgroundImage: 'url(/hero-mobile.webp)', transform: 'translateY(-10%)' }} />
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-gradient-to-b from-transparent via-[#2E7D32]/95 via-[35%] to-[#2E7D32]"
+            className="absolute inset-0 bg-gradient-to-b from-transparent via-[#2E7D32]/95 via-[75%] to-[#2E7D32]"
           />
           <div className="relative w-full px-6 md:px-14 pt-12 pb-12 md:pb-16">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={logo || DEFAULT_LOGO} alt="" aria-hidden="true" className="-mt-8 md:-mt-12 -mb-3 md:-mb-4 mx-auto md:mx-0 h-48 w-48 md:h-[269px] md:w-[269px] max-w-full object-contain drop-shadow-lg" />
+            <img src={logo || DEFAULT_LOGO} alt="" aria-hidden="true" className="hidden md:block md:-mt-12 md:-mb-4 md:mx-0 h-48 w-48 md:h-[269px] md:w-[269px] max-w-full object-contain drop-shadow-lg" />
             <span className="inline-block rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-[11px] sm:text-xs font-semibold tracking-[0.18em] uppercase">
               Distribución hortifrutícola B2B
             </span>
@@ -114,7 +115,7 @@ export default function CoverPage() {
                 Solicitar acceso mayorista
               </Link>
             </div>
-            <div className="mt-10 md:mt-14 grid grid-cols-2 gap-6 md:gap-10 max-w-3xl border-t border-white/25 pt-6 md:pt-8">
+            <div className="hidden md:grid mt-10 md:mt-14 grid-cols-2 gap-6 md:gap-10 max-w-3xl border-t border-white/25 pt-6 md:pt-8">
               {[
                 { value: 100, label: 'Productos' },
                 { value: 300, label: 'Clientes' },
