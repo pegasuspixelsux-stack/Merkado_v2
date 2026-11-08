@@ -90,7 +90,7 @@ export default function CoverPage() {
           <div aria-hidden="true" className="absolute inset-0 bg-cover bg-center md:hidden" style={{ backgroundImage: 'url(/hero-mobile.webp)', transform: 'translateY(-10%)' }} />
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-gradient-to-b from-transparent via-[#2E7D32]/95 via-[75%] to-[#2E7D32]"
+            className="absolute inset-0 bg-gradient-to-b from-transparent via-[#2E7D32]/95 via-[100%] to-[#2E7D32]"
           />
           <div className="relative w-full px-6 md:px-14 pt-12 pb-12 md:pb-16">
             {/* eslint-disable-next-line @next/next/no-img-element */}
