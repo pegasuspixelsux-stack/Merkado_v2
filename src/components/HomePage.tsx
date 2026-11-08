@@ -8,7 +8,8 @@ import { typeLabels } from '@/src/utils/format';
 import SiteFooter from '@/src/components/SiteFooter';
 import InfoSections from '@/src/components/InfoSections';
 import PropertyImage from '@/src/components/PropertyImage';
-import CartDrawer, { type CartLine } from '@/src/components/CartDrawer';
+import CartButton from '@/src/components/CartButton';
+import { useCart } from '@/src/context/CartContext';
 import WholesaleAccess from '@/src/components/WholesaleAccess';
 import FavoriteButton from '@/src/components/FavoriteButton';
 import SiteNavLinks from '@/src/components/SiteNavLinks';
@@ -21,7 +22,6 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
-  ShoppingCart,
   Square,
   LayoutGrid,
   List,
@@ -184,18 +184,8 @@ export default function MerkadoHome({
     }
   };
   // Minorista (retail) / Mayorista (wholesale); sent along with the order.
-  // Cart: item id -> quantity.
-  const [cart, setCart] = useState<Record<string, number>>({});
-  const [cartOpen, setCartOpen] = useState(false);
-  const cartLines: CartLine[] = properties
-    .filter((p) => cart[String(p.id)])
-    .map((p) => ({ item: p, qty: cart[String(p.id)] }));
-  const cartCount = cartLines.reduce((n, l) => n + l.qty, 0);
-  const addToCart = (id: string) => setCart((c) => ({ ...c, [id]: (c[id] ?? 0) + 1 }));
-  const changeQty = (id: string, delta: number) =>
-    setCart((c) => ({ ...c, [id]: Math.max(1, (c[id] ?? 1) + delta) }));
-  const removeFromCart = (id: string) =>
-    setCart((c) => Object.fromEntries(Object.entries(c).filter(([k]) => k !== id)));
+  // Cart: shared with every page (see CartContext).
+  const { add: addToCart, setOpen: setCartOpen } = useCart();
   // Pills: one per category that has items, in the order they first appear.
   const categories = Array.from(
     new Map(
@@ -251,19 +241,7 @@ export default function MerkadoHome({
           <SiteNavLinks />
           <div className="flex items-center gap-1">
           <WholesaleAccess />
-          <button
-            type="button"
-            onClick={() => setCartOpen(true)}
-            aria-label={`Abrir carrito, ${cartCount} ${cartCount === 1 ? 'artículo' : 'artículos'}`}
-            className="relative ml-1 sm:ml-2 w-10 h-10 shrink-0 rounded-full flex items-center justify-center hover:bg-[#F5F5F7] transition-colors"
-          >
-            <ShoppingCart className="w-5 h-5" />
-            {cartCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 min-w-5 h-5 px-1 rounded-full bg-[#1D1D1F] text-white text-[10px] font-semibold flex items-center justify-center">
-                {cartCount}
-              </span>
-            )}
-          </button>
+          <CartButton />
           <MobileNavMenu />
           </div>
         </div>
@@ -453,7 +431,7 @@ export default function MerkadoHome({
                 <button
                   type="button"
                   onClick={() => {
-                    addToCart(String(prop.id));
+                    addToCart(prop);
                     setCartOpen(true);
                   }}
                   disabled={prop.inStock === false}
@@ -523,7 +501,7 @@ export default function MerkadoHome({
                       <button
                         type="button"
                         onClick={() => {
-                          addToCart(String(prop.id));
+                          addToCart(prop);
                           setCartOpen(true);
                         }}
                         disabled={soldOut}
@@ -596,16 +574,6 @@ export default function MerkadoHome({
       </section>
 
       <InfoSections />
-
-      <CartDrawer
-        open={cartOpen}
-        onClose={() => setCartOpen(false)}
-        lines={cartLines}
-        onChangeQty={changeQty}
-        onRemove={removeFromCart}
-        onPlaced={() => setCart({})}
-        buyerType={level ? 'wholesale' : 'retail'}
-      />
 
       <SiteFooter />
 

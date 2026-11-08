@@ -2,32 +2,34 @@
 
 import SignInNotice from '@/src/components/SignInNotice';
 import { useState } from 'react';
-import { collection, doc, serverTimestamp, setDoc } from 'firebase/firestore';
-import { Minus, Plus } from 'lucide-react';
-import { db } from '@/lib/firebase';
+import Link from 'next/link';
+import { Check, Minus, Plus } from 'lucide-react';
 import { formatMoney, priceWithShortUnit, pricingModeLabels, quantityLabel, quantityNounPlural } from '@/src/utils/format';
 import { useClient } from '@/src/context/ClientContext';
+import { useCart } from '@/src/context/CartContext';
 import { optionPrice, saleOptions, type SaleSource } from '@/src/utils/pricing';
 import type { PricingMode } from '@/src/types/firestore';
 
-const fieldClass =
-  'w-full bg-[#FBFBFD] border border-[#000000]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1D1D1F] transition-colors';
 const labelClass = 'block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2';
 
 /**
- * Unit, quantity, special instructions and a Buy button: placing the order creates an order in the dashboard.
+ * Unit, quantity and an "Agregar al carrito" button. The item goes into the shared cart; the customer then closes the
+ * order (opens the cart to send it) or keeps shopping, and sends every item together as one order.
  * Retail customers choose kilo or unidad; a logged-in wholesale customer chooses caja or unidad.
  */
 export default function BuyBox({
   itemId,
   title,
+  image,
   pricing,
   categoryId,
   inStock,
 }: {
-  /** Firestore id; empty for the built-in sample items (their orders have no linked item). */
-  itemId: string;
+  /** Id the cart tracks the product by: the Firestore id, or the sample's number for the built-in samples. */
+  itemId: string | number;
   title: string;
+  /** First photo, shown in the cart. */
+  image: string;
   /** Price, base unit, box / unit weights and manual prices of the item. */
   pricing: SaleSource;
   /** Category id; a wholesale customer's price level adjusts the list price by category. */
@@ -45,50 +47,31 @@ export default function BuyBox({
   // Logged-out visitors pay the list (or sale) price; a wholesale customer pays their level's price.
   const unitPrice = optionPrice(active, categoryId, wholesale ? level : null).unit;
 
-  const [form, setForm] = useState({ instructions: '' });
-  const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
-  const [formError, setFormError] = useState<string | null>(null);
+  const { add, setOpen } = useCart();
+  const [added, setAdded] = useState<{ qty: number; mode: PricingMode } | null>(null);
 
-  const buy = async (e: React.FormEvent) => {
+  const addToCart = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inStock || !client) return;
-    // The customer's own profile (contact, WhatsApp, email) goes with the order; nothing to type here.
-    const name = client.contactName || client.businessName;
-    const phone = client.phone;
-    if (!db) {
-      setState('error');
-      return;
-    }
-    setFormError(null);
-    setState('sending');
-    try {
-      const ref = doc(collection(db, 'leads'));
-      await setDoc(ref, {
-        orderId: ref.id,
-        name: client ? `${client.businessName}${name !== client.businessName ? ` (${name})` : ''}` : name,
-        phone,
-        email: client.email,
-        property: title,
-        ...(itemId ? { propertyId: itemId } : {}),
-        // The price the customer saw (their price level included), and who they are.
+    if (!inStock) return;
+    // The cart keeps what the customer saw here: the unit they picked and the price in that unit.
+    add(
+      {
+        id: itemId,
+        title,
+        location: '',
+        price: priceWithShortUnit(unitPrice, mode),
+        beds: 0,
+        baths: 0,
+        area: '',
+        image,
+        href: typeof itemId === 'string' ? `/items/${itemId}` : undefined,
+        pricingMode: mode,
         unitPrice,
-        quantity: qty,
-        ...(client && level ? { clientId: client.clientId, priceLevelId: level.id } : {}),
-        channel: 'Portal',
-        message: [
-          // e.g. "Tomate perita - 2 Cajas @ $ 54/caja": the exact unit the order was priced in.
-          `[${wholesale && level ? `Mayorista · ${level.name}` : 'Minorista'}] ${title} - ${quantityLabel(qty, mode)} @ ${priceWithShortUnit(unitPrice, mode)} · Total: ${formatMoney(unitPrice * qty)}`,
-          form.instructions.trim() && `Indicaciones: ${form.instructions.trim()}`,
-        ]
-          .filter(Boolean)
-          .join('\n'),
-        status: 'new',
-        createdAt: serverTimestamp(),
-      });
-      setState('sent');
-    } catch {
-      setState('error');
-    }
+        inStock: true,
+      },
+      qty,
+    );
+    setAdded({ qty, mode });
   };
 
   if (!client) {
@@ -97,16 +80,37 @@ export default function BuyBox({
     );
   }
 
-  if (state === 'sent') {
+  if (added) {
     return (
-      <p role="status" className="rounded-2xl bg-green-50 text-green-800 text-sm px-5 py-4">
-        ¡Gracias! Tu pedido de {quantityLabel(qty, mode)} de {title} fue enviado. Nos vamos a comunicar con vos en breve para confirmarlo.
-      </p>
+      <div role="status" className="rounded-2xl bg-green-50 text-green-900 px-5 py-5 space-y-4">
+        <p className="flex items-start gap-2 text-sm font-medium">
+          <Check className="w-4 h-4 mt-0.5 shrink-0" aria-hidden="true" />
+          <span>Agregado al carrito: {quantityLabel(added.qty, added.mode)} de {title}.</span>
+        </p>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            className="flex-1 bg-[#1D1D1F] text-white py-3.5 rounded-full text-sm font-medium hover:bg-[#333336] transition-all"
+          >
+            Cerrar pedido
+          </button>
+          <Link
+            href="/items"
+            className="flex-1 text-center border border-[#1D1D1F]/30 py-3.5 rounded-full text-sm font-medium hover:bg-white transition-all"
+          >
+            Seguir comprando
+          </Link>
+        </div>
+        <button type="button" onClick={() => setAdded(null)} className="text-xs underline underline-offset-2 text-green-900/80 hover:text-green-900">
+          Agregar más de este producto
+        </button>
+      </div>
     );
   }
 
   return (
-    <form onSubmit={buy} className="space-y-5">
+    <form onSubmit={addToCart} className="space-y-5">
       {options.length > 1 && (
         <div>
           <span className={labelClass}>Comprar por</span>
@@ -152,30 +156,12 @@ export default function BuyBox({
         </div>
       </div>
 
-      <div>
-        <label htmlFor="b-instructions" className={labelClass}>Indicaciones especiales (opcional)</label>
-        <textarea
-          id="b-instructions"
-          rows={3}
-          value={form.instructions}
-          onChange={(e) => setForm({ ...form, instructions: e.target.value })}
-          placeholder="ej. maduros para el viernes, entregar antes del mediodía, dejar en la puerta de atrás"
-          className={`${fieldClass} resize-none`}
-        />
-      </div>
-
-      {(formError || state === 'error') && (
-        <p role="alert" className="text-sm text-red-600">
-          {formError ?? 'No se pudo enviar tu pedido. Probá de nuevo.'}
-        </p>
-      )}
-
       <button
         type="submit"
-        disabled={!inStock || state === 'sending'}
+        disabled={!inStock}
         className="w-full bg-[#1D1D1F] text-white py-4 rounded-full text-sm font-medium hover:bg-[#333336] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        {!inStock ? 'Sin stock' : state === 'sending' ? 'Enviando…' : `Comprar ahora · ${formatMoney(unitPrice * qty)}`}
+        {!inStock ? 'Sin stock' : `Agregar al carrito · ${formatMoney(unitPrice * qty)}`}
       </button>
     </form>
   );

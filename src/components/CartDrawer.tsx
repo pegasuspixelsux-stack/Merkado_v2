@@ -13,6 +13,8 @@ import { useClient } from '@/src/context/ClientContext';
 export interface CartLine {
   item: HomeProperty;
   qty: number;
+  /** Identifies the line when the same product can appear twice (different unit); defaults to the item id. */
+  key?: string;
 }
 
 /** Price of one unit: the sale price while on sale, else the regular price. */
@@ -183,8 +185,8 @@ export default function CartDrawer({
           ) : (
             <>
               <ul className="divide-y divide-[#000000]/5">
-                {lines.map(({ item, qty }) => {
-                  const id = String(item.id);
+                {lines.map(({ item, qty, key }) => {
+                  const id = key ?? String(item.id);
                   return (
                     <li key={id} className="flex gap-3 py-4">
                       <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-[#E5E5EA] shrink-0">

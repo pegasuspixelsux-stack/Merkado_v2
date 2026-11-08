@@ -12,6 +12,7 @@ import ItemPriceView from '@/src/components/ItemPriceView';
 import WholesaleAccess from '@/src/components/WholesaleAccess';
 import FavoriteButton from '@/src/components/FavoriteButton';
 import SiteNavLinks from '@/src/components/SiteNavLinks';
+import CartButton from '@/src/components/CartButton';
 import MobileNavMenu from '@/src/components/MobileNavMenu';
 import SimilarItems, { type SimilarItem } from '@/src/components/SimilarItems';
 import PropertyImage from '@/src/components/PropertyImage';
@@ -96,6 +97,7 @@ export default async function ItemPage({ params }: Props) {
           <SiteNavLinks />
           <div className="flex items-center gap-3">
             <WholesaleAccess />
+            <CartButton />
             <MobileNavMenu />
           </div>
         </div>
@@ -147,8 +149,9 @@ export default async function ItemPage({ params }: Props) {
           </div>
 
           <BuyBox
-            itemId={isSample ? '' : item.id}
+            itemId={isSample ? Number(id.replace('sample-', '')) : item.id}
             title={item.title}
+            image={photo ?? ''}
             pricing={pricing}
             categoryId={item.type}
             inStock={inStock}

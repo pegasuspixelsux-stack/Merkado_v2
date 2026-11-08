@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ClientProvider } from "@/src/context/ClientContext";
+import { CartProvider } from "@/src/context/CartContext";
 import { BusinessProvider } from "@/src/context/BusinessContext";
 import { getBusinessSettings } from "@/src/services/businessService";
 
@@ -35,7 +36,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <BusinessProvider initial={business}>
-          <ClientProvider>{children}</ClientProvider>
+          <ClientProvider>
+            <CartProvider>{children}</CartProvider>
+          </ClientProvider>
         </BusinessProvider>
       </body>
     </html>

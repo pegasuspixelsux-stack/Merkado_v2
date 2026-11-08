@@ -2,11 +2,13 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, LayoutGrid, List, Plus, Search, ShoppingCart, SlidersHorizontal, Square, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LayoutGrid, List, Plus, Search, SlidersHorizontal, Square, X } from 'lucide-react';
 import type { HomeProperty } from '@/src/lib/homeData';
 import { typeLabels } from '@/src/utils/format';
 import PropertyImage from '@/src/components/PropertyImage';
-import CartDrawer, { unitPriceOf, type CartLine } from '@/src/components/CartDrawer';
+import CartButton from '@/src/components/CartButton';
+import { unitPriceOf } from '@/src/components/CartDrawer';
+import { useCart } from '@/src/context/CartContext';
 import SiteFooter from '@/src/components/SiteFooter';
 import WholesaleAccess from '@/src/components/WholesaleAccess';
 import FavoriteButton from '@/src/components/FavoriteButton';
@@ -60,14 +62,8 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
   const [page, setPage] = useState(1);
   const [filtersOpen, setFiltersOpen] = useState(false); // mobile only
 
-  // Cart (same behaviour as the homepage).
-  const [cart, setCart] = useState<Record<string, number>>({});
-  const [cartOpen, setCartOpen] = useState(false);
-  const cartLines: CartLine[] = items.filter((p) => cart[String(p.id)]).map((p) => ({ item: p, qty: cart[String(p.id)] }));
-  const cartCount = cartLines.reduce((n, l) => n + l.qty, 0);
-  const addToCart = (id: string) => setCart((c) => ({ ...c, [id]: (c[id] ?? 0) + 1 }));
-  const changeQty = (id: string, delta: number) => setCart((c) => ({ ...c, [id]: Math.max(1, (c[id] ?? 1) + delta) }));
-  const removeFromCart = (id: string) => setCart((c) => Object.fromEntries(Object.entries(c).filter(([k]) => k !== id)));
+  // Cart: shared with every page (see CartContext).
+  const { add: addToCart } = useCart();
 
   const categories = useMemo(
     () =>
@@ -194,19 +190,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
           <SiteNavLinks />
           <div className="flex items-center gap-1">
           <WholesaleAccess />
-          <button
-            type="button"
-            onClick={() => setCartOpen(true)}
-            aria-label={`Abrir carrito, ${cartCount} ${cartCount === 1 ? 'artículo' : 'artículos'}`}
-            className="relative ml-1 sm:ml-2 w-10 h-10 shrink-0 rounded-full flex items-center justify-center hover:bg-[#F5F5F7] transition-colors"
-          >
-            <ShoppingCart className="w-5 h-5" />
-            {cartCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 min-w-5 h-5 px-1 rounded-full bg-[#1D1D1F] text-white text-[10px] font-semibold flex items-center justify-center">
-                {cartCount}
-              </span>
-            )}
-          </button>
+          <CartButton />
           <MobileNavMenu />
           </div>
         </div>
@@ -442,7 +426,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
                 {typeof prop.id === 'string' && <FavoriteButton productId={prop.id} title={prop.title} className="w-8 h-8" />}
                 <button
                   type="button"
-                  onClick={() => addToCart(String(prop.id))}
+                  onClick={() => addToCart(prop)}
                   disabled={prop.inStock === false}
                   aria-label={prop.inStock === false ? `${prop.title} está sin stock` : `Agregar ${prop.title} al carrito`}
                   className="w-8 h-8 rounded-full bg-[#2E7D32] text-white flex items-center justify-center shadow-sm hover:bg-[#256628] active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
@@ -506,7 +490,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
                   )}
                   <button
                     type="button"
-                    onClick={() => addToCart(String(prop.id))}
+                    onClick={() => addToCart(prop)}
                     disabled={soldOut}
                     aria-label={soldOut ? `${prop.title} está sin stock` : `Agregar ${prop.title} al carrito`}
                     className="w-8 h-8 rounded-full bg-[#2E7D32] text-white flex items-center justify-center hover:bg-[#256628] active:scale-95 transition disabled:opacity-40"
@@ -579,16 +563,6 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
       )}
 
       <InfoSections />
-
-      <CartDrawer
-        open={cartOpen}
-        onClose={() => setCartOpen(false)}
-        lines={cartLines}
-        onChangeQty={changeQty}
-        onRemove={removeFromCart}
-        onPlaced={() => setCart({})}
-        buyerType={level ? 'wholesale' : 'retail'}
-      />
 
       <SiteFooter />
     </div>
