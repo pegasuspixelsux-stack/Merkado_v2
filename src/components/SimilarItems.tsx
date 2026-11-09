@@ -27,7 +27,7 @@ export default function SimilarItems({ title, items }: { title: string; items: S
     track.current?.scrollBy({ left: dir * track.current.clientWidth * 0.8, behavior: 'smooth' });
 
   return (
-    <section aria-label={title} className="max-w-[1440px] mx-auto px-6 pb-24">
+    <section aria-label={title} className="max-w-[1440px] mx-auto px-6 -mt-4 md:-mt-8 pb-8 md:pb-10">
       <div className="flex items-end justify-between mb-6">
         <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">{title}</h2>
         <div className="hidden md:flex gap-2">

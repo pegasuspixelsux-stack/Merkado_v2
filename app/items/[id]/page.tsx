@@ -16,6 +16,7 @@ import CartButton from '@/src/components/CartButton';
 import MobileNavMenu from '@/src/components/MobileNavMenu';
 import SimilarItems, { type SimilarItem } from '@/src/components/SimilarItems';
 import PropertyImage from '@/src/components/PropertyImage';
+import InfoSections from '@/src/components/InfoSections';
 import SiteFooter from '@/src/components/SiteFooter';
 import BrandName from '@/src/components/BrandName';
 
@@ -215,6 +216,8 @@ export default async function ItemPage({ params }: Props) {
       </main>
 
       <SimilarItems title="Más vendidos" items={similar} />
+
+      <InfoSections />
 
       <SiteFooter />
     </div>
