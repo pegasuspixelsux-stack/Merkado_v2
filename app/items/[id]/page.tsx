@@ -1,6 +1,6 @@
 import { cache } from 'react';
 import type { Metadata } from 'next';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getActiveProperties, getCategories, getProperty } from '@/src/services/dbService';
@@ -135,6 +135,16 @@ export default async function ItemPage({ params }: Props) {
             <span className="absolute top-16 left-4 z-10 bg-black/80 text-white text-xs font-semibold px-3 py-1.5 rounded-full">
               Sin stock
             </span>
+          )}
+          {prevHref && (
+            <Link href={prevHref} aria-label="Artículo anterior" className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/30 backdrop-blur text-white flex items-center justify-center">
+              <ChevronLeft className="w-5 h-5" aria-hidden="true" />
+            </Link>
+          )}
+          {nextHref && (
+            <Link href={nextHref} aria-label="Artículo siguiente" className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/30 backdrop-blur text-white flex items-center justify-center">
+              <ChevronRight className="w-5 h-5" aria-hidden="true" />
+            </Link>
           )}
           <div className="relative z-10 px-6 pb-[12.5svh] pt-24 space-y-4 text-white">
             <p className="text-xs uppercase tracking-widest text-white/80 font-semibold">{category}</p>
