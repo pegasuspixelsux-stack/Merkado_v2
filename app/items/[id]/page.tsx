@@ -131,26 +131,24 @@ export default async function ItemPage({ params }: Props) {
           )}
           <div className="relative z-10 px-6 pb-[12.5svh] pt-24 space-y-4 text-white">
             <p className="text-xs uppercase tracking-widest text-white/80 font-semibold">{category}</p>
-            <h1 className="text-3xl font-semibold tracking-tight">{item.title}</h1>
+            <div className="flex items-start justify-between gap-4">
+              <h1 className="text-3xl font-semibold tracking-tight min-w-0">{item.title}</h1>
+              <div className="shrink-0 text-right">
+                <ItemPriceView glass categoryId={item.type} pricing={pricing} />
+              </div>
+            </div>
             {item.description && (
               <p className="text-sm text-white/80 font-light leading-relaxed whitespace-pre-line">{item.description}</p>
             )}
-            <div className="flex items-start gap-4">
-              <div className="flex-1 min-w-0">
-                <ItemPriceView glass categoryId={item.type} pricing={pricing} />
-              </div>
-              <div className="w-[48%] shrink-0">
-                <BuyBox
-                  onPhoto
-                  itemId={isSample ? Number(id.replace('sample-', '')) : item.id}
-                  title={item.title}
-                  image={photo ?? ''}
-                  pricing={pricing}
-                  categoryId={item.type}
-                  inStock={inStock}
-                />
-              </div>
-            </div>
+            <BuyBox
+              onPhoto
+              itemId={isSample ? Number(id.replace('sample-', '')) : item.id}
+              title={item.title}
+              image={photo ?? ''}
+              pricing={pricing}
+              categoryId={item.type}
+              inStock={inStock}
+            />
           </div>
         </section>
         <div className="md:hidden -mt-4">

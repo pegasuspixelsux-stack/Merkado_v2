@@ -30,9 +30,17 @@ export default function ItemPriceView({ pricing, categoryId, glass }: { pricing:
             <dt className={`text-xs uppercase tracking-wider ${muted} font-semibold`}>
               {wholesale ? 'Tu precio' : 'Minorista'} · {pricingModeLabels[o.mode]}
             </dt>
-            <dd className="mt-1 flex flex-wrap items-baseline gap-x-2">
+            <dd className={`mt-1 flex ${glass ? 'flex-col items-end' : 'flex-wrap items-baseline gap-x-2'}`}>
               <span className="text-2xl font-semibold">{withUnitSuffix(formatMoney(unit), o.mode)}</span>
-              {was !== undefined && <s className={`text-sm ${glass ? 'text-white/60' : 'text-[#86868B]'}`}>{formatMoney(was)}</s>}
+              {glass ? (
+                <span className="flex items-center justify-end gap-2">
+                  {wholesale && level && <span className="bg-[#1D1D1F] text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">Precio {level.name}</span>}
+                  {!wholesale && o.salePrice !== undefined && <span className="bg-[#1D1D1F] text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">Oferta</span>}
+                  {was !== undefined && <s className="text-sm text-white/60">{formatMoney(was)}</s>}
+                </span>
+              ) : (
+                was !== undefined && <s className="text-sm text-[#86868B]">{formatMoney(was)}</s>
+              )}
             </dd>
             {o.mode === 'por_caja' && (
               <p className={`mt-1 text-xs ${muted}`}>
@@ -40,7 +48,7 @@ export default function ItemPriceView({ pricing, categoryId, glass }: { pricing:
                 {pricing.boxUnits && boxOption ? ` · ${formatMoney(Math.round((unit / pricing.boxUnits) * 100) / 100)} por ${pricing.pricingMode === 'por_atado' ? 'atado' : 'unidad'}` : ''}
               </p>
             )}
-            {!wholesale && o.salePrice !== undefined && (
+            {!glass && !wholesale && o.salePrice !== undefined && (
               <span className="inline-block mt-2 bg-[#1D1D1F] text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">Oferta</span>
             )}
           </div>
@@ -48,7 +56,7 @@ export default function ItemPriceView({ pricing, categoryId, glass }: { pricing:
       })}
 
       {wholesale && level ? (
-        <div className="col-span-2">
+        glass ? null : <div className="col-span-2">
           <span className="inline-block bg-[#1D1D1F] text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
             Precio {level.name}
           </span>

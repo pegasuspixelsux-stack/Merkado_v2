@@ -138,37 +138,72 @@ export default function BuyBox({
         </div>
       )}
 
-      <div>
-        <span className={label}>{`Cantidad (${quantityNounPlural(mode)})`}</span>
-        <div className="inline-flex items-center gap-3">
+      {onPhoto ? (
+        // One white pill: quantity stepper on the left, the add-to-cart button inside it on the right.
+        <div className="flex items-center rounded-full bg-white p-1 text-[#1D1D1F]">
+          <div className="flex items-center shrink-0">
+            <button
+              type="button"
+              onClick={() => setQty((q) => Math.max(1, q - 1))}
+              disabled={qty <= 1}
+              aria-label="Disminuir cantidad"
+              className="w-9 h-9 rounded-full flex items-center justify-center disabled:opacity-30"
+            >
+              <Minus className="w-4 h-4" />
+            </button>
+            <span className="w-6 text-center text-sm font-medium" aria-live="polite" aria-label={`Cantidad (${quantityNounPlural(mode)})`}>{qty}</span>
+            <button
+              type="button"
+              onClick={() => setQty((q) => Math.min(999, q + 1))}
+              aria-label="Aumentar cantidad"
+              className="w-9 h-9 rounded-full flex items-center justify-center"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
           <button
-            type="button"
-            onClick={() => setQty((q) => Math.max(1, q - 1))}
-            disabled={qty <= 1}
-            aria-label="Disminuir cantidad"
-            className={`w-10 h-10 rounded-full ${soft} flex items-center justify-center disabled:opacity-30`}
+            type="submit"
+            disabled={!inStock}
+            className="flex-1 min-w-0 ml-1 bg-[#1D1D1F] text-white py-2.5 px-3 rounded-full text-xs font-medium leading-tight transition-all hover:bg-[#333336] disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            <Minus className="w-4 h-4" />
-          </button>
-          <span className="w-8 text-center font-medium" aria-live="polite">{qty}</span>
-          <button
-            type="button"
-            onClick={() => setQty((q) => Math.min(999, q + 1))}
-            aria-label="Aumentar cantidad"
-            className={`w-10 h-10 rounded-full ${soft} flex items-center justify-center`}
-          >
-            <Plus className="w-4 h-4" />
+            {!inStock ? 'Sin stock' : `Agregar al carrito · ${formatMoney(unitPrice * qty)}`}
           </button>
         </div>
-      </div>
+      ) : (
+        <>
+          <div>
+            <span className={label}>{`Cantidad (${quantityNounPlural(mode)})`}</span>
+            <div className="inline-flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setQty((q) => Math.max(1, q - 1))}
+                disabled={qty <= 1}
+                aria-label="Disminuir cantidad"
+                className={`w-10 h-10 rounded-full ${soft} flex items-center justify-center disabled:opacity-30`}
+              >
+                <Minus className="w-4 h-4" />
+              </button>
+              <span className="w-8 text-center font-medium" aria-live="polite">{qty}</span>
+              <button
+                type="button"
+                onClick={() => setQty((q) => Math.min(999, q + 1))}
+                aria-label="Aumentar cantidad"
+                className={`w-10 h-10 rounded-full ${soft} flex items-center justify-center`}
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
 
-      <button
-        type="submit"
-        disabled={!inStock}
-        className={`w-full ${onPhoto ? 'py-3 text-xs leading-tight' : 'py-4 text-sm'} rounded-full font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed ${onPhoto ? 'bg-white text-[#1D1D1F] hover:bg-white/90' : 'bg-[#1D1D1F] text-white hover:bg-[#333336]'}`}
-      >
-        {!inStock ? 'Sin stock' : `Agregar al carrito · ${formatMoney(unitPrice * qty)}`}
-      </button>
+          <button
+            type="submit"
+            disabled={!inStock}
+            className="w-full py-4 text-sm rounded-full font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-[#1D1D1F] text-white hover:bg-[#333336]"
+          >
+            {!inStock ? 'Sin stock' : `Agregar al carrito · ${formatMoney(unitPrice * qty)}`}
+          </button>
+        </>
+      )}
     </form>
   );
 }
