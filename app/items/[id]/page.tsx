@@ -129,13 +129,13 @@ export default async function ItemPage({ params }: Props) {
               Sin stock
             </span>
           )}
-          <div className="relative z-10 px-6 pb-[10svh] pt-24 space-y-4 text-white">
+          <div className="relative z-10 px-6 pb-[15svh] pt-24 space-y-4 text-white">
             <p className="text-xs uppercase tracking-widest text-white/80 font-semibold">{category}</p>
             <h1 className="text-3xl font-semibold tracking-tight">{item.title}</h1>
             {item.description && (
               <p className="text-sm text-white/80 font-light leading-relaxed whitespace-pre-line">{item.description}</p>
             )}
-            <div className="flex items-end gap-4">
+            <div className="flex items-start gap-4">
               <div className="flex-1 min-w-0">
                 <ItemPriceView glass categoryId={item.type} pricing={pricing} />
               </div>
