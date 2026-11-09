@@ -99,7 +99,7 @@ export default async function ItemPage({ params }: Props) {
 
   return (
     <div className="relative min-h-screen bg-[#FBFBFD] text-[#1D1D1F] font-sans antialiased">
-      <header className="absolute inset-x-0 top-0 z-30 text-[#1D1D1F] md:static md:text-[#1D1D1F] md:border-b md:border-[#000000]/5 md:bg-[#FBFBFD]">
+      <header className="absolute inset-x-0 top-0 z-30 text-white md:static md:text-[#1D1D1F] md:border-b md:border-[#000000]/5 md:bg-[#FBFBFD]">
         <div className="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="font-semibold text-sm min-[420px]:text-base sm:text-lg tracking-tight"><BrandName /></Link>
           <SiteNavLinks />
@@ -124,8 +124,8 @@ export default async function ItemPage({ params }: Props) {
               className={`object-cover ${inStock ? '' : 'opacity-50 grayscale'}`}
             />
           )}
-          <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#FBFBFD] from-25% via-[#FBFBFD]/60 via-55% to-transparent" aria-hidden="true" />
-          <div className="absolute inset-x-0 top-0 -bottom-0.5 bg-gradient-to-t from-[#FBFBFD] from-20% via-[#FBFBFD]/85 via-36% to-transparent to-60%" aria-hidden="true" />
+          <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/70 from-25% via-black/35 via-55% to-transparent" aria-hidden="true" />
+          <div className="absolute inset-x-0 top-0 -bottom-0.5 bg-gradient-to-t from-[#FBFBFD] from-22% via-[#FBFBFD]/95 via-36% to-transparent to-58%" aria-hidden="true" />
           <Link
             href="/items"
             className="absolute top-20 left-4 z-10 inline-flex items-center gap-2 text-sm font-medium text-white bg-black/40 backdrop-blur px-3 py-1.5 rounded-full"

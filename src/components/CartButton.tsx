@@ -11,7 +11,7 @@ export default function CartButton({ glass }: { glass?: boolean }) {
       type="button"
       onClick={() => setOpen(true)}
       aria-label={`Abrir carrito, ${count} ${count === 1 ? 'artículo' : 'artículos'}`}
-      className={`relative ml-1 sm:ml-2 w-10 h-10 shrink-0 rounded-full flex items-center justify-center hover:bg-[#F5F5F7] transition-colors ${glass ? 'max-md:bg-white/50 max-md:backdrop-blur-md max-md:border max-md:border-black/10 max-md:text-[#1D1D1F] max-md:hover:bg-white/70' : ''}`}
+      className={`relative ml-1 sm:ml-2 w-10 h-10 shrink-0 rounded-full flex items-center justify-center hover:bg-[#F5F5F7] transition-colors ${glass ? 'max-md:bg-white/25 max-md:backdrop-blur-md max-md:border max-md:border-white/30 max-md:text-white max-md:hover:bg-white/35' : ''}`}
     >
       <ShoppingCart className="w-5 h-5" />
       {count > 0 && (
