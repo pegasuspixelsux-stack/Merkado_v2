@@ -111,7 +111,7 @@ export default async function ItemPage({ params }: Props) {
         </div>
       </header>
 
-      <main className="max-w-[1440px] mx-auto px-6 py-10 md:py-16 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start">
+      <main className="max-w-[1440px] mx-auto px-6 pt-10 pb-2 md:py-16 grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-16 items-start">
         {/* Mobile hero: full-bleed image, vertical gradient overlay, product info on top of it */}
         <SwipeSection prevHref={prevHref} nextHref={nextHref} className="md:hidden relative -mx-6 -mt-10 min-h-[100svh] flex flex-col justify-end overflow-hidden bg-[#FBFBFD]">
           {photo && (
@@ -164,7 +164,7 @@ export default async function ItemPage({ params }: Props) {
             />
           </div>
         </SwipeSection>
-        <div className="md:hidden -mt-4">
+        <div className="md:hidden mt-4">
           <BuyBox signInOnly itemId={isSample ? Number(id.replace('sample-', '')) : item.id} title={item.title} image={photo ?? ''} pricing={pricing} categoryId={item.type} inStock={inStock} />
         </div>
 
@@ -193,7 +193,7 @@ export default async function ItemPage({ params }: Props) {
           )}
         </div>
 
-        <div className="space-y-8">
+        <div className="hidden md:block space-y-8">
           <div className="space-y-4">
             <div className="hidden md:block space-y-4">
               <p className="text-xs uppercase tracking-widest text-[#515154] font-semibold">{category}</p>
