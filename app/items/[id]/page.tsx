@@ -16,6 +16,7 @@ import CartButton from '@/src/components/CartButton';
 import MobileNavMenu from '@/src/components/MobileNavMenu';
 import SimilarItems, { type SimilarItem } from '@/src/components/SimilarItems';
 import PropertyImage from '@/src/components/PropertyImage';
+import SwipeSection from '@/src/components/SwipeSection';
 import InfoSections from '@/src/components/InfoSections';
 import SiteFooter from '@/src/components/SiteFooter';
 import BrandName from '@/src/components/BrandName';
@@ -77,6 +78,11 @@ export default async function ItemPage({ params }: Props) {
   const pool: Property[] = isSample
     ? sampleProperties.map((p, i) => ({ ...p, id: `sample-${i + 1}`, agentId: '', createdAt: 0, updatedAt: 0 }))
     : await getActiveProperties().catch(() => []);
+  // Swiping the mobile hero moves through the catalog in this order (wrapping around at the ends).
+  const order = pool.map((p) => String(p.id));
+  const at = order.indexOf(String(item.id));
+  const prevHref = at >= 0 && order.length > 1 ? `/items/${order[(at - 1 + order.length) % order.length]}` : undefined;
+  const nextHref = at >= 0 && order.length > 1 ? `/items/${order[(at + 1) % order.length]}` : undefined;
   const others = pool.filter((p) => p.id !== item.id);
   const similar: SimilarItem[] = [...others.filter((p) => p.featured), ...others.filter((p) => !p.featured)]
     .slice(0, 10)
@@ -106,7 +112,7 @@ export default async function ItemPage({ params }: Props) {
 
       <main className="max-w-[1440px] mx-auto px-6 py-10 md:py-16 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start">
         {/* Mobile hero: full-bleed image, vertical gradient overlay, product info on top of it */}
-        <section className="md:hidden relative -mx-6 -mt-10 min-h-[88svh] flex flex-col justify-end overflow-hidden bg-[#E5E5EA]">
+        <SwipeSection prevHref={prevHref} nextHref={nextHref} className="md:hidden relative -mx-6 -mt-10 min-h-[88svh] flex flex-col justify-end overflow-hidden bg-[#E5E5EA]">
           {photo && (
             <PropertyImage
               src={photo}
@@ -151,7 +157,7 @@ export default async function ItemPage({ params }: Props) {
               inStock={inStock}
             />
           </div>
-        </section>
+        </SwipeSection>
         <div className="md:hidden -mt-4">
           <BuyBox signInOnly itemId={isSample ? Number(id.replace('sample-', '')) : item.id} title={item.title} image={photo ?? ''} pricing={pricing} categoryId={item.type} inStock={inStock} />
         </div>
