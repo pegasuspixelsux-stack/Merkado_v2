@@ -104,13 +104,66 @@ export default async function ItemPage({ params }: Props) {
       </header>
 
       <main className="max-w-[1440px] mx-auto px-6 py-10 md:py-16 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start">
+        {/* Mobile hero: full-bleed image, vertical gradient overlay, product info on top of it */}
+        <section className="md:hidden relative -mx-6 -mt-10 min-h-[88svh] flex flex-col justify-end overflow-hidden bg-[#E5E5EA]">
+          {photo && (
+            <PropertyImage
+              src={photo}
+              alt={item.title}
+              variant="gallery"
+              sizes="100vw"
+              priority
+              className={`object-cover ${inStock ? '' : 'opacity-50 grayscale'}`}
+            />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/65 via-45% to-black/15" aria-hidden="true" />
+          <Link
+            href="/items"
+            className="absolute top-4 left-4 z-10 inline-flex items-center gap-2 text-sm font-medium text-white bg-black/40 backdrop-blur px-3 py-1.5 rounded-full"
+          >
+            <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Catálogo
+          </Link>
+          {!isSample && <FavoriteButton productId={String(item.id)} title={item.title} className="absolute top-4 right-4 w-10 h-10 z-10" />}
+          {!inStock && (
+            <span className="absolute top-16 left-4 z-10 bg-black/80 text-white text-xs font-semibold px-3 py-1.5 rounded-full">
+              Sin stock
+            </span>
+          )}
+          <div className="relative z-10 px-6 pb-8 pt-24 space-y-4 text-white">
+            <p className="text-xs uppercase tracking-widest text-white/80 font-semibold">{category}</p>
+            <h1 className="text-3xl font-semibold tracking-tight">{item.title}</h1>
+            {item.description && (
+              <p className="text-sm text-white/80 font-light leading-relaxed whitespace-pre-line">{item.description}</p>
+            )}
+            <div className="flex items-end gap-4">
+              <div className="flex-1 min-w-0">
+                <ItemPriceView glass categoryId={item.type} pricing={pricing} />
+              </div>
+              <div className="w-[48%] shrink-0">
+                <BuyBox
+                  onPhoto
+                  itemId={isSample ? Number(id.replace('sample-', '')) : item.id}
+                  title={item.title}
+                  image={photo ?? ''}
+                  pricing={pricing}
+                  categoryId={item.type}
+                  inStock={inStock}
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+        <div className="md:hidden -mt-4">
+          <BuyBox signInOnly itemId={isSample ? Number(id.replace('sample-', '')) : item.id} title={item.title} image={photo ?? ''} pricing={pricing} categoryId={item.type} inStock={inStock} />
+        </div>
+
         <Link
           href="/items"
-          className="md:col-span-2 justify-self-start -mb-6 md:-mb-10 inline-flex items-center gap-2 text-sm font-medium text-[#515154] hover:text-[#1D1D1F] transition-colors"
+          className="hidden md:inline-flex md:col-span-2 justify-self-start md:-mb-10 items-center gap-2 text-sm font-medium text-[#515154] hover:text-[#1D1D1F] transition-colors"
         >
           <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Volver al Catálogo
         </Link>
-        <div className="relative aspect-square rounded-2xl overflow-hidden bg-[#E5E5EA]">
+        <div className="hidden md:block relative aspect-square rounded-2xl overflow-hidden bg-[#E5E5EA]">
           {photo && (
             <PropertyImage
               src={photo}
@@ -131,24 +184,27 @@ export default async function ItemPage({ params }: Props) {
 
         <div className="space-y-8">
           <div className="space-y-4">
-            <p className="text-xs uppercase tracking-widest text-[#515154] font-semibold">{category}</p>
-            <h1 className="text-3xl md:text-5xl font-semibold tracking-tight">{item.title}</h1>
-            <ItemPriceView categoryId={item.type} pricing={pricing} />
-            {quantity && (
+            <div className="hidden md:block space-y-4">
+              <p className="text-xs uppercase tracking-widest text-[#515154] font-semibold">{category}</p>
+              <h1 className="text-5xl font-semibold tracking-tight">{item.title}</h1>
+              <ItemPriceView categoryId={item.type} pricing={pricing} />
+              {quantity && (
+                <p className="text-sm text-[#515154]">
+                  <span className="font-medium text-[#1D1D1F]">Peso:</span> {quantity}
+                </p>
+              )}
               <p className="text-sm text-[#515154]">
-                <span className="font-medium text-[#1D1D1F]">Peso:</span> {quantity}
+                <span className="font-medium text-[#1D1D1F]">Entrega en:</span>{' '}
+                {(item.deliveryAreas?.length ? item.deliveryAreas : ['Maldonado']).join(', ')}
               </p>
-            )}
-            <p className="text-sm text-[#515154]">
-              <span className="font-medium text-[#1D1D1F]">Entrega en:</span>{' '}
-              {(item.deliveryAreas?.length ? item.deliveryAreas : ['Maldonado']).join(', ')}
-            </p>
+            </div>
             {item.description && (
-              <p className="text-[#515154] font-light leading-relaxed whitespace-pre-line">{item.description}</p>
+              <p className="hidden md:block text-[#515154] font-light leading-relaxed whitespace-pre-line">{item.description}</p>
             )}
           </div>
 
-          <BuyBox
+          <div className="hidden md:block">
+            <BuyBox
             itemId={isSample ? Number(id.replace('sample-', '')) : item.id}
             title={item.title}
             image={photo ?? ''}
@@ -156,6 +212,7 @@ export default async function ItemPage({ params }: Props) {
             categoryId={item.type}
             inStock={inStock}
           />
+          </div>
         </div>
       </main>
 

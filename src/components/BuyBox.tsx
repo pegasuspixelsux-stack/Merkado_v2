@@ -24,6 +24,8 @@ export default function BuyBox({
   pricing,
   categoryId,
   inStock,
+  onPhoto,
+  signInOnly,
 }: {
   /** Id the cart tracks the product by: the Firestore id, or the sample's number for the built-in samples. */
   itemId: string | number;
@@ -35,7 +37,13 @@ export default function BuyBox({
   /** Category id; a wholesale customer's price level adjusts the list price by category. */
   categoryId?: string;
   inStock: boolean;
+  /** Rendered over the dark hero photo: light text and translucent controls. */
+  onPhoto?: boolean;
+  /** Renders only the sign-in notice (for visitors without a profile), nothing otherwise. */
+  signInOnly?: boolean;
 }) {
+  const label = onPhoto ? labelClass.replace('text-[#515154]', 'text-white/80') : labelClass;
+  const soft = onPhoto ? 'bg-white/20 text-white' : 'bg-[#F5F5F7]';
   const [qty, setQty] = useState(1);
   const [chosen, setChosen] = useState<PricingMode | null>(null);
   const { client, level } = useClient();
@@ -74,11 +82,9 @@ export default function BuyBox({
     setAdded({ qty, mode });
   };
 
-  if (!client) {
-    return (
-      <SignInNotice />
-    );
-  }
+  if (signInOnly) return client ? null : <SignInNotice />;
+  // Over the hero photo the sign-in notice is shown below the image instead.
+  if (!client) return onPhoto ? null : <SignInNotice />;
 
   if (added) {
     return (
@@ -113,8 +119,8 @@ export default function BuyBox({
     <form onSubmit={addToCart} className="space-y-5">
       {options.length > 1 && (
         <div>
-          <span className={labelClass}>Comprar por</span>
-          <div className="inline-flex flex-wrap rounded-3xl bg-[#F5F5F7] p-1" role="group" aria-label="Comprar por">
+          <span className={label}>Comprar por</span>
+          <div className={`inline-flex flex-wrap rounded-3xl ${soft} p-1`} role="group" aria-label="Comprar por">
             {options.map((o) => (
               <button
                 key={o.mode}
@@ -122,7 +128,7 @@ export default function BuyBox({
                 onClick={() => setChosen(o.mode)}
                 aria-pressed={o.mode === mode}
                 className={`px-4 py-2 rounded-full text-xs font-medium transition-colors ${
-                  o.mode === mode ? 'bg-[#1D1D1F] text-white' : 'text-[#515154] hover:text-[#1D1D1F]'
+                  o.mode === mode ? (onPhoto ? 'bg-white text-[#1D1D1F]' : 'bg-[#1D1D1F] text-white') : onPhoto ? 'text-white/80 hover:text-white' : 'text-[#515154] hover:text-[#1D1D1F]'
                 }`}
               >
                 {pricingModeLabels[o.mode].replace('Por ', '')} · {formatMoney(optionPrice(o, categoryId, wholesale ? level : null).unit)}
@@ -133,14 +139,14 @@ export default function BuyBox({
       )}
 
       <div>
-        <span className={labelClass}>{`Cantidad (${quantityNounPlural(mode)})`}</span>
+        <span className={label}>{`Cantidad (${quantityNounPlural(mode)})`}</span>
         <div className="inline-flex items-center gap-3">
           <button
             type="button"
             onClick={() => setQty((q) => Math.max(1, q - 1))}
             disabled={qty <= 1}
             aria-label="Disminuir cantidad"
-            className="w-10 h-10 rounded-full bg-[#F5F5F7] flex items-center justify-center disabled:opacity-30"
+            className={`w-10 h-10 rounded-full ${soft} flex items-center justify-center disabled:opacity-30`}
           >
             <Minus className="w-4 h-4" />
           </button>
@@ -149,7 +155,7 @@ export default function BuyBox({
             type="button"
             onClick={() => setQty((q) => Math.min(999, q + 1))}
             aria-label="Aumentar cantidad"
-            className="w-10 h-10 rounded-full bg-[#F5F5F7] flex items-center justify-center"
+            className={`w-10 h-10 rounded-full ${soft} flex items-center justify-center`}
           >
             <Plus className="w-4 h-4" />
           </button>
@@ -159,7 +165,7 @@ export default function BuyBox({
       <button
         type="submit"
         disabled={!inStock}
-        className="w-full bg-[#1D1D1F] text-white py-4 rounded-full text-sm font-medium hover:bg-[#333336] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+        className={`w-full ${onPhoto ? 'py-3 text-xs leading-tight' : 'py-4 text-sm'} rounded-full font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed ${onPhoto ? 'bg-white text-[#1D1D1F] hover:bg-white/90' : 'bg-[#1D1D1F] text-white hover:bg-[#333336]'}`}
       >
         {!inStock ? 'Sin stock' : `Agregar al carrito · ${formatMoney(unitPrice * qty)}`}
       </button>

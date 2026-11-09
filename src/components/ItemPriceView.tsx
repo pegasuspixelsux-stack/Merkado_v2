@@ -11,28 +11,31 @@ import { formatMoney, pricingModeLabels, withUnitSuffix } from '@/src/utils/form
  * caja / unidad at their level's price (list price × the category adjustment %), with a badge naming the level.
  * Logging out reverts at once.
  */
-export default function ItemPriceView({ pricing, categoryId }: { pricing: SaleSource; categoryId?: string }) {
+export default function ItemPriceView({ pricing, categoryId, glass }: { pricing: SaleSource; categoryId?: string; glass?: boolean }) {
   const { client, level } = useClient();
   const wholesale = !!(client && level);
   const options = saleOptions(pricing, wholesale ? 'wholesale' : 'retail', { allowLoose: client?.allowLoose });
   const box = boxDescription(pricing);
   const boxOption = options.find((o) => o.mode === 'por_caja');
+  // glass: no box background, light text, for use over the mobile hero photo
+  const card = glass ? 'text-white' : 'bg-white border border-[#000000]/5';
+  const muted = glass ? 'text-white/80' : 'text-[#515154]';
 
   return (
-    <dl className="grid grid-cols-2 gap-3 w-full max-w-2xl">
+    <dl className={`grid ${glass ? 'grid-cols-1' : 'grid-cols-2'} gap-3 w-full max-w-2xl`}>
       {options.map((o) => {
         const { unit, was } = optionPrice(o, categoryId, wholesale ? level : null);
         return (
-          <div key={o.mode} className={`${options.length === 1 ? 'col-span-2' : ''} rounded-2xl bg-white border border-[#000000]/5 p-4 md:p-5`}>
-            <dt className="text-xs uppercase tracking-wider text-[#515154] font-semibold">
+          <div key={o.mode} className={`${options.length === 1 && !glass ? 'col-span-2' : ''} rounded-2xl ${card} ${glass ? 'p-0' : 'p-4 md:p-5'}`}>
+            <dt className={`text-xs uppercase tracking-wider ${muted} font-semibold`}>
               {wholesale ? 'Tu precio' : 'Minorista'} · {pricingModeLabels[o.mode]}
             </dt>
             <dd className="mt-1 flex flex-wrap items-baseline gap-x-2">
               <span className="text-2xl font-semibold">{withUnitSuffix(formatMoney(unit), o.mode)}</span>
-              {was !== undefined && <s className="text-sm text-[#86868B]">{formatMoney(was)}</s>}
+              {was !== undefined && <s className={`text-sm ${glass ? 'text-white/60' : 'text-[#86868B]'}`}>{formatMoney(was)}</s>}
             </dd>
             {o.mode === 'por_caja' && (
-              <p className="mt-1 text-xs text-[#515154]">
+              <p className={`mt-1 text-xs ${muted}`}>
                 {box || 'Caja'}
                 {pricing.boxUnits && boxOption ? ` · ${formatMoney(Math.round((unit / pricing.boxUnits) * 100) / 100)} por ${pricing.pricingMode === 'por_atado' ? 'atado' : 'unidad'}` : ''}
               </p>
@@ -50,11 +53,11 @@ export default function ItemPriceView({ pricing, categoryId }: { pricing: SaleSo
             Precio {level.name}
           </span>
         </div>
-      ) : (
-        <div className="col-span-2 rounded-2xl bg-white border border-[#000000]/5 p-4">
-          <dt className="text-xs uppercase tracking-wider text-[#515154] font-semibold">Mayorista</dt>
-          <dd className="mt-1 text-sm text-[#515154]">Ingresá con “Acceso mayoristas” para ver tu precio por caja o por unidad</dd>
-          <Link href="/#contact" className="inline-block mt-2 text-xs underline underline-offset-2 text-[#515154] hover:text-[#1D1D1F]">
+      ) : glass ? null : (
+        <div className={`col-span-2 rounded-2xl ${card} p-4`}>
+          <dt className={`text-xs uppercase tracking-wider ${muted} font-semibold`}>Mayorista</dt>
+          <dd className={`mt-1 text-sm ${muted}`}>Ingresá con “Acceso mayoristas” para ver tu precio por caja o por unidad</dd>
+          <Link href="/#contact" className={`inline-block mt-2 text-xs underline underline-offset-2 ${muted} ${glass ? 'hover:text-white' : 'hover:text-[#1D1D1F]'}`}>
             Conseguí precios mayoristas
           </Link>
         </div>

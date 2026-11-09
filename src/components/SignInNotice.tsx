@@ -14,6 +14,9 @@ export default function SignInNotice() {
         <p className="text-[#515154] font-light">
           Los pedidos son solo para clientes con perfil. ¿Todavía no sos cliente? Solicitá el servicio desde “Mayoristas” en el inicio: tras la aprobación y la configuración del pago, Merkado te envía tu contraseña.
         </p>
+        <p className="text-[#515154] font-light">
+          Al ingresar, el precio se actualiza según el nivel de precios de tu cuenta.
+        </p>
       </div>
       <button
         type="button"
