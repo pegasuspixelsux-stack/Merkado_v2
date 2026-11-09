@@ -46,7 +46,7 @@ export default function WholesaleAccess({ glass }: { glass?: boolean } = {}) {
 
   if (client && level) {
     return (
-      <div className={`flex items-center gap-1 rounded-full bg-[#F5F5F7] text-[#1D1D1F] border border-[#000000]/5 pl-3 pr-1 py-1 text-xs min-w-0 ${glass ? 'max-md:bg-white/25 max-md:backdrop-blur-md max-md:border-white/30 max-md:text-white' : ''}`}>
+      <div className={`flex items-center gap-1 rounded-full bg-[#F5F5F7] text-[#1D1D1F] border border-[#000000]/5 pl-3 pr-1 py-1 text-xs min-w-0 ${glass ? 'max-md:bg-white/50 max-md:backdrop-blur-md max-md:border-black/10 max-md:text-[#1D1D1F]' : ''}`}>
         <span className="truncate max-w-32 sm:max-w-60 font-medium" title={`${client.businessName} · ${level.name}`}>
           {client.businessName}
         </span>
@@ -54,7 +54,7 @@ export default function WholesaleAccess({ glass }: { glass?: boolean } = {}) {
           href="/favoritos"
           aria-label="Mis favoritos"
           title="Mis favoritos"
-          className="shrink-0 inline-flex items-center gap-1 rounded-full px-2 h-7 hover:bg-[#E8E8ED] max-md:hover:bg-white/20"
+          className="shrink-0 inline-flex items-center gap-1 rounded-full px-2 h-7 hover:bg-[#E8E8ED] max-md:hover:bg-black/5"
         >
           <Heart className="w-3.5 h-3.5" />
           <span className="hidden md:inline">Favoritos</span>
@@ -69,7 +69,7 @@ export default function WholesaleAccess({ glass }: { glass?: boolean } = {}) {
           onClick={signOutClient}
           aria-label="Cerrar sesión"
           title="Cerrar sesión"
-          className="shrink-0 inline-flex items-center gap-1 rounded-full px-2 h-7 hover:bg-[#E8E8ED] max-md:hover:bg-white/20"
+          className="shrink-0 inline-flex items-center gap-1 rounded-full px-2 h-7 hover:bg-[#E8E8ED] max-md:hover:bg-black/5"
         >
           <LogOut className="w-3.5 h-3.5" />
           <span className="hidden md:inline">Cerrar sesión</span>
@@ -103,7 +103,7 @@ export default function WholesaleAccess({ glass }: { glass?: boolean } = {}) {
           setOpen(true);
         }}
         aria-label="Acceso mayoristas"
-        className={`inline-flex items-center gap-2 rounded-full bg-[#F5F5F7] border border-[#000000]/5 px-3 md:px-4 py-2 text-xs font-medium text-[#1D1D1F] hover:bg-[#E8E8ED] transition-colors ${glass ? 'max-md:bg-white/25 max-md:backdrop-blur-md max-md:border-white/30 max-md:text-white' : ''}`}
+        className={`inline-flex items-center gap-2 rounded-full bg-[#F5F5F7] border border-[#000000]/5 px-3 md:px-4 py-2 text-xs font-medium text-[#1D1D1F] hover:bg-[#E8E8ED] transition-colors ${glass ? 'max-md:bg-white/50 max-md:backdrop-blur-md max-md:border-black/10 max-md:text-[#1D1D1F]' : ''}`}
       >
         <KeyRound className="w-3.5 h-3.5" />
         <span className="hidden sm:inline">Acceso mayoristas</span>

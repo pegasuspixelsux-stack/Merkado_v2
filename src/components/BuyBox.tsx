@@ -42,8 +42,8 @@ export default function BuyBox({
   /** Renders only the sign-in notice (for visitors without a profile), nothing otherwise. */
   signInOnly?: boolean;
 }) {
-  const label = onPhoto ? labelClass.replace('text-[#515154]', 'text-white/80') : labelClass;
-  const soft = onPhoto ? 'bg-white/20 text-white' : 'bg-[#F5F5F7]';
+  const label = onPhoto ? labelClass : labelClass;
+  const soft = onPhoto ? 'bg-black/5 text-[#1D1D1F]' : 'bg-[#F5F5F7]';
   const [qty, setQty] = useState(1);
   const [chosen, setChosen] = useState<PricingMode | null>(null);
   const { client, level } = useClient();
@@ -128,7 +128,7 @@ export default function BuyBox({
                 onClick={() => setChosen(o.mode)}
                 aria-pressed={o.mode === mode}
                 className={`px-4 py-2 rounded-full text-xs font-medium transition-colors ${
-                  o.mode === mode ? (onPhoto ? 'bg-white text-[#1D1D1F]' : 'bg-[#1D1D1F] text-white') : onPhoto ? 'text-white/80 hover:text-white' : 'text-[#515154] hover:text-[#1D1D1F]'
+                  o.mode === mode ? (onPhoto ? 'bg-[#1D1D1F] text-white' : 'bg-[#1D1D1F] text-white') : onPhoto ? 'text-[#515154] hover:text-[#1D1D1F]' : 'text-[#515154] hover:text-[#1D1D1F]'
                 }`}
               >
                 {pricingModeLabels[o.mode].replace('Por ', '')} · {formatMoney(optionPrice(o, categoryId, wholesale ? level : null).unit)}
@@ -140,7 +140,7 @@ export default function BuyBox({
 
       {onPhoto ? (
         // One translucent glass pill: quantity stepper on the left, the add-to-cart button inside it on the right.
-        <div className="flex items-center rounded-full bg-white/25 backdrop-blur-md border border-white/30 p-1 text-white">
+        <div className="flex items-center rounded-full bg-white/50 backdrop-blur-md border border-black/10 p-1 text-[#1D1D1F]">
           <div className="flex items-center shrink-0">
             <button
               type="button"

@@ -18,8 +18,8 @@ export default function ItemPriceView({ pricing, categoryId, glass }: { pricing:
   const box = boxDescription(pricing);
   const boxOption = options.find((o) => o.mode === 'por_caja');
   // glass: no box background, light text, for use over the mobile hero photo
-  const card = glass ? 'text-white' : 'bg-white border border-[#000000]/5';
-  const muted = glass ? 'text-white/80' : 'text-[#515154]';
+  const card = glass ? 'text-[#1D1D1F]' : 'bg-white border border-[#000000]/5';
+  const muted = 'text-[#515154]';
 
   return (
     <dl className={`grid ${glass ? 'grid-cols-1' : 'grid-cols-2'} gap-3 w-full max-w-2xl`}>
@@ -36,7 +36,7 @@ export default function ItemPriceView({ pricing, categoryId, glass }: { pricing:
                 <span className="flex items-center justify-end gap-2">
                   {wholesale && level && <span className="bg-[#1D1D1F] text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">Precio {level.name}</span>}
                   {!wholesale && o.salePrice !== undefined && <span className="bg-[#1D1D1F] text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">Oferta</span>}
-                  {was !== undefined && <s className="text-sm text-white/60">{formatMoney(was)}</s>}
+                  {was !== undefined && <s className="text-sm text-[#86868B]">{formatMoney(was)}</s>}
                 </span>
               ) : (
                 was !== undefined && <s className="text-sm text-[#86868B]">{formatMoney(was)}</s>
