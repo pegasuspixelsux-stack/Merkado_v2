@@ -139,8 +139,8 @@ export default function BuyBox({
       )}
 
       {onPhoto ? (
-        // One white pill: quantity stepper on the left, the add-to-cart button inside it on the right.
-        <div className="flex items-center rounded-full bg-white p-1 text-[#1D1D1F]">
+        // One translucent glass pill: quantity stepper on the left, the add-to-cart button inside it on the right.
+        <div className="flex items-center rounded-full bg-white/25 backdrop-blur-md border border-white/30 p-1 text-white">
           <div className="flex items-center shrink-0">
             <button
               type="button"
