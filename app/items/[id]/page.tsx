@@ -129,7 +129,7 @@ export default async function ItemPage({ params }: Props) {
               Sin stock
             </span>
           )}
-          <div className="relative z-10 px-6 pb-8 pt-24 space-y-4 text-white">
+          <div className="relative z-10 px-6 pb-[10svh] pt-24 space-y-4 text-white">
             <p className="text-xs uppercase tracking-widest text-white/80 font-semibold">{category}</p>
             <h1 className="text-3xl font-semibold tracking-tight">{item.title}</h1>
             {item.description && (
