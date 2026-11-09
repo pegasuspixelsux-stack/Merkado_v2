@@ -1,6 +1,6 @@
 import { cache } from 'react';
 import type { Metadata } from 'next';
-import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getActiveProperties, getCategories, getProperty } from '@/src/services/dbService';
@@ -16,6 +16,7 @@ import CartButton from '@/src/components/CartButton';
 import MobileNavMenu from '@/src/components/MobileNavMenu';
 import SimilarItems, { type SimilarItem } from '@/src/components/SimilarItems';
 import PropertyImage from '@/src/components/PropertyImage';
+import HeroArrow from '@/src/components/HeroArrow';
 import SwipeSection from '@/src/components/SwipeSection';
 import InfoSections from '@/src/components/InfoSections';
 import SiteFooter from '@/src/components/SiteFooter';
@@ -97,22 +98,22 @@ export default async function ItemPage({ params }: Props) {
     }));
 
   return (
-    <div className="min-h-screen bg-[#FBFBFD] text-[#1D1D1F] font-sans antialiased">
-      <header className="border-b border-[#000000]/5 bg-[#FBFBFD]">
+    <div className="relative min-h-screen bg-[#FBFBFD] text-[#1D1D1F] font-sans antialiased">
+      <header className="absolute inset-x-0 top-0 z-30 text-white md:static md:text-[#1D1D1F] md:border-b md:border-[#000000]/5 md:bg-[#FBFBFD]">
         <div className="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="font-semibold text-sm min-[420px]:text-base sm:text-lg tracking-tight"><BrandName /></Link>
           <SiteNavLinks />
           <div className="flex items-center gap-3">
-            <WholesaleAccess />
-            <CartButton />
-            <MobileNavMenu />
+            <WholesaleAccess glass />
+            <CartButton glass />
+            <MobileNavMenu glass />
           </div>
         </div>
       </header>
 
       <main className="max-w-[1440px] mx-auto px-6 py-10 md:py-16 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start">
         {/* Mobile hero: full-bleed image, vertical gradient overlay, product info on top of it */}
-        <SwipeSection prevHref={prevHref} nextHref={nextHref} className="md:hidden relative -mx-6 -mt-10 min-h-[88svh] flex flex-col justify-end overflow-hidden bg-[#E5E5EA]">
+        <SwipeSection prevHref={prevHref} nextHref={nextHref} className="md:hidden relative -mx-6 -mt-10 min-h-[100svh] flex flex-col justify-end overflow-hidden bg-[#E5E5EA]">
           {photo && (
             <PropertyImage
               src={photo}
@@ -123,33 +124,28 @@ export default async function ItemPage({ params }: Props) {
               className={`object-cover ${inStock ? '' : 'opacity-50 grayscale'}`}
             />
           )}
+          <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-black/50 to-transparent" aria-hidden="true" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/65 via-45% to-black/15" aria-hidden="true" />
           <Link
             href="/items"
-            className="absolute top-4 left-4 z-10 inline-flex items-center gap-2 text-sm font-medium text-white bg-black/40 backdrop-blur px-3 py-1.5 rounded-full"
+            className="absolute top-20 left-4 z-10 inline-flex items-center gap-2 text-sm font-medium text-white bg-black/40 backdrop-blur px-3 py-1.5 rounded-full"
           >
             <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Catálogo
           </Link>
-          {!isSample && <FavoriteButton productId={String(item.id)} title={item.title} className="absolute top-4 right-4 w-10 h-10 z-10" />}
+          {!isSample && <FavoriteButton productId={String(item.id)} title={item.title} className="absolute top-20 right-4 w-10 h-10 z-10" />}
           {!inStock && (
-            <span className="absolute top-16 left-4 z-10 bg-black/80 text-white text-xs font-semibold px-3 py-1.5 rounded-full">
+            <span className="absolute top-32 left-4 z-10 bg-black/80 text-white text-xs font-semibold px-3 py-1.5 rounded-full">
               Sin stock
             </span>
           )}
-          {prevHref && (
-            <Link href={prevHref} aria-label="Artículo anterior" className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/30 backdrop-blur text-white flex items-center justify-center">
-              <ChevronLeft className="w-5 h-5" aria-hidden="true" />
-            </Link>
-          )}
-          {nextHref && (
-            <Link href={nextHref} aria-label="Artículo siguiente" className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/30 backdrop-blur text-white flex items-center justify-center">
-              <ChevronRight className="w-5 h-5" aria-hidden="true" />
-            </Link>
-          )}
+          {prevHref && <HeroArrow dir="prev" href={prevHref} />}
+          {nextHref && <HeroArrow dir="next" href={nextHref} />}
           <div className="relative z-10 px-6 pb-[12.5svh] pt-24 space-y-4 text-white">
-            <p className="text-xs uppercase tracking-widest text-white/80 font-semibold">{category}</p>
             <div className="flex items-start justify-between gap-4">
-              <h1 className="text-3xl font-semibold tracking-tight min-w-0">{item.title}</h1>
+              <div className="min-w-0 space-y-1">
+                <p className="text-xs uppercase tracking-widest text-white/80 font-semibold">{category}</p>
+                <h1 className="text-2xl font-semibold tracking-tight">{item.title}</h1>
+              </div>
               <div className="shrink-0 text-right">
                 <ItemPriceView glass categoryId={item.type} pricing={pricing} />
               </div>
